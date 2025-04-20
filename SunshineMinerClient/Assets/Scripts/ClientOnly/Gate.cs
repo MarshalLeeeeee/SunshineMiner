@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using System.Collections.Concurrent;
 
 public class Gate : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class Gate : MonoBehaviour
 
     private TcpClient client;
     private NetworkStream stream => client.GetStream();
+    private ConcurrentQueue<Msg> msgs = new ConcurrentQueue<Msg>();
 
     // Start is called before the first frame update
     private void Awake()
@@ -40,7 +42,7 @@ public class Gate : MonoBehaviour
                 {
                     if (DataStreamer.ReadMsgFromStream(stream, out Msg msg))
                     {
-                        HandleMsg(msg);
+                        OnReceiveMsg(msg);
                     }
                     else
                     {
@@ -55,6 +57,27 @@ public class Gate : MonoBehaviour
         }).Start();
     }
 
+    private void OnReceiveMsg(Msg msg)
+    {
+        msgs.Enqueue(msg);
+    }
+
+    /*
+     * Invoked in main thread update
+     */
+    void Update()
+    {
+        // handle msgs
+        ConcurrentQueue<Msg> currentMsgs = Interlocked.Exchange(ref msgs, new ConcurrentQueue<Msg>());
+        while (currentMsgs.TryDequeue(out Msg msg))
+        {
+            HandleMsg(msg);
+        }
+    }
+
+    /*
+     * Handle msg from server in main thread
+     */
     private void HandleMsg(Msg msg)
     {
         Debug.Log($"HandleMsg method name {msg.methodName}");
@@ -81,11 +104,5 @@ public class Gate : MonoBehaviour
     public void SendMsg(Msg msg)
     {
         DataStreamer.WriteMsgToStream(stream, msg);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

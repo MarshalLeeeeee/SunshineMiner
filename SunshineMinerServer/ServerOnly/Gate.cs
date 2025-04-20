@@ -14,10 +14,12 @@ using System.Diagnostics;
 internal class Proxy
 {
     public TcpClient client { get; }
+    public Guid pid { get; }
 
     public Proxy(TcpClient client_)
     {
         client = client_;
+        pid = Guid.NewGuid();
     }
 
     public NetworkStream stream => client.GetStream();
@@ -41,7 +43,10 @@ internal class Proxy
         else return clientEndPoint.Port;
     }
 
-    public void Receive(Action<Msg> callback)
+    /*
+     * Every proxy listen to msg in a sub thread and save them in a thread safe queue.
+     */
+    public void Start(Action<Msg> callback)
     {
         new Thread(() =>
         {
@@ -55,13 +60,13 @@ internal class Proxy
                     }
                     else
                     {
-                        Console.WriteLine("Invalid message");
+                        Console.WriteLine($"[{GetIp()}::{GetPort()}] Invalid message");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Receiving failed: {ex}");
+                Console.WriteLine($"[{GetIp()}::{GetPort()}] Receive msg failed: {ex}");
             }
         }).Start();
     }
@@ -70,13 +75,20 @@ internal class Proxy
 internal class Gate
 {
     private TcpListener listener;
-    private ConcurrentBag<Proxy> proxies = new ConcurrentBag<Proxy>();
+    private ConcurrentDictionary<Guid, Proxy> proxies;
+    private ConcurrentDictionary<Guid, Queue<Msg>> msgs;
 
     public Gate(int port)
     {
         listener = new TcpListener(IPAddress.Any, port);
+        proxies = new ConcurrentDictionary<Guid, Proxy>();
+        msgs = new ConcurrentDictionary<Guid, Queue<Msg>>();
     }
 
+    /*
+     * Start gate service
+     * Listen to new connections from client
+     */
     public void Start()
     {
         listener.Start();
@@ -90,15 +102,50 @@ internal class Gate
         }).Start();
     }
 
+    /*
+     * Cache client proxy and start proxy service
+     */
     private void HandleNewConnection(TcpClient client)
     {
         Console.WriteLine("HandleNewConnection");
         var proxy = new Proxy(client);
-        proxies.Add(proxy);
-        proxy.Receive((msg) =>
+        proxies[proxy.pid] = proxy;
+        proxy.Start((msg) => OnReceiveMsg(proxy, msg));
+    }
+
+    /*
+     * Invoked in main thread update
+     */
+    public void Update(float dt)
+    {
+        // handle queued msgs
+        ConcurrentDictionary<Guid, Queue<Msg>> currentMsgs = Interlocked.Exchange(ref msgs, new ConcurrentDictionary<Guid, Queue<Msg>>());
+        foreach (var kvp in currentMsgs)
         {
-            HandleMsg(proxy, msg);
-        });
+            if (!proxies.ContainsKey(kvp.Key))
+            {
+                continue;
+            }
+            Proxy proxy = proxies[kvp.Key];
+            while (kvp.Value.Count > 0)
+            {
+                Msg msg = kvp.Value.Dequeue();
+                HandleMsg(proxy, msg);
+            }
+        }
+    }
+
+    /*
+     * Cache msg in thread safe containers
+     */
+    private void OnReceiveMsg(Proxy proxy, Msg msg)
+    {
+        Guid pid = proxy.pid;
+        if (!msgs.ContainsKey(pid))
+        {
+            msgs[pid] = new Queue<Msg>();
+        }
+        msgs[pid].Enqueue(msg);
     }
 
     static private void HandleMsg(Proxy proxy, Msg msg)
