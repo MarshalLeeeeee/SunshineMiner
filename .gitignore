@@ -126,3 +126,7 @@ $RECYCLE.BIN/
 
 # 忽略所有 .asmdef 的 .meta 文件（除非需要）
 **/[Aa]ssets/*.asmdef.meta
+
+# 忽略mklink
+SunshineMinerServer/Shared/
+SunshineMinerClient/Assets/Scripts/Shared/
