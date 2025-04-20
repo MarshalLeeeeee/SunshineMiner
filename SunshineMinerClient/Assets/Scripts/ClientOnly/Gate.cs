@@ -38,42 +38,19 @@ public class Gate : MonoBehaviour
             {
                 while (true)
                 {
-                    byte[] lengthBuffer = new byte[4];
-                    int lengthBytesRead = 0;
-                    while (lengthBytesRead < 4)
+                    if (DataStreamer.ReadMsgFromStream(stream, out Msg msg))
                     {
-                        int read = stream.Read(lengthBuffer, lengthBytesRead, 4 - lengthBytesRead);
-                        if (read == 0) break;
-                        lengthBytesRead += read;
+                        HandleMsg(msg);
                     }
-                    if (lengthBytesRead < 4)
+                    else
                     {
-                        Console.WriteLine("Invalid header length");
-                        continue;
+                        Debug.Log("Invalid message");
                     }
-
-                    int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
-                    byte[] messageBuffer = new byte[messageLength];
-                    int totalBytesRead = 0;
-                    while (totalBytesRead < messageLength)
-                    {
-                        int read = stream.Read(messageBuffer, totalBytesRead, messageLength - totalBytesRead);
-                        if (read == 0) break;
-                        totalBytesRead += read;
-                    }
-                    if (totalBytesRead < messageLength)
-                    {
-                        Console.WriteLine("Incomplete message received");
-                        continue;
-                    }
-
-                    Msg msg = DataStreamer.Deserialize(messageBuffer);
-                    HandleMsg(msg);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Receiving failed: {ex}");
+                Debug.Log($"Receiving failed: {ex}");
             }
         }).Start();
     }
@@ -103,12 +80,7 @@ public class Gate : MonoBehaviour
 
     public void SendMsg(Msg msg)
     {
-        byte[] buffer = DataStreamer.Serialize(msg);
-        byte[] lengthPrefix = BitConverter.GetBytes(buffer.Length);
-        Debug.Log($"Buffer length {buffer.Length}");
-        stream.Write(lengthPrefix, 0, 4);
-        stream.Write(buffer, 0, buffer.Length);
-        stream.Flush();
+        DataStreamer.WriteMsgToStream(stream, msg);
     }
 
     // Update is called once per frame

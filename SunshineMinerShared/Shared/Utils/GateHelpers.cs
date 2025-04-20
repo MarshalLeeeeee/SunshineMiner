@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -122,5 +123,48 @@ public static class DataStreamer
             i++;
         }
         return msg;
+    }
+
+    public static bool ReadMsgFromStream(NetworkStream stream, out Msg msg)
+    {
+        byte[] lengthBuffer = new byte[4];
+        int lengthBytesRead = 0;
+        while (lengthBytesRead < 4)
+        {
+            int read = stream.Read(lengthBuffer, lengthBytesRead, 4 - lengthBytesRead);
+            if (read == 0) break;
+            lengthBytesRead += read;
+        }
+        if (lengthBytesRead < 4)
+        {
+            msg = new Msg("", "", "");
+            return false;
+        }
+
+        int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
+        byte[] messageBuffer = new byte[messageLength];
+        int totalBytesRead = 0;
+        while (totalBytesRead < messageLength)
+        {
+            int read = stream.Read(messageBuffer, totalBytesRead, messageLength - totalBytesRead);
+            if (read == 0) break;
+            totalBytesRead += read;
+        }
+        if (totalBytesRead < messageLength)
+        {
+            msg = new Msg("", "", "");
+            return false;
+        }
+        msg = Deserialize(messageBuffer);
+        return true;
+    }
+
+    public static void WriteMsgToStream(NetworkStream stream, Msg msg)
+    {
+        byte[] buffer = DataStreamer.Serialize(msg);
+        byte[] lengthPrefix = BitConverter.GetBytes(buffer.Length);
+        stream.Write(lengthPrefix, 0, 4);
+        stream.Write(buffer, 0, buffer.Length);
+        stream.Flush();
     }
 }

@@ -49,37 +49,14 @@ internal class Proxy
             {
                 while (true)
                 {
-                    byte[] lengthBuffer = new byte[4];
-                    int lengthBytesRead = 0;
-                    while (lengthBytesRead < 4)
+                    if (DataStreamer.ReadMsgFromStream(stream, out Msg msg))
                     {
-                        int read = stream.Read(lengthBuffer, lengthBytesRead, 4 - lengthBytesRead);
-                        if (read == 0) break;
-                        lengthBytesRead += read;
+                        callback(msg);
                     }
-                    if (lengthBytesRead < 4)
+                    else
                     {
-                        Console.WriteLine("Invalid header length");
-                        continue;
+                        Console.WriteLine("Invalid message");
                     }
-
-                    int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
-                    byte[] messageBuffer = new byte[messageLength];
-                    int totalBytesRead = 0;
-                    while (totalBytesRead < messageLength)
-                    {
-                        int read = stream.Read(messageBuffer, totalBytesRead, messageLength - totalBytesRead);
-                        if (read == 0) break;
-                        totalBytesRead += read;
-                    }
-                    if (totalBytesRead < messageLength)
-                    {
-                        Console.WriteLine("Incomplete message received");
-                        continue;
-                    }
-
-                    Msg msg = DataStreamer.Deserialize(messageBuffer);
-                    callback(msg);
                 }
             }
             catch (Exception ex)
@@ -154,11 +131,7 @@ internal class Gate
 
     static private void SendMsg(Proxy proxy, Msg msg)
     {
-        byte[] buffer = DataStreamer.Serialize(msg);
-        byte[] lengthPrefix = BitConverter.GetBytes(buffer.Length);
-        proxy.stream.Write(lengthPrefix, 0, 4);
-        proxy.stream.Write(buffer, 0, buffer.Length);
-        proxy.stream.Flush();
+        DataStreamer.WriteMsgToStream(proxy.stream, msg);
     }
 }
 
