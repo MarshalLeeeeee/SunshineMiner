@@ -61,10 +61,76 @@
     <Analyzer Include="D:\Progam\Unity\Unity 2023.2.20f1c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\ShaderPropAnimator.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_DigitValidator.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\InputManager.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\GateHelpers.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_PhoneNumberValidator.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventCheck.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TeleType.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\ObjectSpin.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_FrameRateCounter.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark03.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshSpawner.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\SkewTextExample.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshProFloatingText.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextInfoDebugTool.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\WarpTextExample.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Gate.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark04.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\ChatController.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TextConsoleSimulator.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Managers\UIManager.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\SimpleScript.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Components\MoveComp.cs" />
+    <Compile Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMPro.cginc" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Fonts\Roboto-Bold - License.txt" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF-Mobile-2-Pass.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Fonts\Unity - OFL.txt" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Fonts\Oswald-Bold - OFL.txt" />
+    <None Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Fonts\Roboto-Bold - AFL.txt" />
+    <None Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Fonts\Anton OFL.txt" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\SDFFunctions.hlsl" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
+    <None Include="Assets\UI\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Shaders\TMP_Sprite.shader" />
+    <None Include="Assets\UI\TextMesh Pro\Examples &amp; Extras\Fonts\Bangers - OFL.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -1007,32 +1073,16 @@
       <HintPath>D:\Progam\Unity\Unity 2023.2.20f1c1\Editor\Data\NetStandard\compat\2.1.0\shims\netfx\System.Xml.Serialization.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.TestTools.CodeCoverage.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.PlasticSCM.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
+    <Reference Include="Unity.Addressables.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Addressables.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.VisualScripting.State">
-      <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Unity.Rider.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.Performance.Profile-Analyzer.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.Performance.Profile-Analyzer.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.VisualScripting.Shared.Editor">
@@ -1043,16 +1093,8 @@
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Core.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection">
       <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.VisualStudio.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.VisualScripting.Flow.Editor">
@@ -1063,8 +1105,8 @@
       <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.VisualScripting.Flow">
-      <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Flow.dll</HintPath>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>Library\ScriptAssemblies\Unity.ResourceManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.EditorCoroutines.Editor">
@@ -1073,10 +1115,6 @@
     </Reference>
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.VisualScripting.Core">
-      <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Timeline">
@@ -1091,8 +1129,56 @@
       <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Model.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.VisualScripting.SettingsProvider.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.SettingsProvider.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.TestTools.CodeCoverage.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.PlasticSCM.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.State">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.ScriptableBuildPipeline.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.ScriptableBuildPipeline.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Performance.Profile-Analyzer.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Performance.Profile-Analyzer.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.ScriptableBuildPipeline">
+      <HintPath>Library\ScriptAssemblies\Unity.ScriptableBuildPipeline.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VisualStudio.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Addressables">
+      <HintPath>Library\ScriptAssemblies\Unity.Addressables.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.Flow">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Flow.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.Core">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
