@@ -114,7 +114,6 @@ $RECYCLE.BIN/
 # ============= #
 # 项目特定忽略
 **/[Aa]ssets/AssetStoreTools*
-**/[Aa]ssets/UI/TextMesh Pro/
 **/[Aa]ssets/Plugins*
 **/[Pp]ackages/
 
