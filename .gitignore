@@ -11,7 +11,7 @@
 **/[Mm]emoryCaptures/
 
 # Unity 资产元数据
-*.asset
+# *.asset
 # *.meta
 *.unitypackage
 

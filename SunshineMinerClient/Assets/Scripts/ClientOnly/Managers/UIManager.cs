@@ -24,7 +24,7 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
     private Dictionary<CanvasLayer, Canvas> canvases = new Dictionary<CanvasLayer, Canvas>();
     private AsyncOperationHandle<GameObject> panelHandle;
-    [SerializeField] private string pnlStartName;
+    [SerializeField] private Canvas defaultCanvas;
 
     private void Awake()
     {
@@ -37,8 +37,7 @@ public class UIManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Load PnlStart
-        LoadPanelAsync(pnlStartName, CanvasLayer.Default);
+        canvases[CanvasLayer.Default] = defaultCanvas;
     }
 
     public void LoadPanelAsync(string pnlName, CanvasLayer layer)
@@ -90,7 +89,7 @@ public class UIManager : MonoBehaviour
 
     private Canvas CreateCanvas(CanvasLayer layer)
     {
-        GameObject canvasGO = new GameObject($"Canvas_{layer}");
+        GameObject canvasGO = new GameObject($"Canvas{layer}");
         Canvas canvas = canvasGO.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = (int)layer;
