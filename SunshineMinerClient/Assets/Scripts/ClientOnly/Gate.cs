@@ -14,6 +14,7 @@ public class Gate : MonoBehaviour
     public static Gate Instance { get; private set; }
 
     private TcpClient client;
+    private bool connected;
     private NetworkStream stream => client.GetStream();
     private ConcurrentQueue<Msg> msgs = new ConcurrentQueue<Msg>();
 
@@ -29,11 +30,13 @@ public class Gate : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        client = new TcpClient();
+        connected = false;
     }
 
     public void ConnectedToServer()
     {
-        client = new TcpClient();
         client.Connect("localhost", 41320);
         Debug.Log("Client gate connected...");
         new Thread(() =>
@@ -83,28 +86,43 @@ public class Gate : MonoBehaviour
     private void HandleMsg(Msg msg)
     {
         Debug.Log($"HandleMsg method name {msg.methodName}");
-        foreach (var kvp in msg.args)
+        switch (msg.methodName)
         {
-            switch (kvp.Value.type)
-            {
-                case 1:
-                    int objI = (int)(kvp.Value.obj);
-                    Debug.Log($"{kvp.Key}: {objI}");
-                    break;
-                case 2:
-                    float objF = (float)(kvp.Value.obj);
-                    Debug.Log($"{kvp.Key}: {objF}");
-                    break;
-                case 3:
-                    string objS = (string)(kvp.Value.obj);
-                    Debug.Log($"{kvp.Key}: {objS}");
-                    break;
-            }
+            case "ConnectionSucc":
+                connected = true;
+                Debug.Log("Connected");
+                break;
         }
+        //foreach (var kvp in msg.args)
+        //{
+        //    switch (kvp.Value.type)
+        //    {
+        //        case 1:
+        //            int objI = (int)(kvp.Value.obj);
+        //            Debug.Log($"{kvp.Key}: {objI}");
+        //            break;
+        //        case 2:
+        //            float objF = (float)(kvp.Value.obj);
+        //            Debug.Log($"{kvp.Key}: {objF}");
+        //            break;
+        //        case 3:
+        //            string objS = (string)(kvp.Value.obj);
+        //            Debug.Log($"{kvp.Key}: {objS}");
+        //            break;
+        //    }
+        //}
     }
 
-    public void SendMsg(Msg msg)
+    public bool SendMsg(Msg msg)
     {
-        DataStreamer.WriteMsgToStream(stream, msg);
+        if (connected)
+        {
+            DataStreamer.WriteMsgToStream(stream, msg);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

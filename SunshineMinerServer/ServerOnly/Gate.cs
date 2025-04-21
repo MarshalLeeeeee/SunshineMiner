@@ -111,6 +111,8 @@ internal class Gate
         var proxy = new Proxy(client);
         proxies[proxy.pid] = proxy;
         proxy.Start((msg) => OnReceiveMsg(proxy, msg));
+        Msg msg = new Msg("", "", "ConnectionSucc");
+        SendMsg(proxy, msg);
     }
 
     /*

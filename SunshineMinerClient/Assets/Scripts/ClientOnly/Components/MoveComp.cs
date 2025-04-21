@@ -43,7 +43,11 @@ public class MoveComp : MonoBehaviour
             msg.AddArgFloat("FloatArg", 2f);
             msg.AddArgString("StringArg", "Hello");
             Debug.Log("Try send rpc");
-            Gate.Instance.SendMsg(msg);
+            bool res = Gate.Instance.SendMsg(msg);
+            if (!res)
+            {
+                Debug.Log("Send failed");
+            }
         }
     }
 }
