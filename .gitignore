@@ -130,3 +130,5 @@ $RECYCLE.BIN/
 # 忽略mklink
 SunshineMinerServer/Shared/
 SunshineMinerClient/Assets/Scripts/Shared/
+SunshineMinerClient/Assets/Scripts/Shared
+SunshineMinerServer/Shared
