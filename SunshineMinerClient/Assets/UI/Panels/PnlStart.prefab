@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3841359263393133497}
   - component: {fileID: 1542771939073178416}
   - component: {fileID: 6420178681173133087}
+  - component: {fileID: 3512435929888753506}
   m_Layer: 5
   m_Name: PnlStart
   m_TagString: Untagged
@@ -76,6 +77,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3512435929888753506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2418188157097016265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e2ed596da39c5a409ae6923da0d8e0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7556813114039806829
 GameObject:
   m_ObjectHideFlags: 0

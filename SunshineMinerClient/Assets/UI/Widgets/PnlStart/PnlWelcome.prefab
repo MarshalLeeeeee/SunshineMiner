@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 1015062114739980716}
   - component: {fileID: 6190966026985528237}
   - component: {fileID: 6421794685799988056}
+  - component: {fileID: 7159964727274672441}
   m_Layer: 5
   m_Name: PnlWelcome
   m_TagString: Untagged
@@ -213,6 +214,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7159964727274672441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8603153693357531413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdea7373afbe7240a01bfe094f2f5d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8356693556325594182
 PrefabInstance:
   m_ObjectHideFlags: 0

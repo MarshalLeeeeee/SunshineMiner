@@ -304,6 +304,7 @@ GameObject:
   - component: {fileID: 1046541935593804336}
   - component: {fileID: 6067231615368637236}
   - component: {fileID: 732953411236865433}
+  - component: {fileID: 8161276344678789634}
   m_Layer: 5
   m_Name: HorizonInput
   m_TagString: Untagged
@@ -370,6 +371,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8161276344678789634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1564727089134158064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfb0e4a06912f3043aae86491ac584a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5088190099651210839
 GameObject:
   m_ObjectHideFlags: 0

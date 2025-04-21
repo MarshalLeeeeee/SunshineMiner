@@ -61,8 +61,13 @@
     <Analyzer Include="D:\Progam\Unity\Unity 2023.2.20f1c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\PnlStart\PnlLogin.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\UI\Panels\PnlStart.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\InputManager.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\GateHelpers.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\BgTouch.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\PnlStart\PnlWelcome.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Gate.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\UIManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Components\MoveComp.cs" />

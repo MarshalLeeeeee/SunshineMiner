@@ -29,7 +29,10 @@ public class Gate : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
 
+    public void ConnectedToServer()
+    {
         client = new TcpClient();
         client.Connect("localhost", 41320);
         Debug.Log("Client gate connected...");
