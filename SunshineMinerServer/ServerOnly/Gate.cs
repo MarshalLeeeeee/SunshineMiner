@@ -73,31 +73,95 @@ internal class Proxy
 internal class Gate
 {
     private TcpListener listener;
+    private Task listenerTask;
+    private CancellationTokenSource listenerCts;
     private ConcurrentDictionary<Guid, Proxy> proxies;
     private ConcurrentDictionary<Guid, Queue<Msg>> msgs;
+    public bool isActive { get; private set; }
 
     public Gate(int port)
     {
         listener = new TcpListener(IPAddress.Any, port);
+        listenerTask = Task.CompletedTask;
+        listenerCts = new CancellationTokenSource();
         proxies = new ConcurrentDictionary<Guid, Proxy>();
         msgs = new ConcurrentDictionary<Guid, Queue<Msg>>();
+        isActive = false;
     }
 
     /*
      * Start gate service
-     * Listen to new connections from client
      */
     public void Start()
     {
+        StartListener();
+        isActive = true;
+    }
+
+    private bool CheckListenerTaskRunning()
+    {
+        return listenerTask != Task.CompletedTask && !listenerTask.IsCompleted;
+    }
+
+    private void StartListener()
+    {
+        if (CheckListenerTaskRunning()) return;
         listener.Start();
-        new Thread(() =>
+        listenerTask = Task.Run(() => ListernerWorker(listenerCts.Token));
+    }
+
+    private async Task ListernerWorker(CancellationToken ct)
+    {
+        try
         {
-            while (true)
+            while (!ct.IsCancellationRequested)
             {
-                TcpClient client = listener.AcceptTcpClient();
-                HandleNewConnection(client);
+                try
+                {
+                    TcpClient client = listener.AcceptTcpClient();
+                    HandleNewConnection(client);
+                }
+                catch (ObjectDisposedException) when (ct.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Accept connection failed: {ex}");
+                    await Task.Delay(1000, ct).ConfigureAwait(false);
+                }
             }
-        }).Start();
+        }
+        finally
+        {
+            listener.Stop();
+        }
+    }
+
+    private async Task StopListenerAsync()
+    {
+        if (!CheckListenerTaskRunning()) return;
+        listenerCts.Cancel();
+        try
+        {
+            await listenerTask.ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        { }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error waiting for listener to stop: {ex}");
+        }
+        finally
+        {
+            listenerCts.Dispose();
+            listenerCts = new CancellationTokenSource();
+            listenerTask = Task.CompletedTask;
+        }
     }
 
     /*
@@ -179,6 +243,20 @@ internal class Gate
     static private void SendMsg(Proxy proxy, Msg msg)
     {
         DataStreamer.WriteMsgToStream(proxy.stream, msg);
+    }
+
+    public async Task StopAsync()
+    {
+        isActive = false;
+        await StopListenerAsync();
+    }
+
+    ~Gate()
+    {
+        if (isActive)
+        {
+            StopAsync().Wait(1000);
+        }
     }
 }
 
