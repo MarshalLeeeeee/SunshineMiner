@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Runtime.CompilerServices;
 
 
 internal class Proxy
@@ -14,10 +15,15 @@ internal class Proxy
     public TcpClient client { get; }
     public Guid pid { get; }
 
+    private Task msgListener;
+    private CancellationTokenSource msgListenerCts;
+
     public Proxy(TcpClient client_)
     {
         client = client_;
         pid = Guid.NewGuid();
+        msgListener = Task.CompletedTask;
+        msgListenerCts = new CancellationTokenSource();
     }
 
     public NetworkStream stream => client.GetStream();
@@ -44,30 +50,65 @@ internal class Proxy
     /*
      * Every proxy listen to msg in a sub thread and save them in a thread safe queue.
      */
-    public void Start(Action<Msg> callback)
+    public void Start(Action<Msg> onReceiveMsgCallback, Action<Guid> onProxyDisconnectCallback)
     {
-        new Thread(() =>
+        StartMsgListener(onReceiveMsgCallback, onProxyDisconnectCallback);
+    }
+
+    private bool CheckMsgListenerTaskRunning()
+    {
+        return msgListener != Task.CompletedTask && !msgListener.IsCompleted;
+    }
+
+    private void StartMsgListener(Action<Msg> onReceiveMsgCallback, Action<Guid> onProxyDisconnectCallback)
+    {
+        if (CheckMsgListenerTaskRunning()) return;
+        msgListener = Task.Run(() => MsgListener(onReceiveMsgCallback, onProxyDisconnectCallback, msgListenerCts.Token));
+    }
+
+    private async Task MsgListener(Action<Msg> onReceiveMsgCallback, Action<Guid> onProxyDisconnectCallback, CancellationToken ct)
+    {
+        try
         {
-            try
+            while (!ct.IsCancellationRequested)
             {
-                while (true)
+                try
                 {
                     if (DataStreamer.ReadMsgFromStream(stream, out Msg msg))
                     {
-                        callback(msg);
+                        onReceiveMsgCallback(msg);
                     }
                     else
                     {
                         Console.WriteLine($"[{GetIp()}::{GetPort()}] Invalid message");
+                        onProxyDisconnectCallback(pid);
+                        break;
                     }
                 }
+                catch (ObjectDisposedException) when (ct.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[{GetIp()}::{GetPort()}] Invalid message with error: {ex}");
+                    onProxyDisconnectCallback(pid);
+                    break;
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[{GetIp()}::{GetPort()}] Receive msg failed: {ex}");
-            }
-        }).Start();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[{GetIp()}::{GetPort()}] Receive msg failed: {ex}");
+            onProxyDisconnectCallback(pid);
+        }
     }
+
+    // TODO: Stop listener
 }
 
 internal class Gate
@@ -172,7 +213,10 @@ internal class Gate
         Console.WriteLine("HandleNewConnection");
         var proxy = new Proxy(client);
         proxies[proxy.pid] = proxy;
-        proxy.Start((msg) => OnReceiveMsg(proxy, msg));
+        proxy.Start(
+            (msg) => OnReceiveMsg(proxy, msg),
+            OnProxyDisconnect
+        );
         Msg msg = new Msg("", "", "ConnectionSucc");
         SendMsg(proxy, msg);
     }
@@ -210,6 +254,11 @@ internal class Gate
             msgs[pid] = new Queue<Msg>();
         }
         msgs[pid].Enqueue(msg);
+    }
+
+    private void OnProxyDisconnect(Guid pid)
+    {
+        Console.WriteLine($"OnProxyDisconnect: {pid}");
     }
 
     static private void HandleMsg(Proxy proxy, Msg msg)
