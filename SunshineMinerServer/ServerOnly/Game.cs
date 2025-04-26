@@ -21,12 +21,10 @@ internal class Game
         gate.Start();
         Console.WriteLine("Server game starts...");
 
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
         long nextTickTime = 0;
         while (true)
         {
-            long currentTime = stopwatch.ElapsedMilliseconds;
+            long currentTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             if (currentTime >= nextTickTime)
             {
                 float dt = (float)(currentTime - (nextTickTime - tickInterval)) / 1000f;
