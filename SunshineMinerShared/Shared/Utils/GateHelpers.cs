@@ -41,12 +41,14 @@ public class Msg
     public string srcId { get; }
     public string tgtId { get; }
     public string methodName { get; }
+    public long expiredTime { get; }
     public Dictionary<string, Arg> args;
-    public Msg(string srdId_, string tgtId_, string methodName_)
+    public Msg(string srdId_, string tgtId_, string methodName_, long expiredTime_ = -1)
     {
         srcId = srdId_;
         tgtId = tgtId_;
         methodName = methodName_;
+        expiredTime = expiredTime_;
         args = new Dictionary<string, Arg>();
     }
     public void AddArgInt(string name, int i)
@@ -74,6 +76,7 @@ public static class DataStreamer
         writer.Write(msg.srcId);
         writer.Write(msg.tgtId);
         writer.Write(msg.methodName);
+        writer.Write(msg.expiredTime);
         writer.Write(msg.args.Count);
         foreach (var kvp in msg.args)
         {
@@ -101,7 +104,7 @@ public static class DataStreamer
         using var stream = new MemoryStream(data);
         using var reader = new BinaryReader(stream);
 
-        Msg msg = new Msg(reader.ReadString(), reader.ReadString(), reader.ReadString());
+        Msg msg = new Msg(reader.ReadString(), reader.ReadString(), reader.ReadString(), reader.ReadInt64());
         int argCnt = reader.ReadInt32();
         int i = 0;
         while (i < argCnt)
