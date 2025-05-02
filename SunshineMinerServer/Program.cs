@@ -9,7 +9,11 @@ class Program
 {
     static void Main(string[] args)
     {
-        Game game = new Game(41320);
-        game.Start();
+        using (Game game = new Game())
+        {
+            game.Start();
+        }
+        Console.WriteLine("Press enter to exit thread...");
+        Console.ReadLine();
     }
 }

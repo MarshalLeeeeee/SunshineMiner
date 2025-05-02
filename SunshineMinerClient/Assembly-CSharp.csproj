@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\ClientOnly\Managers\InputManager.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\GateHelpers.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\ClientConst.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\BgTouch.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\PnlStart\PnlWelcome.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Gate.cs" />

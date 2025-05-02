@@ -7,27 +7,43 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 
 
 internal class Proxy
 {
-    public TcpClient client { get; }
     public Guid pid { get; }
+    public long lastHeartbeatTime;
+    public long lastCheckTime { get; set; }
 
-    private Task msgListener;
+    private TcpClient client;
+    private Task msgListenerTask;
     private CancellationTokenSource msgListenerCts;
+
+    private volatile bool isActive;
+
 
     public Proxy(TcpClient client_)
     {
-        client = client_;
         pid = Guid.NewGuid();
-        msgListener = Task.CompletedTask;
+        lastHeartbeatTime = 0;
+        lastCheckTime = 0;
+
+        client = client_;
+        msgListenerTask = Task.CompletedTask;
         msgListenerCts = new CancellationTokenSource();
+
+        isActive = false;
     }
 
     public NetworkStream stream => client.GetStream();
 
+    /*
+     * Get ip string
+     * Return empty string when invalid
+     */
     public string GetIp()
     {
         var clientSocket = client.Client;
@@ -37,6 +53,11 @@ internal class Proxy
         if (clientEndPoint == null) return "";
         else return clientEndPoint.Address.ToString();
     }
+
+    /*
+     * Get port int
+     * Return 0 when invalid
+     */
     public int GetPort()
     {
         var clientSocket = client.Client;
@@ -48,25 +69,80 @@ internal class Proxy
     }
 
     /*
-     * Every proxy listen to msg in a sub thread and save them in a thread safe queue.
+     * Start proxy service (in off thread)
      */
-    public void Start(Action<Msg> onReceiveMsgCallback, Action<Guid> onProxyDisconnectCallback)
+    public void Start(Action<Msg> onReceiveMsgCallback, Action<Guid> onDisconnectCallback)
     {
-        StartMsgListener(onReceiveMsgCallback, onProxyDisconnectCallback);
+        StartMsgListener(onReceiveMsgCallback, onDisconnectCallback);
+        lastHeartbeatTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        isActive = true;
     }
 
-    private bool CheckMsgListenerTaskRunning()
+    /*
+     * Stop proxy service (in off thread)
+     */
+    public void Stop()
     {
-        return msgListener != Task.CompletedTask && !msgListener.IsCompleted;
+        if (isActive) return;
+        isActive = false;
+        StopMsgListener();
     }
 
-    private void StartMsgListener(Action<Msg> onReceiveMsgCallback, Action<Guid> onProxyDisconnectCallback)
+    #region REGION_PROXY_CONNECTIVITY
+
+    /*
+     * Get if the proxy is connected
+     */
+    public bool IsConnected()
     {
-        if (CheckMsgListenerTaskRunning()) return;
-        msgListener = Task.Run(() => MsgListener(onReceiveMsgCallback, onProxyDisconnectCallback, msgListenerCts.Token));
+        if (!isActive)
+        {
+            return false;
+        }
+        if (client?.Client == null)
+        {
+            return false;
+        }
+        try
+        {
+            return !(client.Client.Poll(0, SelectMode.SelectRead) && client.Client.Available == 0);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
-    private async Task MsgListener(Action<Msg> onReceiveMsgCallback, Action<Guid> onProxyDisconnectCallback, CancellationToken ct)
+    #endregion
+
+    #region REGION_PROXY_MSG_LISTENER
+
+    /*
+     * Check if msg listener task exists already
+     */
+    private bool CheckMsgListenerRunning()
+    {
+        return msgListenerTask != Task.CompletedTask;
+    }
+
+    /*
+     * Start msg listener (in off thread)
+     */
+    private void StartMsgListener(Action<Msg> onReceiveMsgCallback, Action<Guid> onDisconnectCallback)
+    {
+        if (CheckMsgListenerRunning())
+        {
+            Console.WriteLine("Proxy msg listener start failed: already exists...");
+            return;
+        }
+        msgListenerTask = Task.Run(() => MsgListernerWorker(onReceiveMsgCallback, onDisconnectCallback, msgListenerCts.Token));
+
+    }
+
+    /*
+     * Listen to new msg (in off thread)
+     */
+    private async Task MsgListernerWorker(Action<Msg> onReceiveMsgCallback, Action<Guid> onDisconnectCallback, CancellationToken ct)
     {
         try
         {
@@ -74,15 +150,21 @@ internal class Proxy
             {
                 try
                 {
-                    if (DataStreamer.ReadMsgFromStream(stream, out Msg msg))
+                    if (!IsConnected())
                     {
-                        onReceiveMsgCallback(msg);
+                        Console.WriteLine($"Proxy [{pid}] [{GetIp()}::{GetPort()}] lost connection in msg listener");
+                        break;
+                    }
+
+                    var res = await DataStreamer.ReadMsgFromStreamAsync(stream, ct).ConfigureAwait(false);
+                    if (res.succ)
+                    {
+                        onReceiveMsgCallback(res.msg);
                     }
                     else
                     {
-                        Console.WriteLine($"[{GetIp()}::{GetPort()}] Invalid message");
-                        onProxyDisconnectCallback(pid);
-                        break;
+                        Console.WriteLine($"Proxy [{pid}] [{GetIp()}::{GetPort()}] Invalid message");
+                        await Task.Delay(1000, ct).ConfigureAwait(false);
                     }
                 }
                 catch (ObjectDisposedException) when (ct.IsCancellationRequested)
@@ -93,22 +175,49 @@ internal class Proxy
                 {
                     break;
                 }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested)
+                {
+                    break;
+                }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[{GetIp()}::{GetPort()}] Invalid message with error: {ex}");
-                    onProxyDisconnectCallback(pid);
-                    break;
+                    Console.WriteLine($"Proxy [{pid}] [{GetIp()}::{GetPort()}] Invalid message with error: {ex}");
+                    await Task.Delay(1000, ct).ConfigureAwait(false);
                 }
             }
         }
-        catch (Exception ex)
+        finally
         {
-            Console.WriteLine($"[{GetIp()}::{GetPort()}] Receive msg failed: {ex}");
-            onProxyDisconnectCallback(pid);
+            onDisconnectCallback(pid);
+            Stop();
         }
     }
 
-    // TODO: Stop listener
+    /*
+     * Stop msg listener
+     */
+    private void StopMsgListener()
+    {
+        if (!CheckMsgListenerRunning()) return;
+        msgListenerCts.Cancel();
+        try
+        {
+            msgListenerTask.Wait(1000);
+        }
+        catch (OperationCanceledException)
+        { }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error waiting for msg listener to stop: {ex}");
+        }
+        finally
+        {
+            msgListenerCts.Dispose();
+            msgListenerTask = Task.CompletedTask;
+        }
+    }
+
+    #endregion
 }
 
 internal class Gate
@@ -116,57 +225,111 @@ internal class Gate
     private TcpListener listener;
     private Task listenerTask;
     private CancellationTokenSource listenerCts;
-    private ConcurrentDictionary<Guid, Proxy> proxies;
-    private ConcurrentDictionary<Guid, Queue<Msg>> msgs;
-    public bool isActive { get; private set; }
 
-    public Gate(int port)
+    private ConcurrentDictionary<Guid, Proxy> proxies; // thread shared
+    private ConcurrentQueue<(Guid pid, Msg msg)> msgs; // thread shared
+    private ConcurrentQueue<Guid> checkProxyQueue; // thread shared
+    private volatile bool isActive;// thread shared
+
+    private long lastCheckTime;
+
+    public Gate()
     {
-        listener = new TcpListener(IPAddress.Any, port);
+        listener = new TcpListener(IPAddress.Any, ServerConst.Port);
         listenerTask = Task.CompletedTask;
         listenerCts = new CancellationTokenSource();
+
         proxies = new ConcurrentDictionary<Guid, Proxy>();
-        msgs = new ConcurrentDictionary<Guid, Queue<Msg>>();
+        msgs = new ConcurrentQueue<(Guid pid, Msg msg)>();
+        checkProxyQueue = new ConcurrentQueue<Guid>();
         isActive = false;
+
+        lastCheckTime = 0;
     }
 
     /*
-     * Start gate service
+     * Start gate service (in main thread)
+     * * Start listener to handle new connections in off thread
      */
     public void Start()
     {
+        Console.WriteLine("Gate starts...");
         StartListener();
         isActive = true;
     }
 
-    private bool CheckListenerTaskRunning()
+    /*
+     * Stop gate service (in main thread)
+     * * Stop listener to handle new connections
+     */
+    public void Stop()
     {
-        return listenerTask != Task.CompletedTask && !listenerTask.IsCompleted;
+        if (!isActive) return; 
+        Console.WriteLine("Gate is shutting down...");
+        isActive = false;
+        StopListener();
+        Console.WriteLine("Gate stop over...");
     }
 
+    /*
+     * Invoked in every server tick (in main thread)
+     */
+    public void Update(float dt)
+    {
+        if (!isActive) return;
+        // handle queued msgs
+        HandleQueuedMsg();
+        // Check validness of some proxies
+        CheckProxies();
+    }
+
+    #region REGION_LISTENER
+
+    /*
+     * Check if listener task exists already
+     */
+    private bool CheckListenerTaskRunning()
+    {
+        return listenerTask != Task.CompletedTask;
+    }
+
+    /*
+     * Start listerner (in main thread)
+     */
     private void StartListener()
     {
-        if (CheckListenerTaskRunning()) return;
-        listener.Start();
+        if (CheckListenerTaskRunning())
+        {
+            Console.WriteLine("Start gate listener failed: listener is running already...");
+            return;
+        }
         listenerTask = Task.Run(() => ListernerWorker(listenerCts.Token));
     }
 
+    /*
+     * Start listerner and handle new client async (in off thread)
+     */
     private async Task ListernerWorker(CancellationToken ct)
     {
         try
         {
+            listener.Start();
             while (!ct.IsCancellationRequested)
             {
                 try
                 {
-                    TcpClient client = listener.AcceptTcpClient();
-                    HandleNewConnection(client);
+                    TcpClient client = await listener.AcceptTcpClientAsync().ConfigureAwait(false);
+                    _ = Task.Run(() => HandleNewConnectionAsync(client));
                 }
                 catch (ObjectDisposedException) when (ct.IsCancellationRequested)
                 {
                     break;
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
+                {
+                    break;
+                }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested)
                 {
                     break;
                 }
@@ -183,13 +346,16 @@ internal class Gate
         }
     }
 
-    private async Task StopListenerAsync()
+    /*
+     * Stop listener (in main thread)
+     */
+    private void StopListener()
     {
         if (!CheckListenerTaskRunning()) return;
         listenerCts.Cancel();
         try
         {
-            await listenerTask.ConfigureAwait(false);
+            listenerTask.Wait(1000);
         }
         catch (OperationCanceledException)
         { }
@@ -200,112 +366,188 @@ internal class Gate
         finally
         {
             listenerCts.Dispose();
-            listenerCts = new CancellationTokenSource();
             listenerTask = Task.CompletedTask;
         }
     }
 
     /*
-     * Cache client proxy and start proxy service
+     * Add client proxy and start proxy service (in off thread)
      */
-    private void HandleNewConnection(TcpClient client)
+    private void HandleNewConnectionAsync(TcpClient client)
     {
+        if (!isActive) return;
         Console.WriteLine("HandleNewConnection");
         var proxy = new Proxy(client);
-        proxies[proxy.pid] = proxy;
-        proxy.Start(
-            (msg) => OnReceiveMsg(proxy, msg),
-            OnProxyDisconnect
-        );
-        Msg msg = new Msg("", "", "ConnectionSucc");
-        SendMsg(proxy, msg);
+        AddProxy(proxy);
     }
 
+    #endregion
+
+    #region REGION_PROXY
+
     /*
-     * Invoked in main thread update
+     * Add proxy to be managed (in off thread)
      */
-    public void Update(float dt)
+    private bool AddProxy(Proxy proxy)
     {
-        // handle queued msgs
-        ConcurrentDictionary<Guid, Queue<Msg>> currentMsgs = Interlocked.Exchange(ref msgs, new ConcurrentDictionary<Guid, Queue<Msg>>());
-        foreach (var kvp in currentMsgs)
+        if (proxies.TryAdd(proxy.pid, proxy))
         {
-            if (!proxies.ContainsKey(kvp.Key))
-            {
-                continue;
-            }
-            Proxy proxy = proxies[kvp.Key];
-            while (kvp.Value.Count > 0)
-            {
-                Msg msg = kvp.Value.Dequeue();
-                HandleMsg(proxy, msg);
-            }
+            proxy.Start(
+                (msg) => OnReceiveMsg(proxy, msg),
+                OnProxyDisconnect
+            );
+            Msg msg = new Msg("", "", "ConnectionSucc");
+            Task.Run(() => SendMsgAsync(proxy, msg));
+            PushToCheckProxyQueue(proxy.pid);
+            Console.WriteLine($"Proxy [{proxy.pid}] is added {proxy.IsConnected()}");
+            return true;
+        }
+        else
+        {
+            Console.WriteLine($"Proxy {proxy.pid} fails to be added: already managed");
+            return false;
         }
     }
 
     /*
-     * Cache msg in thread safe containers
+     * Remove proxy from management (in any thread)
+     */
+    private bool RemoveProxy(Guid pid)
+    {
+        if (proxies.TryRemove(pid, out var proxy))
+        {
+            if (proxy != null)
+            {
+                Msg msg = new Msg("", "", "ConnectionLost");
+                Task.Run(() => SendMsgAsync(proxy, msg));
+                proxy.Stop();
+                Console.WriteLine($"Proxy [{pid}] is removed");
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /*
+     * proxy disconnects internally (in off thread)
+     */
+    private void OnProxyDisconnect(Guid pid)
+    {
+        RemoveProxy(pid);
+    }
+
+    #endregion
+
+    #region REGION_HEARTBEAT
+
+    /*
+     * Push proxy to the check queue, when a new proxy is managed (in off thread)
+     */
+    private void PushToCheckProxyQueue(Guid pid)
+    {
+        checkProxyQueue.Enqueue(pid);
+    }
+
+    /*
+     * Check if some proxies in the queue is alive and valid
+     */
+    private void CheckProxies()
+    {
+        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        if (now - lastCheckTime < ServerConst.CheckProxyInterval) return;
+        lastCheckTime = now;
+
+        int cnt = 0;
+        while (cnt < ServerConst.CheckProxyCntPerUpdate && checkProxyQueue.TryDequeue(out Guid pid))
+        {
+            if (proxies.TryGetValue(pid, out var proxy))
+            {
+                cnt += 1;
+                if (proxy == null)
+                {
+                    Console.WriteLine($"Check proxy [{pid}]: null");
+                    RemoveProxy(pid);
+                    continue;
+                }
+                // check aliveness
+                if (!proxy.IsConnected())
+                {
+                    Console.WriteLine($"Check proxy [{pid}]: disconnect");
+                    RemoveProxy(pid);
+                    continue;
+                }
+                if (now - proxy.lastHeartbeatTime > ServerConst.HeartBeatThreshold)
+                {
+                    Console.WriteLine($"Check proxy [{pid}]: heartbeat expired");
+                    RemoveProxy(pid);
+                    continue;
+                }
+                // still valid, push back to check queue
+                long prevCheckTime = proxy.lastCheckTime;
+                proxy.lastCheckTime = now;
+                checkProxyQueue.Enqueue(pid);
+                if (Math.Abs(prevCheckTime - now) < 1000) break; // break when cycle in pop-push queue happens
+            }
+        }
+    }
+
+    #endregion
+
+    #region REGION_MSG
+
+    /*
+     * Send msg async (in off thread)
+     */
+    static private async Task SendMsgAsync(Proxy proxy, Msg msg)
+    {
+        if (!proxy.IsConnected()) return;
+        await DataStreamer.WriteMsgToStreamAsync(proxy.stream, msg);
+    }
+
+    /*
+     * Cache msg in thread safe containers for main thread to consume (in off thread)
      */
     private void OnReceiveMsg(Proxy proxy, Msg msg)
     {
         Guid pid = proxy.pid;
-        if (!msgs.ContainsKey(pid))
-        {
-            msgs[pid] = new Queue<Msg>();
-        }
-        msgs[pid].Enqueue(msg);
+        msgs.Enqueue((pid, msg));
     }
 
-    private void OnProxyDisconnect(Guid pid)
+    /*
+     * Consume and hangle msg from queue (in main thread)
+     */
+    private void HandleQueuedMsg()
     {
-        Console.WriteLine($"OnProxyDisconnect: {pid}");
+        int cnt = 0;
+        while (cnt < ServerConst.HangleMsgCntPerUpdate && msgs.TryDequeue(out var item))
+        {
+            Guid pid = item.pid;
+            if (!proxies.TryGetValue(pid, out var proxy)) continue;
+            if (proxy == null) continue;
+            HandleMsg(proxy, item.msg);
+            cnt += 1;
+        }
     }
 
+    /*
+     * Handle msg with certain proxy (in main thread)
+     */
     static private void HandleMsg(Proxy proxy, Msg msg)
     {
+        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         Console.WriteLine($"HandleMsg method name {msg.methodName} from ip {proxy.GetIp()}::{proxy.GetPort()}");
-        Msg response = new Msg("", "", "TestRpcResponse");
-        foreach (var kvp in msg.args)
+        switch (msg.methodName)
         {
-            switch (kvp.Value.type)
-            {
-                case 1:
-                    int objI = (int)(kvp.Value.obj);
-                    Console.WriteLine($"{kvp.Key}: {objI}");
-                    response.AddArgInt("ResponseInt", objI + 10);
-                    break;
-                case 2:
-                    float objF = (float)(kvp.Value.obj);
-                    Console.WriteLine($"{kvp.Key}: {objF}");
-                    response.AddArgFloat("ResponseFloat", objF + 10f);
-                    break;
-                case 3:
-                    string objS = (string)(kvp.Value.obj);
-                    Console.WriteLine($"{kvp.Key}: {objS}");
-                    response.AddArgString("ResponseString", objS + " from server");
-                    break;
-            }
-        }
-        SendMsg(proxy, response);
-    }
-
-    static private void SendMsg(Proxy proxy, Msg msg)
-    {
-        DataStreamer.WriteMsgToStream(proxy.stream, msg);
-    }
-
-    public async Task StopAsync()
-    {
-        isActive = false;
-        await StopListenerAsync();
-    }
-
-    ~Gate()
-    {
-        if (isActive)
-        {
-            StopAsync().Wait(1000);
+            case "PingHeartbeat":
+                Console.WriteLine($"Proxy [{proxy.pid}] heartbeat pinged");
+                proxy.lastHeartbeatTime = now;
+                break;
         }
     }
+
+    #endregion
 }
 
