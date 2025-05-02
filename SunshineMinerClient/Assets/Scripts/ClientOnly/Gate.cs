@@ -387,21 +387,45 @@ public class Gate : MonoBehaviour
         }
     }
 
-    public bool SendMsg(Msg msg)
+    /*
+     * Send msg async
+     */
+    public async Task<bool> SendMsgAsync(Msg msg)
     {
-        if (IsConnected())
+        if (!IsConnected())
+        {
+            Debug.Log("Not connected, cannot send message");
+            return false;
+        }
+
+        if (!IsSocketConnected())
+        {
+            Debug.Log("Socket not connected, cannot send message");
+            return false;
+        }
+
+        try
         {
             var streamRes = GetStream();
             if (!streamRes.succ)
             {
-                Debug.Log($"Invalid stream in sending msg");
+                Debug.Log("Invalid stream in sending msg");
                 return false;
             }
+
             NetworkStream stream = streamRes.stream;
-            return DataStreamer.WriteMsgToStream(stream, msg);
+            return await DataStreamer.WriteMsgToStreamAsync(stream, msg)
+                .ConfigureAwait(false);
         }
-        else
+        catch (OperationCanceledException)
         {
+            Debug.Log("Message sending was canceled");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Debug.Log($"Error sending message: {ex}");
+            ResetConnection();
             return false;
         }
     }
@@ -410,6 +434,10 @@ public class Gate : MonoBehaviour
 
     #region REGION_GATE_HEARTBEAT
 
+    /*
+     * Send heart beat ping periodically. (in main thread)
+     * Send msg async
+     */
     private void PingHeartbeat()
     {
         if (!IsConnected()) return;
@@ -420,7 +448,7 @@ public class Gate : MonoBehaviour
 
         Debug.Log("Ping heartbeat!");
         Msg msg = new Msg("", "", "PingHeartbeat");
-        SendMsg(msg);
+        _ = SendMsgAsync(msg);
     }
 
     #endregion
