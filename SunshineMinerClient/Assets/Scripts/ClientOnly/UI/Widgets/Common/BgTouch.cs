@@ -5,23 +5,11 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BgTouch : MonoBehaviour
+public class BgTouch : Widget
 {
     private Action callback;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void AddClickCallback(Action callback_)
+    public void Attach(Action callback_)
     {
         callback = callback_;
         Button btn = GetComponent<Button>();
@@ -30,6 +18,9 @@ public class BgTouch : MonoBehaviour
 
     private void OnCick()
     {
-        callback();
+        if (callback != null)
+        {
+            callback();
+        }
     }
 }

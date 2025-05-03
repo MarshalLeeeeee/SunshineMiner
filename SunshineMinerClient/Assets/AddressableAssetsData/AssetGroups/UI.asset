@@ -22,6 +22,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4c76a086cdb35334d9efdea7f07ee099
+    m_Address: Assets/UI/Widgets/PnlStart/Login.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 75529024aa7f5a546ada71c253e440bc, type: 2}
   m_SchemaSet:

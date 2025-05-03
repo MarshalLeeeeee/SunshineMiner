@@ -1,26 +1,26 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PnlWelcome : MonoBehaviour
+public class PnlStartWidgetWelcome : Widget
 {
+    [SerializeField]
     private BgTouch bgTouch;
+    private Action callback;
 
-    // Start is called before the first frame update
-    void Start()
+    public void Attach(Action callback_)
     {
-        bgTouch = transform.Find("BgTouchEnter").GetComponent<BgTouch>();
-        bgTouch.AddClickCallback(ConnectToServer);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        callback = callback_;
+        bgTouch.Attach(ConnectToServer);
     }
 
     private void ConnectToServer()
     {
         Gate.Instance.ConnectedToServer();
+        if (callback != null)
+        {
+            callback();
+        }
     }
 }

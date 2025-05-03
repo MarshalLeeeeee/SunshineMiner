@@ -143,22 +143,22 @@ public class Gate : MonoBehaviour
         }
     }
 
-    private bool IsConnected()
+    public bool IsConnected()
     {
         return connectState == ConnectState.Connected;
     }
 
-    private bool IsConnecting()
+    public bool IsConnecting()
     {
         return connectState == ConnectState.Connecting;
     }
 
-    private bool IsDisconnected()
+    public bool IsDisconnected()
     {
         return connectState == ConnectState.Disconnected;
     }
 
-    private bool IsDisconnecting()
+    public bool IsDisconnecting()
     {
         return connectState == ConnectState.Disconnecting;
     }

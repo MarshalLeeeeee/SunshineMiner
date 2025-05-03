@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HorizonInput : Widget
+public abstract class Panel : UIBase
 {
-
+    private CanvasLayer canvasLayer;
 }

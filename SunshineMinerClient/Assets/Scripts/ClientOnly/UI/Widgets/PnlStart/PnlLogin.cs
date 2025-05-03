@@ -2,17 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PnlLogin : MonoBehaviour
+public class PnlStartWidgetLogin : Widget
 {
-    // Start is called before the first frame update
-    void Start()
+    protected override void SetActiveOnAwake()
     {
-        
+        if (activeOnAwake)
+        {
+            SetActive(activeOnAwake);
+        }
+        else
+        {
+            SetActive(Gate.Instance.IsConnected());
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Test()
     {
-        
+        Debug.Log("Test from PnlStartWidgetLogin");
     }
 }

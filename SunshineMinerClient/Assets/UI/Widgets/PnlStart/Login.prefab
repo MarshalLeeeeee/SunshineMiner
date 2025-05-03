@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8732683428842277208}
   - component: {fileID: 8421155163252325515}
   m_Layer: 5
-  m_Name: PnlLogin
+  m_Name: Login
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -90,6 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61f3eb7a489d58143b64c1b87f36011c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  activeOnAwake: 0
 --- !u!1 &6382916228372740081
 GameObject:
   m_ObjectHideFlags: 0

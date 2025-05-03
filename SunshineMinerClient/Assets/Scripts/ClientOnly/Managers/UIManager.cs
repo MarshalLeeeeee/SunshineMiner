@@ -6,25 +6,25 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Threading.Tasks;
 using static UnityEditor.Experimental.GraphView.GraphView;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public enum CanvasLayer
 {
-    Background = 0,
     Default = 100,
     Popup = 200,
-    Loading = 300,
-    Alert = 400,
-    Debug = 1000
+    Loading = 300
 }
-
 
 public class UIManager : MonoBehaviour
 {
     // Singleton instance
     public static UIManager Instance { get; private set; }
+
     private Dictionary<CanvasLayer, Canvas> canvases = new Dictionary<CanvasLayer, Canvas>();
-    private AsyncOperationHandle<GameObject> panelHandle;
-    [SerializeField] private Canvas defaultCanvas;
+    private Dictionary<string, Panel> panels = new Dictionary<string, Panel>();
+
+    [SerializeField]
+    private Canvas coverCanvas; // the canvas works only at the game start stage
 
     private void Awake()
     {
@@ -37,8 +37,10 @@ public class UIManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        canvases[CanvasLayer.Default] = defaultCanvas;
+        LoadPanelAsync("PnlStart", CanvasLayer.Default);
     }
+
+    #region REGION_PANEL
 
     public void LoadPanelAsync(string pnlName, CanvasLayer layer)
     {
@@ -56,24 +58,39 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public async Task DoLoadPanelAsync(string pnlName, CanvasLayer layer)
+    private async Task DoLoadPanelAsync(string pnlName, CanvasLayer layer)
     {
         string pnlPath = $"Assets/UI/Panels/{pnlName}.prefab";
-        panelHandle = Addressables.LoadAssetAsync<GameObject>(pnlPath);
+        AsyncOperationHandle<GameObject> panelHandle = Addressables.LoadAssetAsync<GameObject>(pnlPath);
         await panelHandle.Task;
 
         if (panelHandle.Status == AsyncOperationStatus.Succeeded)
         {
             Canvas canvas = GetCanvas(layer);
-            GameObject currentPanel = Instantiate(panelHandle.Result, canvas.transform);
-            currentPanel.transform.localPosition = Vector3.zero;
-            currentPanel.transform.localScale = Vector3.one;
+            GameObject panelGameObject = Instantiate(panelHandle.Result, canvas.transform);
+            Panel panel = panelGameObject.GetComponent<Panel>();
+            panel.transform.localPosition = Vector3.zero;
+            panel.transform.localScale = Vector3.one;
+            panels[pnlName] = panel;
         }
         else
         {
             Debug.LogError($"Load {pnlPath} failed: {panelHandle.OperationException}");
         }
     }
+
+    public void UnloadPanel(string pnlName)
+    {
+        if (!panels.TryGetValue(pnlName, out var panel))
+        {
+            Debug.LogError($"Load panel {pnlName} not within management...");
+            return;
+        }
+        Destroy(panel.gameObject);
+        panels.Remove(pnlName);
+    }
+
+    #endregion REGION_PANEL
 
     private Canvas GetCanvas(CanvasLayer layer)
     {
@@ -98,9 +115,9 @@ public class UIManager : MonoBehaviour
         return canvas;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void RemoveCover()
     {
-        
+        Destroy(coverCanvas.gameObject);
+        coverCanvas = null;
     }
 }
