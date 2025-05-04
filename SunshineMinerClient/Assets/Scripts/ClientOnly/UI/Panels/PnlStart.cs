@@ -15,6 +15,32 @@ public class PnlStart : Panel
         widgetWelcome.Attach(OnClickWelcome);
     }
 
+    private void OnEnable()
+    {
+        ManagerHub.Instance.GetEventManager().RegisterGlobalEvent<bool>("GateConnectingOver", "OnGateConnectingOver", OnGateConnectingOver);
+    }
+
+    private void OnDisable()
+    {
+        ManagerHub.Instance.GetEventManager().UnregisterGlobalEvent("GateConnectingOver", "OnGateConnectingOver");
+    }
+
+    private void OnGateConnectingOver(bool res)
+    {
+        if (res)
+        {
+            widgetWelcome.SetActive(false);
+            if (widgets.TryGetValue("WidgetLogin", out var widget))
+            {
+                if (widget != null)
+                {
+                    PnlStartWidgetLogin widgetLogin = widget as PnlStartWidgetLogin;
+                    widgetLogin.SetActive(true);
+                }
+            }
+        }
+    }
+
     private void OnClickWelcome()
     {
         LoadWidgetAsync("WidgetLogin", "PnlStart/Login");
@@ -25,6 +51,6 @@ public class PnlStart : Panel
         if (!widgets.TryGetValue("WidgetLogin", out var widget)) return;
         if (widget == null) return;
         PnlStartWidgetLogin widgetLogin = widget as PnlStartWidgetLogin;
-        widgetLogin.Test();
+        // widgetLogin.Test();
     }
 }

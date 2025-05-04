@@ -100,6 +100,7 @@ public class Gate : MonoBehaviour
         catch (Exception ex)
         {
             connectState = ConnectState.Disconnected;
+            ManagerHub.Instance.GetEventManager().TriggerGlobalEvent("GateConnectingOver", false);
             Debug.Log($"Connected to server failed: {ex}");
         }
     }
@@ -172,6 +173,7 @@ public class Gate : MonoBehaviour
         if (IsConnecting())
         {
             connectState = ConnectState.Connected;
+            ManagerHub.Instance.GetEventManager().TriggerGlobalEvent("GateConnectingOver", true);
         }
     }
 
