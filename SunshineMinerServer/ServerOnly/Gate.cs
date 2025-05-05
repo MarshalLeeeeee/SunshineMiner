@@ -274,7 +274,7 @@ internal class Gate
     /*
      * Invoked in every server tick (in main thread)
      */
-    public void Update(float dt)
+    public void Update()
     {
         if (!isActive) return;
         // handle queued msgs

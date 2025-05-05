@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ManagerHub : MonoBehaviour
+public class Game : MonoBehaviour
 {
     // Singleton instance
-    public static ManagerHub Instance { get; private set; }
+    public static Game Instance { get; private set; }
 
-    private EntityManager entityManager;
-    private EventManager eventManager;
+    public EntityManager entityManager { get; private set; }
+    public EventManager eventManager { get; private set; }
 
     private void Awake()
     {
@@ -36,18 +36,4 @@ public class ManagerHub : MonoBehaviour
         entityManager.Stop();
         eventManager.Stop();
     }
-
-    #region REGION_GET_MANAGER
-
-    public EntityManager GetEntityManager()
-    {
-        return entityManager;
-    }
-
-    public EventManager GetEventManager()
-    {
-        return eventManager;
-    }
-
-    #endregion
 }

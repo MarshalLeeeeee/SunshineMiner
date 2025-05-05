@@ -1,7 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
-public class EntityManager : SharedManager
+public class EntityManager : Manager
 {
-
+    public override void Update()
+    {
+        Game.Instance?.eventManager.EventTest();
+    }
 }

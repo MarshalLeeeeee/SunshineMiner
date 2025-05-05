@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-public class EventManager : SharedManager
+public class EventManager : Manager
 {
     private Dictionary<string, Dictionary<string, Delegate>> globalEvents = new Dictionary<string, Dictionary<string, Delegate>>();
 
@@ -117,4 +117,9 @@ public class EventManager : SharedManager
     }
 
     #endregion
+
+    public void EventTest()
+    {
+        Console.WriteLine("Event test");
+    }
 }

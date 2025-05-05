@@ -7,12 +7,21 @@ using System.Threading.Tasks;
 
 internal class Game : IDisposable
 {
-    private Gate gate; // handle connection and msg
+    // Singleton instance
+    public static Game? Instance { get; private set; }
+
     private bool isRunning;
+    public float dt { get; private set; } // current delta time in tick
+    public Gate gate { get; private set; } // handle connection and msg
+    public EntityManager entityManager { get; private set; } // manage entities
+    public EventManager eventManager { get; private set; } // manage events and global events
 
     public Game()
     {
+        Instance = this;
         gate = new Gate();
+        entityManager = new EntityManager();
+        eventManager = new EventManager();
     }
 
     /*
@@ -21,23 +30,30 @@ internal class Game : IDisposable
     public void Start()
     {
         gate.Start();
-        Console.WriteLine("Server game starts...");
+        entityManager.Start();
+        eventManager.Start();
         isRunning = true;
+        Console.WriteLine("Server game starts...");
 
+        // ctrl c in termin to stop game
         Console.CancelKeyPress += (sender, e) =>
         {
             e.Cancel = true;
             isRunning = false;
         };
 
+        // controlled tick
         long nextTickTime = 0;
         while (isRunning)
         {
             long currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             if (currentTime >= nextTickTime)
             {
-                float dt = (float)(currentTime - (nextTickTime - ServerConst.TickInterval)) / 1000f;
-                gate.Update(dt);
+                dt = (float)(currentTime - (nextTickTime - ServerConst.TickInterval)) / 1000f;
+                gate.Update();
+                entityManager.Update();
+                eventManager.Update();
+
                 nextTickTime = currentTime + ServerConst.TickInterval;
             }
 
@@ -52,6 +68,8 @@ internal class Game : IDisposable
     {
         isRunning = false;
         gate.Stop();
+        entityManager.Stop();
+        eventManager.Stop();
         Console.WriteLine("Server game ends...");
     }
 }
