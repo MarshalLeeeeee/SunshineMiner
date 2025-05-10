@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,35 +7,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class Arg
-{
-    public int type;
-    public object obj;
-}
-public class ArgInt : Arg
-{
-    public ArgInt(int i)
-    {
-        type = 1;
-        obj = i;
-    }
-}
-public class ArgFloat : Arg
-{
-    public ArgFloat(float f)
-    {
-        type = 2;
-        obj = f;
-    }
-}
-public class ArgString : Arg
-{
-    public ArgString(string s)
-    {
-        type = 3;
-        obj = s;
-    }
-}
 
 public class Msg
 {
@@ -43,31 +14,19 @@ public class Msg
     public string tgtId { get; }
     public string methodName { get; }
     public long expiredTime { get; }
-    public Dictionary<string, Arg> args;
+    public CustomType arg;
     public Msg(string srdId_, string tgtId_, string methodName_, long expiredTime_ = -1)
     {
         srcId = srdId_;
         tgtId = tgtId_;
         methodName = methodName_;
         expiredTime = expiredTime_;
-        args = new Dictionary<string, Arg>();
+        arg = new CustomType();
     }
-    public void AddArgInt(string name, int i)
-    {
-        args[name] = new ArgInt(i);
-    }
-    public void AddArgFloat(string name, float f)
-    {
-        args[name] = new ArgFloat(f);
-    }
-    public void AddArgString(string name, string s)
-    {
-        args[name] = new ArgString(s);
-    }
-
 }
 
-public static class DataStreamer
+
+public static class MsgStreamer
 {
     public static byte[] Serialize(Msg msg)
     {
@@ -78,25 +37,7 @@ public static class DataStreamer
         writer.Write(msg.tgtId);
         writer.Write(msg.methodName);
         writer.Write(msg.expiredTime);
-        writer.Write(msg.args.Count);
-        foreach (var kvp in msg.args)
-        {
-            writer.Write(kvp.Key);
-            writer.Write(kvp.Value.type);
-            switch (kvp.Value.type)
-            {
-                case 1:
-                    writer.Write((int)kvp.Value.obj);
-                    break;
-                case 2:
-                    writer.Write((float)kvp.Value.obj);
-                    break;
-                case 3:
-                    writer.Write((string)kvp.Value.obj);
-                    break;
-            }
-            //writer.Write((byte)kvp.Value.obj);
-        }
+        msg.arg.Serialize(writer);
         return stream.ToArray();
     }
 
@@ -106,26 +47,8 @@ public static class DataStreamer
         using var reader = new BinaryReader(stream);
 
         Msg msg = new Msg(reader.ReadString(), reader.ReadString(), reader.ReadString(), reader.ReadInt64());
-        int argCnt = reader.ReadInt32();
-        int i = 0;
-        while (i < argCnt)
-        {
-            string name = reader.ReadString();
-            int type = reader.ReadInt32();
-            switch (type)
-            {
-                case 1:
-                    msg.AddArgInt(name, reader.ReadInt32());
-                    break;
-                case 2:
-                    msg.AddArgFloat(name, reader.ReadSingle());
-                    break;
-                case 3:
-                    msg.AddArgString(name, reader.ReadString());
-                    break;
-            }
-            i++;
-        }
+        CustomType arg = CustomTypeStreamer.Deserialize(reader);
+        msg.arg = arg;
         return msg;
     }
 
@@ -224,7 +147,7 @@ public static class DataStreamer
 
     public static bool WriteMsgToStream(NetworkStream stream, Msg msg)
     {
-        byte[] buffer = DataStreamer.Serialize(msg);
+        byte[] buffer = MsgStreamer.Serialize(msg);
         if (buffer.Length <= 0) return false;
 
         byte[] lengthPrefix = BitConverter.GetBytes(buffer.Length);
@@ -238,7 +161,7 @@ public static class DataStreamer
     {
         try
         {
-            byte[] buffer = DataStreamer.Serialize(msg);
+            byte[] buffer = MsgStreamer.Serialize(msg);
             if (buffer.Length <= 0) return false;
 
             byte[] lengthPrefix = BitConverter.GetBytes(buffer.Length);

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 internal class Game : IDisposable
 {
     // Singleton instance
-    public static Game? Instance { get; private set; }
+    public static Game Instance { get; private set; } = null!;
 
     private bool isRunning;
     public float dt { get; private set; } // current delta time in tick

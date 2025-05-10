@@ -156,7 +156,7 @@ internal class Proxy
                         break;
                     }
 
-                    var res = await DataStreamer.ReadMsgFromStreamAsync(stream, ct).ConfigureAwait(false);
+                    var res = await MsgStreamer.ReadMsgFromStreamAsync(stream, ct).ConfigureAwait(false);
                     if (res.succ)
                     {
                         onReceiveMsgCallback(res.msg);
@@ -504,7 +504,7 @@ internal class Gate
     static private async Task SendMsgAsync(Proxy proxy, Msg msg)
     {
         if (!proxy.IsConnected()) return;
-        await DataStreamer.WriteMsgToStreamAsync(proxy.stream, msg);
+        await MsgStreamer.WriteMsgToStreamAsync(proxy.stream, msg);
     }
 
     /*

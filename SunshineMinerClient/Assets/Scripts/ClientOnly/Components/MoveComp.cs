@@ -36,14 +36,14 @@ public class MoveComp : MonoBehaviour
         moveVelocity.y = rb.velocity.y;
         rb.velocity = moveVelocity;
 
-        if (InputManager.Instance.GetActionDown("Rpc"))
-        {
-            Msg msg = new Msg("", "", "TestRpc");
-            msg.AddArgInt("IntArg", 1);
-            msg.AddArgFloat("FloatArg", 2f);
-            msg.AddArgString("StringArg", "Hello");
-            Debug.Log("Try send rpc");
-            _ = Gate.Instance.SendMsgAsync(msg);
-        }
+        // if (InputManager.Instance.GetActionDown("Rpc"))
+        // {
+        //     Msg msg = new Msg("", "", "TestRpc");
+        //     msg.AddArgInt("IntArg", 1);
+        //     msg.AddArgFloat("FloatArg", 2f);
+        //     msg.AddArgString("StringArg", "Hello");
+        //     Debug.Log("Try send rpc");
+        //     _ = Gate.Instance.SendMsgAsync(msg);
+        // }
     }
 }

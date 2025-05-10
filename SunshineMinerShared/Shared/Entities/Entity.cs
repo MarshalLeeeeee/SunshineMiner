@@ -1,9 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 public class Entity
 {
-    private Dictionary<string, Component> components;
+    [SyncType(SyncConst.AllClient)]
+    public CustomString eid { get; private set; }
+
+    private Dictionary<string, Component> components = new Dictionary<string, Component>();
+
+    public Entity(string eid_)
+    {
+        eid = new CustomString(eid_);
+    }
 
     #region REGION_COMPONENT_MANAGEMENT
 
@@ -40,6 +49,12 @@ public class Entity
             }
         }
     }
+
+    #endregion
+
+    #region REGION_PROPERTY_SERIALIZATION
+
+
 
     #endregion
 }

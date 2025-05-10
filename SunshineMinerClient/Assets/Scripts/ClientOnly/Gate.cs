@@ -283,7 +283,7 @@ public class Gate : MonoBehaviour
                     }
 
                     NetworkStream stream = streamRes.stream;
-                    var res = await DataStreamer.ReadMsgFromStreamAsync(stream, ct).ConfigureAwait(false);
+                    var res = await MsgStreamer.ReadMsgFromStreamAsync(stream, ct).ConfigureAwait(false);
                     if (res.succ)
                     {
                         OnReceiveMsg(res.msg);
@@ -416,7 +416,7 @@ public class Gate : MonoBehaviour
             }
 
             NetworkStream stream = streamRes.stream;
-            return await DataStreamer.WriteMsgToStreamAsync(stream, msg)
+            return await MsgStreamer.WriteMsgToStreamAsync(stream, msg)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException)
