@@ -63,17 +63,19 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\PnlStart\PnlLogin.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panels\PnlStart.cs" />
+    <Compile Include="Assets\Scripts\Shared\ConstBase.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\CustomType.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\InputManager.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\Manager.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\EventManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Game.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Rpc.cs" />
+    <Compile Include="Assets\Scripts\Shared\Managers\TimerManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widget.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\UIBase.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\Component.cs" />
-    <Compile Include="Assets\Scripts\ClientOnly\ClientConst.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Const.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panels\PnlLoading.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\BgTouch.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\EntityManager.cs" />

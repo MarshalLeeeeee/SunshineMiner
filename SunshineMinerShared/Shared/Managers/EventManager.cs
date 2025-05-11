@@ -117,9 +117,4 @@ public class EventManager : Manager
     }
 
     #endregion
-
-    public void EventTest()
-    {
-        Console.WriteLine("Event test");
-    }
 }

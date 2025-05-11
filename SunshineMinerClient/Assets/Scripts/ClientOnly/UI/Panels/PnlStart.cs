@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,7 @@ public class PnlStart : Panel
 {
     [SerializeField]
     private PnlStartWidgetWelcome widgetWelcome;
+    private Guid delayDestroyTimer;
 
     protected override void Awake()
     {
@@ -18,11 +20,18 @@ public class PnlStart : Panel
     private void OnEnable()
     {
         Game.Instance.eventManager.RegisterGlobalEvent<bool>("GateConnectingOver", "OnGateConnectingOver", OnGateConnectingOver);
+        Game.Instance.eventManager.RegisterGlobalEvent<bool>("LoginRes", "OnLoginRes", OnLoginRes);
     }
 
     private void OnDisable()
     {
         Game.Instance.eventManager.UnregisterGlobalEvent("GateConnectingOver", "OnGateConnectingOver");
+        Game.Instance.eventManager.UnregisterGlobalEvent("LoginRes", "OnLoginRes");
+    }
+
+    private void OnDestroy()
+    {
+        Game.Instance.timerManager.RemoveTimer(delayDestroyTimer);
     }
 
     private void OnGateConnectingOver(bool res)
@@ -41,16 +50,22 @@ public class PnlStart : Panel
         }
     }
 
+    private void OnLoginRes(bool res)
+    {
+        if (res)
+        {
+            delayDestroyTimer = Game.Instance.timerManager.AddTimer(100, SelfDestroy);
+            
+        }
+    }
+
+    private void SelfDestroy()
+    {
+        UIManager.Instance.UnloadPanel("PnlStart");
+    }
+
     private void OnClickWelcome()
     {
         LoadWidgetAsync("WidgetLogin", "PnlStart/Login");
-    }
-
-    private void Update()
-    {
-        if (!widgets.TryGetValue("WidgetLogin", out var widget)) return;
-        if (widget == null) return;
-        PnlStartWidgetLogin widgetLogin = widget as PnlStartWidgetLogin;
-        // widgetLogin.Test();
     }
 }

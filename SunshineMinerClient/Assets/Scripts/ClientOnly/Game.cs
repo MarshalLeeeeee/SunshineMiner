@@ -9,6 +9,7 @@ public class Game : MonoBehaviour
 
     public EntityManager entityManager { get; private set; }
     public EventManager eventManager { get; private set; }
+    public TimerManager timerManager { get; private set; }
 
     private void Awake()
     {
@@ -23,17 +24,27 @@ public class Game : MonoBehaviour
 
         entityManager = new EntityManager();
         eventManager = new EventManager();
+        timerManager = new TimerManager();
     }
 
     private void OnEnable()
     {
         entityManager.Start();
         eventManager.Start();
+        timerManager.Start();
     }
 
     private void OnDisable()
     {
         entityManager.Stop();
         eventManager.Stop();
+        timerManager.Stop();
+    }
+
+    private void Update()
+    {
+        entityManager.Update();
+        eventManager.Update();
+        timerManager.Update();
     }
 }

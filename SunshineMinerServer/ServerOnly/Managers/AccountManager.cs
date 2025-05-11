@@ -20,15 +20,26 @@ internal class AccountManager : Manager
     /*
      * Player login and create player entity if authorized
      */
-    public void ValidateAccount(string account, string password)
+    public void Login(Proxy proxy, string account, string password)
     {
-        if (!CheckAccount(account, password)) return;
+        Msg msg = new Msg("", "", "LoginRes");
+        CustomList arg = new CustomList();
+        if (!CheckAccount(account, password))
+        {
+            arg.Add(new CustomBool(false)); ;
+            msg.arg = arg;
+            _ = Gate.SendMsgAsync(proxy, msg);
+            return;
+        }
 
         if (!account2player.ContainsKey(account))
         {
             string playerId = Game.Instance.entityManager.CreateEntity();
             account2player[account] = playerId;
         }
+        arg.Add(new CustomBool(true)); ;
+        msg.arg = arg;
+        _ = Gate.SendMsgAsync(proxy, msg);
     }
 }
 

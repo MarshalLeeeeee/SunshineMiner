@@ -15,6 +15,8 @@ internal class Game : IDisposable
     public Gate gate { get; private set; } // handle connection and msg
     public EntityManager entityManager { get; private set; } // manage entities
     public EventManager eventManager { get; private set; } // manage events and global events
+    public AccountManager accountManager { get; private set; } // manage account and online states
+    public TimerManager timerManager { get; private set; }
 
     public Game()
     {
@@ -22,6 +24,8 @@ internal class Game : IDisposable
         gate = new Gate();
         entityManager = new EntityManager();
         eventManager = new EventManager();
+        accountManager = new AccountManager();
+        timerManager = new TimerManager();
     }
 
     /*
@@ -32,6 +36,7 @@ internal class Game : IDisposable
         gate.Start();
         entityManager.Start();
         eventManager.Start();
+        timerManager.Start();
         isRunning = true;
         Console.WriteLine("Server game starts...");
 
@@ -49,12 +54,13 @@ internal class Game : IDisposable
             long currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             if (currentTime >= nextTickTime)
             {
-                dt = (float)(currentTime - (nextTickTime - ServerConst.TickInterval)) / 1000f;
+                dt = (float)(currentTime - (nextTickTime - Const.TickInterval)) / 1000f;
                 gate.Update();
                 entityManager.Update();
                 eventManager.Update();
+                timerManager.Update();
 
-                nextTickTime = currentTime + ServerConst.TickInterval;
+                nextTickTime = currentTime + Const.TickInterval;
             }
 
             Thread.Sleep(1);
@@ -70,6 +76,7 @@ internal class Game : IDisposable
         gate.Stop();
         entityManager.Stop();
         eventManager.Stop();
+        timerManager.Stop();
         Console.WriteLine("Server game ends...");
     }
 }

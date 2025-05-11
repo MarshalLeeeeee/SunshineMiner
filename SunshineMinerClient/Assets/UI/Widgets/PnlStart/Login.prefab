@@ -91,6 +91,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activeOnAwake: 0
+  btnLogin: {fileID: 4924064630528853901}
+  inputAccount: {fileID: 1624990013708564366}
 --- !u!1 &6382916228372740081
 GameObject:
   m_ObjectHideFlags: 0
@@ -453,6 +455,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b54d621bc30a63a4ab49e0c43e7ff6dd, type: 3}
+--- !u!114 &1624990013708564366 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8161276344678789634, guid: b54d621bc30a63a4ab49e0c43e7ff6dd, type: 3}
+  m_PrefabInstance: {fileID: 7480393590884484492}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfb0e4a06912f3043aae86491ac584a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &7586773232411809724 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1046541935593804336, guid: b54d621bc30a63a4ab49e0c43e7ff6dd, type: 3}

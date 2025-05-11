@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,7 @@ static public class CustomTypeConst
     public const int TypeInt = 1;
     public const int TypeFloat = 2;
     public const int TypeString = 3;
+    public const int TypeBool = 4;
 
     public const int TypeList = 124;
     public const int TypeListTail = 125;
@@ -172,7 +174,45 @@ public class CustomString : CustomType
         Console.Write($"\"{(string)obj}\"");
     }
 }
-public class CustomList : CustomType
+
+public class CustomBool : CustomType
+{
+    public CustomBool(bool v = false)
+    {
+        type = CustomTypeConst.TypeBool;
+        obj = v;
+    }
+
+    public void Setter(bool v)
+    {
+        obj = v;
+    }
+
+    public bool Getter()
+    {
+        return (bool)obj;
+    }
+
+    public override void Serialize(BinaryWriter writer)
+    {
+        writer.Write(type);
+        writer.Write((bool)obj);
+    }
+
+    public override void Print()
+    {
+        if ((bool)obj)
+        {
+            Console.Write("true");
+        }
+        else
+        {
+            Console.Write("false");
+        }
+    }
+}
+
+public class CustomList : CustomType, IEnumerable
 {
     public CustomList()
     {
@@ -180,15 +220,37 @@ public class CustomList : CustomType
         obj = new List<CustomType>();
     }
 
-    public void Add<T>(T arg) where T : CustomType
+    public void Add(CustomType arg)
     {
-        (obj as List<CustomType>).Add(arg);
+        ((List<CustomType>)obj).Add(arg);
     }
+
+    public CustomType this[int index]
+    {
+        get
+        {
+            return ((List<CustomType>)obj)[index];
+        }
+        set
+        {
+            ((List<CustomType>)obj)[index] = (CustomType)value;
+        }
+    }
+
+    public IEnumerator GetEnumerator()
+    {
+        foreach (CustomType arg in ((List<CustomType>)obj))
+        {
+            yield return arg;
+        }
+    }
+
+    public int Count => ((List<CustomType>)obj).Count;
 
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(CustomTypeConst.TypeList);
-        foreach (CustomType arg in (obj as List<CustomType>))
+        foreach (CustomType arg in ((List<CustomType>)obj))
         {
             arg.Serialize(writer);
         }
@@ -198,7 +260,7 @@ public class CustomList : CustomType
     public override void Print()
     {
         Console.Write("[");
-        foreach (CustomType arg in (obj as List<CustomType>))
+        foreach (CustomType arg in ((List<CustomType>)obj))
         {
             arg.Print();
             Console.Write(", ");
@@ -206,7 +268,7 @@ public class CustomList : CustomType
         Console.Write("]");
     }
 }
-public class CustomDict : CustomType
+public class CustomDict : CustomType, IEnumerable
 {
     public CustomDict()
     {
@@ -214,15 +276,59 @@ public class CustomDict : CustomType
         obj = new Dictionary<CustomType, CustomType>();
     }
 
-    public void Add<T1, T2>(T1 key, T2 value) where T1 : CustomType where T2 : CustomType
+    public void Add(CustomType key, CustomType value)
     {
-        (obj as Dictionary<CustomType, CustomType>).Add(key, value);
+        ((Dictionary<CustomType, CustomType>)obj).Add(key, value);
+    }
+
+    public CustomType this[CustomType key]
+    {
+        get
+        {
+            Dictionary <CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
+            foreach (var kvp in d)
+            {
+                if (Equals(kvp.Key, key))
+                {
+                    return kvp.Value;
+                }
+            }
+            throw new KeyNotFoundException();
+        }
+        set
+        {
+            Dictionary<CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
+            foreach (var kvp in d)
+            {
+                if (Equals(kvp.Key, key))
+                {
+                    d[key] = value;
+                    return;
+                }
+            }
+            Add(key, value);
+        }
+    }
+
+    public bool ContainsKey(CustomType key)
+    {
+        Dictionary<CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
+        return d.ContainsKey(key);
+    }
+
+    public IEnumerator GetEnumerator()
+    {
+        Dictionary<CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
+        foreach (var kvp in d)
+        {
+            yield return new DictionaryEntry { Key = kvp.Key, Value = kvp.Value };
+        }
     }
 
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(CustomTypeConst.TypeDict);
-        foreach (var kvp in (obj as Dictionary<CustomType, CustomType>))
+        foreach (var kvp in ((Dictionary<CustomType, CustomType>)obj))
         {
             CustomType k = kvp.Key;
             CustomType v = kvp.Value;
@@ -235,7 +341,7 @@ public class CustomDict : CustomType
     public override void Print()
     {
         Console.Write("{");
-        foreach (var kvp in (obj as Dictionary<CustomType, CustomType>))
+        foreach (var kvp in ((Dictionary<CustomType, CustomType>)obj))
         {
             CustomType k = kvp.Key;
             CustomType v = kvp.Value;
@@ -320,6 +426,18 @@ public class CustomTypeStreamer
                 else if (type == CustomTypeConst.TypeString)
                 {
                     arg = new CustomString(reader.ReadString());
+                    if (typeStack.Count == 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        DeserializeHandleStacks(typeStack, argStack, argDk, arg);
+                    }
+                }
+                else if (type == CustomTypeConst.TypeBool)
+                {
+                    arg = new CustomBool(reader.ReadBoolean());
                     if (typeStack.Count == 0)
                     {
                         break;

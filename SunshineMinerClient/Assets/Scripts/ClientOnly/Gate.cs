@@ -70,6 +70,8 @@ public class Gate : MonoBehaviour
         PingHeartbeat();
     }
 
+    #region REGION_PUBLIC_UTILITY
+
     /*
      * Make connection to the server (in main thread)
      */
@@ -93,7 +95,7 @@ public class Gate : MonoBehaviour
         connectState = ConnectState.Connecting;
         try
         {
-            client.Connect("localhost", ClientConst.Port);
+            client.Connect("localhost", Const.Port);
             Debug.Log("Client gate connected...");
             StartMsgListener();
         }
@@ -104,6 +106,18 @@ public class Gate : MonoBehaviour
             Debug.Log($"Connected to server failed: {ex}");
         }
     }
+
+    public void Login(string account,  string password)
+    {
+        Msg msg = new Msg("", "AccountManager", "Login");
+        CustomList arg = new CustomList();
+        arg.Add(new CustomString(account));
+        arg.Add(new CustomString(password));
+        msg.arg = arg;
+        _ = SendMsgAsync(msg);
+    }
+
+    #endregion
 
     #region REGION_GATE_CONNECTIVITY
 
@@ -362,7 +376,7 @@ public class Gate : MonoBehaviour
     private void ConsumeQueuedMsg()
     {
         int cnt = 0;
-        while (cnt < ClientConst.HangleMsgCntPerUpdate && msgs.TryDequeue(out var msg))
+        while (cnt < Const.HandleMsgCntPerUpdate && msgs.TryDequeue(out var msg))
         {
             if (msg == null) continue;
             cnt++;
@@ -385,6 +399,10 @@ public class Gate : MonoBehaviour
             case "ConnectionLost":
                 ResetConnection();
                 Debug.Log("Connection Lost");
+                break;
+            case "LoginRes":
+                bool res = ((CustomBool)(((CustomList)(msg.arg))[0])).Getter();
+                Game.Instance.eventManager.TriggerGlobalEvent("LoginRes", res);
                 break;
         }
     }
@@ -445,7 +463,7 @@ public class Gate : MonoBehaviour
         if (!IsConnected()) return;
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        if (now - lastHeartbeatTime < ClientConst.HeartBeatInterval) return;
+        if (now - lastHeartbeatTime < Const.HeartBeatInterval) return;
         lastHeartbeatTime = now;
 
         Debug.Log("Ping heartbeat!");

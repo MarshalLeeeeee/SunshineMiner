@@ -383,6 +383,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfb0e4a06912f3043aae86491ac584a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  activeOnAwake: 1
+  input: {fileID: 3591996597356541780}
 --- !u!1 &5088190099651210839
 GameObject:
   m_ObjectHideFlags: 0

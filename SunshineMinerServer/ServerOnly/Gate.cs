@@ -235,7 +235,7 @@ internal class Gate
 
     public Gate()
     {
-        listener = new TcpListener(IPAddress.Any, ServerConst.Port);
+        listener = new TcpListener(IPAddress.Any, Const.Port);
         listenerTask = Task.CompletedTask;
         listenerCts = new CancellationTokenSource();
 
@@ -457,11 +457,11 @@ internal class Gate
     private void CheckProxies()
     {
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        if (now - lastCheckTime < ServerConst.CheckProxyInterval) return;
+        if (now - lastCheckTime < Const.CheckProxyInterval) return;
         lastCheckTime = now;
 
         int cnt = 0;
-        while (cnt < ServerConst.CheckProxyCntPerUpdate && checkProxyQueue.TryDequeue(out Guid pid))
+        while (cnt < Const.CheckProxyCntPerUpdate && checkProxyQueue.TryDequeue(out Guid pid))
         {
             if (proxies.TryGetValue(pid, out var proxy))
             {
@@ -479,7 +479,7 @@ internal class Gate
                     RemoveProxy(pid);
                     continue;
                 }
-                if (now - proxy.lastHeartbeatTime > ServerConst.HeartBeatThreshold)
+                if (now - proxy.lastHeartbeatTime > Const.HeartBeatThreshold)
                 {
                     Console.WriteLine($"Check proxy [{pid}]: heartbeat expired");
                     RemoveProxy(pid);
@@ -501,7 +501,7 @@ internal class Gate
     /*
      * Send msg async (in off thread)
      */
-    static private async Task SendMsgAsync(Proxy proxy, Msg msg)
+    static public async Task SendMsgAsync(Proxy proxy, Msg msg)
     {
         if (!proxy.IsConnected()) return;
         await MsgStreamer.WriteMsgToStreamAsync(proxy.stream, msg);
@@ -522,7 +522,7 @@ internal class Gate
     private void HandleQueuedMsg()
     {
         int cnt = 0;
-        while (cnt < ServerConst.HangleMsgCntPerUpdate && msgs.TryDequeue(out var item))
+        while (cnt < Const.HangleMsgCntPerUpdate && msgs.TryDequeue(out var item))
         {
             Guid pid = item.pid;
             if (!proxies.TryGetValue(pid, out var proxy)) continue;
@@ -544,6 +544,11 @@ internal class Gate
             case "PingHeartbeat":
                 Console.WriteLine($"Proxy [{proxy.pid}] heartbeat pinged");
                 proxy.lastHeartbeatTime = now;
+                break;
+            case "Login":
+                string account = ((CustomString)(((CustomList)(msg.arg))[0])).Getter();
+                string password = ((CustomString)(((CustomList)(msg.arg))[1])).Getter();
+                Game.Instance.accountManager.Login(proxy, account, password);
                 break;
         }
     }

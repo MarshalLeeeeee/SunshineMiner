@@ -1,9 +1,23 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PnlStartWidgetLogin : Widget
 {
+    [Serialize]
+    public Button btnLogin;
+    [Serialize]
+    public HorizonInput inputAccount;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        btnLogin.onClick.AddListener(OnBtnLoginClick);
+    }
+
     protected override void SetActiveOnAwake()
     {
         if (activeOnAwake)
@@ -16,8 +30,9 @@ public class PnlStartWidgetLogin : Widget
         }
     }
 
-    public void Test()
+    private void OnBtnLoginClick()
     {
-        Debug.Log("Test from PnlStartWidgetLogin");
+        Debug.Log($"{inputAccount}");
+        Gate.Instance.Login(inputAccount.GetInput(), "");
     }
 }
