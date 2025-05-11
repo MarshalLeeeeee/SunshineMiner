@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
 
-internal class Proxy
+public class Proxy
 {
     public Guid pid { get; }
     public long lastHeartbeatTime;
@@ -545,10 +545,8 @@ internal class Gate
                 Console.WriteLine($"Proxy [{proxy.pid}] heartbeat pinged");
                 proxy.lastHeartbeatTime = now;
                 break;
-            case "Login":
-                string account = ((CustomString)(((CustomList)(msg.arg))[0])).Getter();
-                string password = ((CustomString)(((CustomList)(msg.arg))[1])).Getter();
-                Game.Instance.accountManager.Login(proxy, account, password);
+            case "LoginRemote":
+                Game.Instance.InvokeRpc(Game.Instance.accountManager, proxy, msg.srcId, msg.methodName, msg.arg);
                 break;
         }
     }

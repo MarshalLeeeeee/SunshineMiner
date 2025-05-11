@@ -17,10 +17,18 @@ internal class AccountManager : Manager
         return true;
     }
 
+    [Rpc(RpcConst.AnyClient, CustomTypeConst.TypeString, CustomTypeConst.TypeString)]
+    public void LoginRemote(CustomString account, CustomString password, Proxy proxy)
+    {
+        string accountStr = account.Getter();
+        string passwordStr = password.Getter();
+        Login(accountStr, passwordStr, proxy);
+    }
+
     /*
      * Player login and create player entity if authorized
      */
-    public void Login(Proxy proxy, string account, string password)
+    public void Login(string account, string password, Proxy proxy)
     {
         Msg msg = new Msg("", "", "LoginRes");
         CustomList arg = new CustomList();

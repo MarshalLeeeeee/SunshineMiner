@@ -222,30 +222,40 @@ public class CustomList : CustomType, IEnumerable
 
     public void Add(CustomType arg)
     {
-        ((List<CustomType>)obj).Add(arg);
+        List<CustomType> l = (List<CustomType>)obj;
+        l.Add(arg);
     }
 
     public CustomType this[int index]
     {
         get
         {
-            return ((List<CustomType>)obj)[index];
+            List<CustomType> l = (List<CustomType>)obj;
+            return l[index];
         }
         set
         {
-            ((List<CustomType>)obj)[index] = (CustomType)value;
+            List<CustomType> l = (List<CustomType>)obj;
+            l[index] = value;
         }
     }
 
     public IEnumerator GetEnumerator()
     {
-        foreach (CustomType arg in ((List<CustomType>)obj))
+        List<CustomType> l = (List<CustomType>)obj;
+        foreach (CustomType arg in l)
         {
             yield return arg;
         }
     }
 
     public int Count => ((List<CustomType>)obj).Count;
+
+    public CustomType[] ToArray()
+    {
+        List<CustomType> l = (List<CustomType>)obj;
+        return l.ToArray();
+    }
 
     public override void Serialize(BinaryWriter writer)
     {

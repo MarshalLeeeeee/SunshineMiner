@@ -109,7 +109,7 @@ public class Gate : MonoBehaviour
 
     public void Login(string account,  string password)
     {
-        Msg msg = new Msg("", "AccountManager", "Login");
+        Msg msg = new Msg("", "AccountManager", "LoginRemote");
         CustomList arg = new CustomList();
         arg.Add(new CustomString(account));
         arg.Add(new CustomString(password));

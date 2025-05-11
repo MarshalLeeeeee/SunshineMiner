@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 public class Game : MonoBehaviour
@@ -47,4 +48,46 @@ public class Game : MonoBehaviour
         eventManager.Update();
         timerManager.Update();
     }
+
+    #region REGION_RPC
+
+    public void InvokeRpc(object instance, string callerId, string methodName, CustomList args)
+    {
+        var method = instance.GetType().GetMethod(methodName);
+        if (method == null)
+        {
+            return;
+        }
+
+        var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
+        if (rpcAttr == null)
+        {
+            return;
+        }
+
+        int rpcType = rpcAttr.rpcType;
+        int[] rpcArgs = rpcAttr.argTypes;
+
+        int argsCount = args.Count;
+        int rpcArgsCount = rpcArgs.Length;
+        if (argsCount != rpcArgsCount)
+        {
+            return;
+        }
+
+        int i = 0;
+        while (i < rpcArgsCount)
+        {
+            CustomType arg = args[i];
+            if (arg.type != rpcArgs[i])
+            {
+                return;
+            }
+            i += 1;
+        }
+
+        method.Invoke(instance, args.ToArray());
+    }
+
+    #endregion
 }

@@ -1,27 +1,22 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+
+public class RpcConst
+{
+    public const int OwnClient = (1 << 0);
+    public const int AnyClient = (1 << 1);
+    public const int Server = (1 << 2);
+}
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class RpcAttribute : Attribute
 {
-    public int[] parameterTypes { get; }
+    public int rpcType { get; }
+    public int[] argTypes { get; }
 
-    public RpcAttribute(params int[] parameterTypes_)
+    public RpcAttribute(int rpcType_, params int[] argTypes_)
     {
-        parameterTypes = parameterTypes_;
+        rpcType = rpcType_;
+        argTypes = argTypes_;
     }
 }
 
-public class Rpc
-{
-    /*
-     * Validate if method is a rpc method
-     * Validate if args are valid
-     */
-}
