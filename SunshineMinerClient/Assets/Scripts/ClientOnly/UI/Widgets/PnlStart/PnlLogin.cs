@@ -26,13 +26,13 @@ public class PnlStartWidgetLogin : Widget
         }
         else
         {
-            SetActive(Gate.Instance.IsConnected());
+            SetActive(Game.Instance.gate.IsConnected());
         }
     }
 
     private void OnBtnLoginClick()
     {
         Debug.Log($"{inputAccount}");
-        Gate.Instance.Login(inputAccount.GetInput(), "");
+        Game.Instance.gate.Login(inputAccount.GetInput(), "");
     }
 }

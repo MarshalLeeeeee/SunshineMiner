@@ -1,32 +1,57 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 public class EntityManager : Manager
 {
     private Dictionary<string, PlayerEntity> players = new Dictionary<string, PlayerEntity>();
+    private Dictionary<string, Manager> managers = new Dictionary<string, Manager>();
+
+    public EntityManager(string eid) : base(eid) { }
 
     #region REGION_CREATE_ENTITY
 
-    public string CreateEntity()
+    public T CreateEntity<T>() where T : Entity
     {
         Guid eid = Guid.NewGuid();
-        return DoCreateEntity(eid.ToString());
+        return CreateEntity<T>(eid.ToString());
     }
-    public string CreateEntity(string eid)
+    public T CreateEntity<T>(string eid) where T : Entity
     {
-        return DoCreateEntity(eid);
+        return DoCreateEntity<T>(eid);
     }
 
-    private string DoCreateEntity(string eid)
+    public T CreateManager<T>(string mgrName) where T : Manager
     {
-        if (!players.ContainsKey(eid))
+        T manager = CreateEntity<T>();
+        managers[mgrName] = manager;
+        return manager;
+    }
+
+    private T DoCreateEntity<T>(string eid) where T : Entity
+    {
+        T entity = (T)Activator.CreateInstance(typeof(T), eid);
+        return entity;
+    }
+
+    #endregion
+
+    #region REGION_GET_ENITTY
+
+    public Entity GetEntity(string s)
+    {
+        if (s == "EntityManager")
         {
-            PlayerEntity player = new PlayerEntity(eid);
-            players.Add(eid, player);
+            return this;
         }
-        return eid;
+        else if (managers.TryGetValue(s, out var manager))
+        {
+            return manager;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     #endregion

@@ -26,65 +26,19 @@ public class CustomType
 {
     public int type = CustomTypeConst.TypeUndefined;
     protected object obj;
-
-    //public static void SerializeFactory(CustomType arg, BinaryWriter writer)
-    //{
-    //    switch (arg.type)
-    //    {
-    //        case CustomTypeConst.TypeInt:
-    //            (arg as CustomInt).Serialize(writer);
-    //            return;
-    //        case CustomTypeConst.TypeFloat:
-    //            (arg as ArgFloat).Serialize(writer);
-    //            return;
-    //        case CustomTypeConst.TypeString:
-    //            (arg as ArgString).Serialize(writer);
-    //            return;
-    //        case CustomTypeConst.TypeList:
-    //            (arg as ArgList).Serialize(writer);
-    //            return;
-    //        case CustomTypeConst.TypeDict:
-    //            (arg as ArgDict).Serialize(writer);
-    //            return;
-    //        default:
-    //            (arg as CustomType).Serialize(writer);
-    //            return;
-    //    }
-    //}
-
     public virtual void Serialize(BinaryWriter writer)
     {
         return;
     }
 
-    //public static void PrintFactory(CustomType arg)
-    //{
-    //    switch (arg.type)
-    //    {
-    //        case CustomTypeConst.TypeInt:
-    //            (arg as CustomInt).Print();
-    //            return;
-    //        case CustomTypeConst.TypeFloat:
-    //            (arg as ArgFloat).Print();
-    //            return;
-    //        case CustomTypeConst.TypeString:
-    //            (arg as ArgString).Print();
-    //            return;
-    //        case CustomTypeConst.TypeList:
-    //            (arg as ArgList).Print();
-    //            return;
-    //        case CustomTypeConst.TypeDict:
-    //            (arg as ArgDict).Print();
-    //            return;
-    //        default:
-    //            (arg as CustomType).Print();
-    //            return;
-    //    }
-    //}
-
     public virtual void Print()
     {
         return;
+    }
+
+    public virtual CustomList WrapInList()
+    {
+        return new CustomList();
     }
 }
 public class CustomInt : CustomType
@@ -115,6 +69,13 @@ public class CustomInt : CustomType
     {
         Console.Write($"{(int)obj}");
     }
+
+    public override CustomList WrapInList()
+    {
+        CustomList list = new CustomList();
+        list.Add(this);
+        return list;
+    }
 }
 public class CustomFloat : CustomType
 {
@@ -144,6 +105,13 @@ public class CustomFloat : CustomType
     {
         Console.Write($"{(float)obj}");
     }
+
+    public override CustomList WrapInList()
+    {
+        CustomList list = new CustomList();
+        list.Add(this);
+        return list;
+    }
 }
 public class CustomString : CustomType
 {
@@ -172,6 +140,13 @@ public class CustomString : CustomType
     public override void Print()
     {
         Console.Write($"\"{(string)obj}\"");
+    }
+
+    public override CustomList WrapInList()
+    {
+        CustomList list = new CustomList();
+        list.Add(this);
+        return list;
     }
 }
 
@@ -209,6 +184,13 @@ public class CustomBool : CustomType
         {
             Console.Write("false");
         }
+    }
+
+    public override CustomList WrapInList()
+    {
+        CustomList list = new CustomList();
+        list.Add(this);
+        return list;
     }
 }
 
@@ -276,6 +258,11 @@ public class CustomList : CustomType, IEnumerable
             Console.Write(", ");
         }
         Console.Write("]");
+    }
+
+    public override CustomList WrapInList()
+    {
+        return this;
     }
 }
 public class CustomDict : CustomType, IEnumerable
@@ -361,6 +348,13 @@ public class CustomDict : CustomType, IEnumerable
             Console.Write(", ");
         }
         Console.Write("}");
+    }
+
+    public override CustomList WrapInList()
+    {
+        CustomList list = new CustomList();
+        list.Add(this);
+        return list;
     }
 }
 

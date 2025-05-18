@@ -22,11 +22,11 @@ internal class Game : IDisposable
     public Game()
     {
         Instance = this;
-        gate = new Gate();
-        entityManager = new EntityManager();
-        eventManager = new EventManager();
-        accountManager = new AccountManager();
-        timerManager = new TimerManager();
+        entityManager = new EntityManager(Guid.NewGuid().ToString());
+        gate = entityManager.CreateManager<Gate>("Gate");
+        eventManager = entityManager.CreateManager<EventManager>("EventManager");
+        accountManager = entityManager.CreateManager<AccountManager>("AccountManager");
+        timerManager = entityManager.CreateManager<TimerManager>("TimerManager");
     }
 
     /*
@@ -37,6 +37,7 @@ internal class Game : IDisposable
         gate.Start();
         entityManager.Start();
         eventManager.Start();
+        accountManager.Start();
         timerManager.Start();
         isRunning = true;
         Console.WriteLine("Server game starts...");
@@ -83,9 +84,16 @@ internal class Game : IDisposable
 
     #region REGION_RPC
 
-    public void InvokeRpc(object instance, Proxy proxy, string callerId, string methodName, CustomType argsRaw)
+    public void InvokeRpc(Msg msg, Proxy proxy)
     {
-        var method = instance.GetType().GetMethod(methodName);
+        string tgtId = msg.tgtId;
+        Entity entity = entityManager.GetEntity(tgtId);
+        if (entity == null)
+        {
+            return;
+        }
+
+        var method = entity.GetType().GetMethod(msg.methodName);
         if (method == null)
         {
             return;
@@ -97,7 +105,7 @@ internal class Game : IDisposable
             return;
         }
 
-        CustomList args = (CustomList)argsRaw;
+        CustomList args = msg.arg.WrapInList();
 
         int rpcType = rpcAttr.rpcType;
         int[] rpcArgs = rpcAttr.argTypes;
@@ -126,7 +134,7 @@ internal class Game : IDisposable
             methodArgs.Add(arg);
         }
         methodArgs.Add(proxy);
-        method.Invoke(instance, methodArgs.ToArray());
+        method.Invoke(entity, methodArgs.ToArray());
     }
 
     #endregion

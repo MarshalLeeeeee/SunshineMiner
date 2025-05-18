@@ -17,7 +17,7 @@ public class PnlStartWidgetWelcome : Widget
 
     private void ConnectToServer()
     {
-        Gate.Instance.ConnectedToServer();
+        Game.Instance.gate.ConnectedToServer();
         if (callback != null)
         {
             callback();

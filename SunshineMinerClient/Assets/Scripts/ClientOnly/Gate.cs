@@ -20,7 +20,7 @@ internal static class ConnectState
     public const int Connecting = 3;
 }
 
-public class Gate : MonoBehaviour
+public class Gate : Manager
 {
     public static Gate Instance { get; private set; }
 
@@ -33,21 +33,15 @@ public class Gate : MonoBehaviour
 
     private ConcurrentQueue<Msg> msgs = new ConcurrentQueue<Msg>();
 
+    public Gate(string eid) : base(eid) { }
+
     /*
      * Instantiate instance
      * Create Tcp client
      */
-    private void Awake()
+    public override void Start()
     {
-        Debug.Log("Gate awake...");
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        Debug.Log("Gate Start...");
 
         client = new TcpClient();
         msgListenerTask = Task.CompletedTask;
@@ -60,14 +54,19 @@ public class Gate : MonoBehaviour
     /*
      * Invoked in main thread update
      */
-    void Update()
+    public override void Update()
     {
         // check connection
         CheckConnection();
         // handle msgs
         ConsumeQueuedMsg();
         // heartbeat
-        PingHeartbeat();
+        PingHeartbeatRemote();
+    }
+
+    public override void Stop()
+    {
+        ResetConnection();
     }
 
     #region REGION_PUBLIC_UTILITY
@@ -241,6 +240,20 @@ public class Gate : MonoBehaviour
         }
     }
 
+    [Rpc(RpcConst.Server)]
+    public void ConnectionSuccRemote()
+    {
+        ConfirmConnection();
+        Debug.Log("Connected");
+    }
+
+    [Rpc(RpcConst.Server)]
+    public void ConnectionLostRemote()
+    {
+        ResetConnection();
+        Debug.Log("Connection Lost");
+    }
+
     #endregion
 
     #region REGION_GATE_MSG_LISTENER
@@ -390,21 +403,32 @@ public class Gate : MonoBehaviour
     private void HandleMsg(Msg msg)
     {
         Debug.Log($"HandleMsg method name {msg.methodName}");
-        switch (msg.methodName)
-        {
-            case "ConnectionSucc":
-                ConfirmConnection();
-                Debug.Log("Connected");
-                break;
-            case "ConnectionLost":
-                ResetConnection();
-                Debug.Log("Connection Lost");
-                break;
-            case "LoginRes":
-                bool res = ((CustomBool)(((CustomList)(msg.arg))[0])).Getter();
-                Game.Instance.eventManager.TriggerGlobalEvent("LoginRes", res);
-                break;
-        }
+        Game.Instance.InvokeRpc(msg);
+        //string tgtId = msg.tgtId;
+        //Entity e = Game.Instance.entityManager.GetEntity(tgtId);
+        //if (e == null)
+        //{
+        //    Debug.Log("Handle Msg: target entity not found");
+        //}
+        //else
+        //{
+        //    e.RemoteCall(msg);
+        //}
+            //switch (msg.methodName)
+            //{
+            //    case "ConnectionSucc":
+            //        ConfirmConnection();
+            //        Debug.Log("Connected");
+            //        break;
+            //    case "ConnectionLost":
+            //        ResetConnection();
+            //        Debug.Log("Connection Lost");
+            //        break;
+            //    case "LoginRes":
+            //        bool res = ((CustomBool)(((CustomList)(msg.arg))[0])).Getter();
+            //        Game.Instance.eventManager.TriggerGlobalEvent("LoginRes", res);
+            //        break;
+            //}
     }
 
     /*
@@ -458,7 +482,7 @@ public class Gate : MonoBehaviour
      * Send heart beat ping periodically. (in main thread)
      * Send msg async
      */
-    private void PingHeartbeat()
+    private void PingHeartbeatRemote()
     {
         if (!IsConnected()) return;
 
@@ -467,8 +491,19 @@ public class Gate : MonoBehaviour
         lastHeartbeatTime = now;
 
         Debug.Log("Ping heartbeat!");
-        Msg msg = new Msg("", "", "PingHeartbeat");
+        Msg msg = new Msg("", "Gate", "PingHeartbeatRemote");
         _ = SendMsgAsync(msg);
+    }
+
+    #endregion
+
+    #region REGION_LOGIN
+
+    [Rpc(RpcConst.Server, CustomTypeConst.TypeBool)]
+    public void LoginResRemote(CustomBool res)
+    {
+        bool resValue = res.Getter();
+        Game.Instance.eventManager.TriggerGlobalEvent("LoginRes", resValue);
     }
 
     #endregion

@@ -8,6 +8,8 @@ internal class AccountManager : Manager
 {
     private Dictionary<string, string> account2player = new Dictionary<string, string>();
 
+    public AccountManager(string eid) : base(eid) { }
+
     /*
      * Authorize account
      * TODO
@@ -30,23 +32,19 @@ internal class AccountManager : Manager
      */
     public void Login(string account, string password, Proxy proxy)
     {
-        Msg msg = new Msg("", "", "LoginRes");
-        CustomList arg = new CustomList();
+        Msg msg = new Msg("", "Gate", "LoginResRemote");
         if (!CheckAccount(account, password))
         {
-            arg.Add(new CustomBool(false)); ;
-            msg.arg = arg;
-            _ = Gate.SendMsgAsync(proxy, msg);
-            return;
+            msg.arg = new CustomBool(false);
         }
-
-        if (!account2player.ContainsKey(account))
-        {
-            string playerId = Game.Instance.entityManager.CreateEntity();
-            account2player[account] = playerId;
+        else {
+            if (!account2player.ContainsKey(account))
+            {
+                PlayerEntity player = Game.Instance.entityManager.CreateEntity<PlayerEntity>();
+                account2player[account] = player.eid.Getter();
+            }
+            msg.arg = new CustomBool(true);
         }
-        arg.Add(new CustomBool(true)); ;
-        msg.arg = arg;
         _ = Gate.SendMsgAsync(proxy, msg);
     }
 }

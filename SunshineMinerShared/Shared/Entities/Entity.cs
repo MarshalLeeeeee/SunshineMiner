@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
+
 
 public class Entity
 {
-    [SyncType(SyncConst.AllClient)]
+    [PropertySync(SyncConst.AllClient)]
     public CustomString eid { get; private set; }
 
     private Dictionary<string, Component> components = new Dictionary<string, Component>();
@@ -26,7 +28,7 @@ public class Entity
         components[compName].OnLoad();
     }
 
-    public T GetComponent<T>(string compName) where T : Component
+    public T? GetComponent<T>(string compName) where T : Component
     {
         if (components.TryGetValue(compName, out var component))
         {
@@ -41,7 +43,7 @@ public class Entity
 
     public void UnloadComponent(string compName)
     {
-        if (components.Remove(compName, out Component component))
+        if (components.Remove(compName, out Component? component))
         {
             if (component != null)
             {
@@ -49,12 +51,6 @@ public class Entity
             }
         }
     }
-
-    #endregion
-
-    #region REGION_PROPERTY_SERIALIZATION
-
-
 
     #endregion
 }

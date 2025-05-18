@@ -220,7 +220,7 @@ public class Proxy
     #endregion
 }
 
-internal class Gate
+internal class Gate : Manager
 {
     private TcpListener listener;
     private Task listenerTask;
@@ -233,7 +233,7 @@ internal class Gate
 
     private long lastCheckTime;
 
-    public Gate()
+    public Gate(string eid) : base(eid)
     {
         listener = new TcpListener(IPAddress.Any, Const.Port);
         listenerTask = Task.CompletedTask;
@@ -251,7 +251,7 @@ internal class Gate
      * Start gate service (in main thread)
      * * Start listener to handle new connections in off thread
      */
-    public void Start()
+    public override void Start()
     {
         Console.WriteLine("Gate starts...");
         StartListener();
@@ -262,7 +262,7 @@ internal class Gate
      * Stop gate service (in main thread)
      * * Stop listener to handle new connections
      */
-    public void Stop()
+    public override void Stop()
     {
         if (!isActive) return; 
         Console.WriteLine("Gate is shutting down...");
@@ -274,7 +274,7 @@ internal class Gate
     /*
      * Invoked in every server tick (in main thread)
      */
-    public void Update()
+    public override void Update()
     {
         if (!isActive) return;
         // handle queued msgs
@@ -396,7 +396,7 @@ internal class Gate
                 (msg) => OnReceiveMsg(proxy, msg),
                 OnProxyDisconnect
             );
-            Msg msg = new Msg("", "", "ConnectionSucc");
+            Msg msg = new Msg("", "Gate", "ConnectionSuccRemote");
             Task.Run(() => SendMsgAsync(proxy, msg));
             PushToCheckProxyQueue(proxy.pid);
             Console.WriteLine($"Proxy [{proxy.pid}] is added {proxy.IsConnected()}");
@@ -418,7 +418,7 @@ internal class Gate
         {
             if (proxy != null)
             {
-                Msg msg = new Msg("", "", "ConnectionLost");
+                Msg msg = new Msg("", "Gate", "ConnectionLostRemote");
                 Task.Run(() => SendMsgAsync(proxy, msg));
                 proxy.Stop();
                 Console.WriteLine($"Proxy [{pid}] is removed");
@@ -494,6 +494,13 @@ internal class Gate
         }
     }
 
+    [Rpc(RpcConst.AnyClient)]
+    public void PingHeartbeatRemote(Proxy proxy)
+    {
+        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        proxy.lastHeartbeatTime = now;
+    }
+
     #endregion
 
     #region REGION_MSG
@@ -537,18 +544,19 @@ internal class Gate
      */
     static private void HandleMsg(Proxy proxy, Msg msg)
     {
-        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        //long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         Console.WriteLine($"HandleMsg method name {msg.methodName} from ip {proxy.GetIp()}::{proxy.GetPort()}");
-        switch (msg.methodName)
-        {
-            case "PingHeartbeat":
-                Console.WriteLine($"Proxy [{proxy.pid}] heartbeat pinged");
-                proxy.lastHeartbeatTime = now;
-                break;
-            case "LoginRemote":
-                Game.Instance.InvokeRpc(Game.Instance.accountManager, proxy, msg.srcId, msg.methodName, msg.arg);
-                break;
-        }
+        Game.Instance.InvokeRpc(msg, proxy);
+        //switch (msg.methodName)
+        //{
+        //    case "PingHeartbeatRemote":
+        //        Console.WriteLine($"Proxy [{proxy.pid}] heartbeat pinged");
+        //        proxy.lastHeartbeatTime = now;
+        //        break;
+        //    case "LoginRemote":
+        //        Game.Instance.InvokeRpc(msg, proxy);
+        //        break;
+        //}
     }
 
     #endregion

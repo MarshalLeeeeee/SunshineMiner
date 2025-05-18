@@ -15,11 +15,21 @@ public static class SyncConst
     public const int AllClient = (OwnClient | OtherClient);
 }
 
-[AttributeUsage(AttributeTargets.Property)]
-public class SyncTypeAttribute : Attribute
+[AttributeUsage(AttributeTargets.Class)]
+public class EntitySyncAttribute : Attribute
 {
     public int syncType { get; }
-    public SyncTypeAttribute(int syncType_)
+    public EntitySyncAttribute(int syncType_)
+    {
+        syncType = syncType_;
+    }
+}
+
+[AttributeUsage(AttributeTargets.Property)]
+public class PropertySyncAttribute : Attribute
+{
+    public int syncType { get; }
+    public PropertySyncAttribute(int syncType_)
     {
         syncType = syncType_;
     }
