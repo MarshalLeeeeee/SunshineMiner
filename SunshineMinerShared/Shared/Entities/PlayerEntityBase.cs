@@ -6,5 +6,6 @@ using System.Threading.Tasks;
 
 public class PlayerEntityBase : Entity
 {
+    public PlayerEntityBase() : base() { }
     public PlayerEntityBase(string eid) : base(eid) { }
 }

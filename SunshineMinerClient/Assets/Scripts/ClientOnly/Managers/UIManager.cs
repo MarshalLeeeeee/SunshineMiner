@@ -54,7 +54,7 @@ public class UIManager : MonoBehaviour
 
         if (task.IsFaulted)
         {
-            Debug.Log($"Load panel {pnlName} failed");
+            Debugger.Log($"Load panel {pnlName} failed");
         }
     }
 

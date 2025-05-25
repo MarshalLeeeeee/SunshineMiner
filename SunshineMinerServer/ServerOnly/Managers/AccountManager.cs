@@ -36,16 +36,31 @@ internal class AccountManager : Manager
         if (!CheckAccount(account, password))
         {
             msg.arg = new CustomBool(false);
+            _ = Gate.SendMsgAsync(proxy, msg);
         }
         else {
+            PlayerEntity? player = null;
             if (!account2player.ContainsKey(account))
             {
-                PlayerEntity player = Game.Instance.entityManager.CreateEntity<PlayerEntity>();
-                account2player[account] = player.eid.Getter();
+                Guid eid = Guid.NewGuid();
+                player = Game.Instance.entityManager.CreatePlayer(eid.ToString());
+                if (player != null)
+                {
+                    account2player[account] = player.eid.Getter();
+                }
             }
-            msg.arg = new CustomBool(true);
+            else
+            {
+                player = Game.Instance.entityManager.GetPlayer(account2player[account]);
+            }
+            msg.arg = new CustomBool(player != null);
+            _ = Gate.SendMsgAsync(proxy, msg);
+
+            if (player != null)
+            {
+                player.UpdateProxy(proxy.pid);
+            }
         }
-        _ = Gate.SendMsgAsync(proxy, msg);
     }
 }
 

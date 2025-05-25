@@ -40,7 +40,7 @@ internal class Game : IDisposable
         accountManager.Start();
         timerManager.Start();
         isRunning = true;
-        Console.WriteLine("Server game starts...");
+        Debugger.Log("Server game starts...");
 
         // ctrl c in termin to stop game
         Console.CancelKeyPress += (sender, e) =>
@@ -79,7 +79,7 @@ internal class Game : IDisposable
         entityManager.Stop();
         eventManager.Stop();
         timerManager.Stop();
-        Console.WriteLine("Server game ends...");
+        Debugger.Log("Server game ends...");
     }
 
     #region REGION_RPC
@@ -87,7 +87,7 @@ internal class Game : IDisposable
     public void InvokeRpc(Msg msg, Proxy proxy)
     {
         string tgtId = msg.tgtId;
-        Entity entity = entityManager.GetEntity(tgtId);
+        Entity? entity = entityManager.GetEntity(tgtId);
         if (entity == null)
         {
             return;

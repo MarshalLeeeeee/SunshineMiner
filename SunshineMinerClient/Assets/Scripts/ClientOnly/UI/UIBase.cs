@@ -53,7 +53,7 @@ public abstract class UIBase : MonoBehaviour
 
         if (task.IsFaulted)
         {
-            Debug.Log($"Load widget {widgetName} failed");
+            Debugger.Log($"Load widget {widgetName} failed");
         }
     }
 

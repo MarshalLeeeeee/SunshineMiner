@@ -107,14 +107,14 @@ public static class MsgStreamer
             }
             if (lengthBytesRead < 4)
             {
-                Console.WriteLine("Head read failed");
+                Debugger.Log("Head read failed");
                 return (false, new Msg("", "", ""));
             }
 
             int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
             if (messageLength <= 0)
             {
-                Console.WriteLine("Head length abnormal");
+                Debugger.Log("Head length abnormal");
                 return (false, new Msg("", "", ""));
             }
             byte[] messageBuffer = new byte[messageLength];
@@ -133,14 +133,14 @@ public static class MsgStreamer
             }
             if (totalBytesRead < messageLength)
             {
-                Console.WriteLine("Read data incomplete");
+                Debugger.Log("Read data incomplete");
                 return (false, new Msg("", "", ""));
             }
             return (true, Deserialize(messageBuffer));
         }
         catch (Exception ex) when (ex is OperationCanceledException || ex is IOException)
         {
-            Console.WriteLine($"Read exception happens: {ex}");
+            Debugger.Log($"Read exception happens: {ex}");
             return (false, new Msg("", "", ""));
         }
     }

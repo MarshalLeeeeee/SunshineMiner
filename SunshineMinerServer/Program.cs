@@ -13,7 +13,7 @@ class Program
         {
             game.Start();
         }
-        Console.WriteLine("Press enter to exit thread...");
+        Debugger.Log("Press enter to exit thread...");
         Console.ReadLine();
     }
 }

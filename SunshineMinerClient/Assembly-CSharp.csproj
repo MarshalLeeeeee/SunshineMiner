@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\Shared\Managers\EventManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Game.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Rpc.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Utils\Debugger.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\TimerManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widget.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
@@ -78,7 +79,6 @@
     <Compile Include="Assets\Scripts\ClientOnly\Const.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panels\PnlLoading.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\BgTouch.cs" />
-    <Compile Include="Assets\Scripts\Shared\Managers\EntityManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\PnlStart\PnlWelcome.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panel.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Entities\PlayerEntity.cs" />
@@ -88,7 +88,9 @@
     <Compile Include="Assets\Scripts\Shared\Utils\Sync.cs" />
     <Compile Include="Assets\Scripts\Shared\Entities\PlayerEntityBase.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\UIManager.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Managers\EntityManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Components\MoveComp.cs" />
+    <Compile Include="Assets\Scripts\Shared\Managers\EntityManagerBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,9 +32,9 @@ public class CustomType
         return;
     }
 
-    public virtual void Print()
+    public virtual string CustomToString()
     {
-        return;
+        return "";
     }
 
     public virtual CustomList WrapInList()
@@ -65,9 +66,9 @@ public class CustomInt : CustomType
         writer.Write((int)obj);
     }
 
-    public override void Print()
+    public override string CustomToString()
     {
-        Console.Write($"{(int)obj}");
+        return $"{(int)obj}";
     }
 
     public override CustomList WrapInList()
@@ -101,9 +102,9 @@ public class CustomFloat : CustomType
         writer.Write((float)obj);
     }
 
-    public override void Print()
+    public override string CustomToString()
     {
-        Console.Write($"{(float)obj}");
+        return $"{(float)obj}";
     }
 
     public override CustomList WrapInList()
@@ -137,9 +138,9 @@ public class CustomString : CustomType
         writer.Write((string)obj);
     }
 
-    public override void Print()
+    public override string CustomToString()
     {
-        Console.Write($"\"{(string)obj}\"");
+        return $"\"{(string)obj}\"";
     }
 
     public override CustomList WrapInList()
@@ -174,15 +175,15 @@ public class CustomBool : CustomType
         writer.Write((bool)obj);
     }
 
-    public override void Print()
+    public override string CustomToString()
     {
         if ((bool)obj)
         {
-            Console.Write("true");
+           return "true";
         }
         else
         {
-            Console.Write("false");
+            return "false";
         }
     }
 
@@ -249,15 +250,14 @@ public class CustomList : CustomType, IEnumerable
         writer.Write(CustomTypeConst.TypeListTail);
     }
 
-    public override void Print()
+    public override string CustomToString()
     {
-        Console.Write("[");
+        string ss = "";
         foreach (CustomType arg in ((List<CustomType>)obj))
         {
-            arg.Print();
-            Console.Write(", ");
+            ss += arg.CustomToString() + ", ";
         }
-        Console.Write("]");
+        return $"[{ss}]";
     }
 
     public override CustomList WrapInList()
@@ -335,19 +335,16 @@ public class CustomDict : CustomType, IEnumerable
         writer.Write(CustomTypeConst.TypeDictTail);
     }
 
-    public override void Print()
+    public override string CustomToString()
     {
-        Console.Write("{");
+        string ss = "";
         foreach (var kvp in ((Dictionary<CustomType, CustomType>)obj))
         {
             CustomType k = kvp.Key;
             CustomType v = kvp.Value;
-            k.Print();
-            Console.Write(": ");
-            v.Print();
-            Console.Write(", ");
+            ss += k.CustomToString() + ": " + v.CustomToString() + ", ";
         }
-        Console.Write("}");
+        return "{" + $"{ss}" + "}";
     }
 
     public override CustomList WrapInList()
@@ -500,5 +497,42 @@ public class CustomTypeStreamer
         {
             return new CustomType();
         }
+    }
+
+    public static CustomDict SerializeProperties(object instance, int syncType)
+    {
+        CustomDict dict = new CustomDict();
+        Type type = instance.GetType();
+        var properties = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        foreach (var property in properties)
+        {
+            var attr = property.GetCustomAttribute<PropertySyncAttribute>();
+
+            if (attr != null && (attr.syncType & syncType) != 0)
+            {
+                var value = property.GetValue(instance);
+                if (value != null)
+                {
+                    Debugger.Log($"Property name: {property.Name}, Value: {value}");
+                    dict.Add(new CustomString(property.Name), (CustomType)value);
+                }
+            }
+        }
+        var fields = type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        foreach (var field in fields)
+        {
+            var attr = field.GetCustomAttribute<PropertySyncAttribute>();
+
+            if (attr != null && (attr.syncType & syncType) != 0)
+            {
+                var value = field.GetValue(instance);
+                if (value != null)
+                {
+                    Debugger.Log($"Field name: {field.Name}, Value: {value}");
+                    dict.Add(new CustomString(field.Name), (CustomType)value);
+                }
+            }
+        }
+        return dict;
     }
 }

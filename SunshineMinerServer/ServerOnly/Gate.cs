@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using System.Numerics;
 
 
 public class Proxy
@@ -132,7 +133,7 @@ public class Proxy
     {
         if (CheckMsgListenerRunning())
         {
-            Console.WriteLine("Proxy msg listener start failed: already exists...");
+            Debugger.Log("Proxy msg listener start failed: already exists...");
             return;
         }
         msgListenerTask = Task.Run(() => MsgListernerWorker(onReceiveMsgCallback, onDisconnectCallback, msgListenerCts.Token));
@@ -152,7 +153,7 @@ public class Proxy
                 {
                     if (!IsConnected())
                     {
-                        Console.WriteLine($"Proxy [{pid}] [{GetIp()}::{GetPort()}] lost connection in msg listener");
+                        Debugger.Log($"Proxy [{pid}] [{GetIp()}::{GetPort()}] lost connection in msg listener");
                         break;
                     }
 
@@ -163,7 +164,7 @@ public class Proxy
                     }
                     else
                     {
-                        Console.WriteLine($"Proxy [{pid}] [{GetIp()}::{GetPort()}] Invalid message");
+                        Debugger.Log($"Proxy [{pid}] [{GetIp()}::{GetPort()}] Invalid message");
                         await Task.Delay(1000, ct).ConfigureAwait(false);
                     }
                 }
@@ -181,7 +182,7 @@ public class Proxy
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Proxy [{pid}] [{GetIp()}::{GetPort()}] Invalid message with error: {ex}");
+                    Debugger.Log($"Proxy [{pid}] [{GetIp()}::{GetPort()}] Invalid message with error: {ex}");
                     await Task.Delay(1000, ct).ConfigureAwait(false);
                 }
             }
@@ -208,7 +209,7 @@ public class Proxy
         { }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error waiting for msg listener to stop: {ex}");
+            Debugger.Log($"Error waiting for msg listener to stop: {ex}");
         }
         finally
         {
@@ -253,7 +254,7 @@ internal class Gate : Manager
      */
     public override void Start()
     {
-        Console.WriteLine("Gate starts...");
+        Debugger.Log("Gate starts...");
         StartListener();
         isActive = true;
     }
@@ -265,10 +266,10 @@ internal class Gate : Manager
     public override void Stop()
     {
         if (!isActive) return; 
-        Console.WriteLine("Gate is shutting down...");
+        Debugger.Log("Gate is shutting down...");
         isActive = false;
         StopListener();
-        Console.WriteLine("Gate stop over...");
+        Debugger.Log("Gate stop over...");
     }
 
     /*
@@ -300,7 +301,7 @@ internal class Gate : Manager
     {
         if (CheckListenerTaskRunning())
         {
-            Console.WriteLine("Start gate listener failed: listener is running already...");
+            Debugger.Log("Start gate listener failed: listener is running already...");
             return;
         }
         listenerTask = Task.Run(() => ListernerWorker(listenerCts.Token));
@@ -335,7 +336,7 @@ internal class Gate : Manager
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Accept connection failed: {ex}");
+                    Debugger.Log($"Accept connection failed: {ex}");
                     await Task.Delay(1000, ct).ConfigureAwait(false);
                 }
             }
@@ -361,7 +362,7 @@ internal class Gate : Manager
         { }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error waiting for listener to stop: {ex}");
+            Debugger.Log($"Error waiting for listener to stop: {ex}");
         }
         finally
         {
@@ -376,7 +377,7 @@ internal class Gate : Manager
     private void HandleNewConnectionAsync(TcpClient client)
     {
         if (!isActive) return;
-        Console.WriteLine("HandleNewConnection");
+        Debugger.Log("HandleNewConnection");
         var proxy = new Proxy(client);
         AddProxy(proxy);
     }
@@ -399,12 +400,12 @@ internal class Gate : Manager
             Msg msg = new Msg("", "Gate", "ConnectionSuccRemote");
             Task.Run(() => SendMsgAsync(proxy, msg));
             PushToCheckProxyQueue(proxy.pid);
-            Console.WriteLine($"Proxy [{proxy.pid}] is added {proxy.IsConnected()}");
+            Debugger.Log($"Proxy [{proxy.pid}] is added {proxy.IsConnected()}");
             return true;
         }
         else
         {
-            Console.WriteLine($"Proxy {proxy.pid} fails to be added: already managed");
+            Debugger.Log($"Proxy {proxy.pid} fails to be added: already managed");
             return false;
         }
     }
@@ -412,7 +413,7 @@ internal class Gate : Manager
     /*
      * Remove proxy from management (in any thread)
      */
-    private bool RemoveProxy(Guid pid)
+    public bool RemoveProxy(Guid pid)
     {
         if (proxies.TryRemove(pid, out var proxy))
         {
@@ -421,7 +422,7 @@ internal class Gate : Manager
                 Msg msg = new Msg("", "Gate", "ConnectionLostRemote");
                 Task.Run(() => SendMsgAsync(proxy, msg));
                 proxy.Stop();
-                Console.WriteLine($"Proxy [{pid}] is removed");
+                Debugger.Log($"Proxy [{pid}] is removed");
             }
             return true;
         }
@@ -437,6 +438,21 @@ internal class Gate : Manager
     private void OnProxyDisconnect(Guid pid)
     {
         RemoveProxy(pid);
+    }
+
+    /*
+     * get proxy (in main thread)
+     */
+    public Proxy? GetProxy(Guid pid)
+    {
+        if (proxies.TryGetValue(pid, out var proxy))
+        {
+            return proxy;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     #endregion
@@ -468,20 +484,20 @@ internal class Gate : Manager
                 cnt += 1;
                 if (proxy == null)
                 {
-                    Console.WriteLine($"Check proxy [{pid}]: null");
+                    Debugger.Log($"Check proxy [{pid}]: null");
                     RemoveProxy(pid);
                     continue;
                 }
                 // check aliveness
                 if (!proxy.IsConnected())
                 {
-                    Console.WriteLine($"Check proxy [{pid}]: disconnect");
+                    Debugger.Log($"Check proxy [{pid}]: disconnect");
                     RemoveProxy(pid);
                     continue;
                 }
                 if (now - proxy.lastHeartbeatTime > Const.HeartBeatThreshold)
                 {
-                    Console.WriteLine($"Check proxy [{pid}]: heartbeat expired");
+                    Debugger.Log($"Check proxy [{pid}]: heartbeat expired");
                     RemoveProxy(pid);
                     continue;
                 }
@@ -544,19 +560,47 @@ internal class Gate : Manager
      */
     static private void HandleMsg(Proxy proxy, Msg msg)
     {
-        //long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        Console.WriteLine($"HandleMsg method name {msg.methodName} from ip {proxy.GetIp()}::{proxy.GetPort()}");
+        Debugger.Log($"HandleMsg method name {msg.methodName} from ip {proxy.GetIp()}::{proxy.GetPort()}");
         Game.Instance.InvokeRpc(msg, proxy);
-        //switch (msg.methodName)
-        //{
-        //    case "PingHeartbeatRemote":
-        //        Console.WriteLine($"Proxy [{proxy.pid}] heartbeat pinged");
-        //        proxy.lastHeartbeatTime = now;
-        //        break;
-        //    case "LoginRemote":
-        //        Game.Instance.InvokeRpc(msg, proxy);
-        //        break;
-        //}
+    }
+
+    #endregion
+
+    #region REGION_RPC
+
+    public void RpcToOwnClient(string pid, Msg msg)
+    {
+        PlayerEntity? player = Game.Instance.entityManager.GetPlayer(pid);
+        if (player != null)
+        {
+            RpcToClient(player, msg);
+        }
+    }
+
+    public void RpcToOtherClient(string pid, Msg msg)
+    {
+        foreach (PlayerEntity player in Game.Instance.entityManager.GetOtherPlayer(pid))
+        {
+            RpcToClient(player, msg);
+        }
+    }
+
+    public void RpcToAllClient(Msg msg)
+    {
+        foreach (PlayerEntity player in Game.Instance.entityManager.GetAllPlayer())
+        {
+            RpcToClient(player, msg);
+        }
+    }
+
+    private void RpcToClient(PlayerEntity player, Msg msg)
+    {
+        Guid proxyId = player.proxyId;
+        Proxy? proxy = GetProxy(proxyId);
+        if (proxy != null)
+        {
+            _ = SendMsgAsync(proxy, msg);
+        }
     }
 
     #endregion

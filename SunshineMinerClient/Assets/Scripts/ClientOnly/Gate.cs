@@ -41,7 +41,7 @@ public class Gate : Manager
      */
     public override void Start()
     {
-        Debug.Log("Gate Start...");
+        Debugger.Log("Gate Start...");
 
         client = new TcpClient();
         msgListenerTask = Task.CompletedTask;
@@ -78,31 +78,31 @@ public class Gate : Manager
     {
         if (IsConnected())
         {
-            Debug.Log("Connected already...");
+            Debugger.Log("Connected already...");
             return;
         }
         if (IsConnecting())
         {
-            Debug.Log("Connecting already...");
+            Debugger.Log("Connecting already...");
             return;
         }
         if (IsDisconnecting())
         {
-            Debug.Log("Disconnecting, try later...");
+            Debugger.Log("Disconnecting, try later...");
             return;
         }
         connectState = ConnectState.Connecting;
         try
         {
             client.Connect("localhost", Const.Port);
-            Debug.Log("Client gate connected...");
+            Debugger.Log("Client gate connected...");
             StartMsgListener();
         }
         catch (Exception ex)
         {
             connectState = ConnectState.Disconnected;
             Game.Instance.eventManager.TriggerGlobalEvent("GateConnectingOver", false);
-            Debug.Log($"Connected to server failed: {ex}");
+            Debugger.Log($"Connected to server failed: {ex}");
         }
     }
 
@@ -213,7 +213,7 @@ public class Gate : Manager
     {
         if (IsDisconnected() || IsDisconnecting())
         {
-            Debug.Log("[ResetConnection] Already disconnected or disconnecting...");
+            Debugger.Log("[ResetConnection] Already disconnected or disconnecting...");
         }
         connectState = ConnectState.Disconnecting;
         StopMsgListener();
@@ -244,14 +244,14 @@ public class Gate : Manager
     public void ConnectionSuccRemote()
     {
         ConfirmConnection();
-        Debug.Log("Connected");
+        Debugger.Log("Connected");
     }
 
     [Rpc(RpcConst.Server)]
     public void ConnectionLostRemote()
     {
         ResetConnection();
-        Debug.Log("Connection Lost");
+        Debugger.Log("Connection Lost");
     }
 
     #endregion
@@ -273,7 +273,7 @@ public class Gate : Manager
     {
         if (CheckMsgListenerRunning())
         {
-            Console.WriteLine("Proxy msg listener start failed: already exists...");
+            Debugger.Log("Proxy msg listener start failed: already exists...");
             return;
         }
         msgListenerTask = Task.Run(() => MsgListernerWorker(msgListenerCts.Token));
@@ -292,20 +292,20 @@ public class Gate : Manager
                 {
                     if (!IsConnected() && !IsConnecting())
                     {
-                        Debug.Log($"Invalid connected state in msg listener");
+                        Debugger.Log($"Invalid connected state in msg listener");
                         break;
                     }
 
                     if (!IsSocketConnected())
                     {
-                        Debug.Log("Lost socket connection in msg listener");
+                        Debugger.Log("Lost socket connection in msg listener");
                         break;
                     }
 
                     var streamRes = GetStream();
                     if (!streamRes.succ)
                     {
-                        Debug.Log($"Invalid stream in msg listener");
+                        Debugger.Log($"Invalid stream in msg listener");
                         break;
                     }
 
@@ -317,7 +317,7 @@ public class Gate : Manager
                     }
                     else
                     {
-                        Debug.Log($"Invalid message");
+                        Debugger.Log($"Invalid message");
                         await Task.Delay(1000, ct).ConfigureAwait(false);
                     }
                 }
@@ -335,7 +335,7 @@ public class Gate : Manager
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Invalid message with error: {ex}");
+                    Debugger.Log($"Invalid message with error: {ex}");
                     await Task.Delay(1000, ct).ConfigureAwait(false);
                 }
             }
@@ -361,7 +361,7 @@ public class Gate : Manager
         { }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error waiting for msg listener to stop: {ex}");
+            Debugger.Log($"Error waiting for msg listener to stop: {ex}");
         }
         finally
         {
@@ -402,33 +402,8 @@ public class Gate : Manager
      */
     private void HandleMsg(Msg msg)
     {
-        Debug.Log($"HandleMsg method name {msg.methodName}");
+        Debugger.Log($"HandleMsg method name {msg.methodName}");
         Game.Instance.InvokeRpc(msg);
-        //string tgtId = msg.tgtId;
-        //Entity e = Game.Instance.entityManager.GetEntity(tgtId);
-        //if (e == null)
-        //{
-        //    Debug.Log("Handle Msg: target entity not found");
-        //}
-        //else
-        //{
-        //    e.RemoteCall(msg);
-        //}
-            //switch (msg.methodName)
-            //{
-            //    case "ConnectionSucc":
-            //        ConfirmConnection();
-            //        Debug.Log("Connected");
-            //        break;
-            //    case "ConnectionLost":
-            //        ResetConnection();
-            //        Debug.Log("Connection Lost");
-            //        break;
-            //    case "LoginRes":
-            //        bool res = ((CustomBool)(((CustomList)(msg.arg))[0])).Getter();
-            //        Game.Instance.eventManager.TriggerGlobalEvent("LoginRes", res);
-            //        break;
-            //}
     }
 
     /*
@@ -438,13 +413,13 @@ public class Gate : Manager
     {
         if (!IsConnected())
         {
-            Debug.Log("Not connected, cannot send message");
+            Debugger.Log("Not connected, cannot send message");
             return false;
         }
 
         if (!IsSocketConnected())
         {
-            Debug.Log("Socket not connected, cannot send message");
+            Debugger.Log("Socket not connected, cannot send message");
             return false;
         }
 
@@ -453,7 +428,7 @@ public class Gate : Manager
             var streamRes = GetStream();
             if (!streamRes.succ)
             {
-                Debug.Log("Invalid stream in sending msg");
+                Debugger.Log("Invalid stream in sending msg");
                 return false;
             }
 
@@ -463,12 +438,12 @@ public class Gate : Manager
         }
         catch (OperationCanceledException)
         {
-            Debug.Log("Message sending was canceled");
+            Debugger.Log("Message sending was canceled");
             return false;
         }
         catch (Exception ex)
         {
-            Debug.Log($"Error sending message: {ex}");
+            Debugger.Log($"Error sending message: {ex}");
             ResetConnection();
             return false;
         }
@@ -490,7 +465,7 @@ public class Gate : Manager
         if (now - lastHeartbeatTime < Const.HeartBeatInterval) return;
         lastHeartbeatTime = now;
 
-        Debug.Log("Ping heartbeat!");
+        Debugger.Log("Ping heartbeat!");
         Msg msg = new Msg("", "Gate", "PingHeartbeatRemote");
         _ = SendMsgAsync(msg);
     }
