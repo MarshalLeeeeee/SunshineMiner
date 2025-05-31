@@ -73,6 +73,7 @@
     <Compile Include="Assets\Scripts\ClientOnly\Utils\Debugger.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\TimerManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widget.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Managers\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\UIBase.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\Component.cs" />

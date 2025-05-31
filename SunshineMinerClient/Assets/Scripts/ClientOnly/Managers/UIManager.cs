@@ -25,6 +25,7 @@ public class UIManager : MonoBehaviour
 
     [SerializeField]
     private Canvas coverCanvas; // the canvas works only at the game start stage
+    private bool coverLoaded = false;
 
     private void Awake()
     {
@@ -35,48 +36,32 @@ public class UIManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(gameObject);       
+    }
 
-        LoadPanelAsync("PnlStart", CanvasLayer.Default);
+    private void Start()
+    {
+        InitCover();
     }
 
     #region REGION_PANEL
 
     public void LoadPanelAsync(string pnlName, CanvasLayer layer)
     {
-        StartCoroutine(LoadPanelWrapper(pnlName, layer));
-    }
-
-    private IEnumerator LoadPanelWrapper(string pnlName, CanvasLayer layer)
-    {
-        var task = DoLoadPanelAsync(pnlName, layer);
-        yield return new WaitUntil(() => task.IsCompleted);
-
-        if (task.IsFaulted)
-        {
-            Debugger.Log($"Load panel {pnlName} failed");
-        }
-    }
-
-    private async Task DoLoadPanelAsync(string pnlName, CanvasLayer layer)
-    {
         string pnlPath = $"Assets/UI/Panels/{pnlName}.prefab";
-        AsyncOperationHandle<GameObject> panelHandle = Addressables.LoadAssetAsync<GameObject>(pnlPath);
-        await panelHandle.Task;
+        ResourceManager.Instance.LoadResourceAsync(pnlPath, (panelObject) => {
+            OnPanelLoaded(panelObject, pnlName, layer);
+        });
+    }
 
-        if (panelHandle.Status == AsyncOperationStatus.Succeeded)
-        {
-            Canvas canvas = GetCanvas(layer);
-            GameObject panelGameObject = Instantiate(panelHandle.Result, canvas.transform);
-            Panel panel = panelGameObject.GetComponent<Panel>();
-            panel.transform.localPosition = Vector3.zero;
-            panel.transform.localScale = Vector3.one;
-            panels[pnlName] = panel;
-        }
-        else
-        {
-            Debug.LogError($"Load {pnlPath} failed: {panelHandle.OperationException}");
-        }
+    private void OnPanelLoaded(GameObject panelObject, string pnlName, CanvasLayer layer)
+    {
+        Canvas canvas = GetCanvas(layer);
+        GameObject panelGameObject = Instantiate(panelObject, canvas.transform);
+        Panel panel = panelGameObject.GetComponent<Panel>();
+        panel.transform.localPosition = Vector3.zero;
+        panel.transform.localScale = Vector3.one;
+        panels[pnlName] = panel;
     }
 
     public void UnloadPanel(string pnlName)
@@ -90,7 +75,9 @@ public class UIManager : MonoBehaviour
         panels.Remove(pnlName);
     }
 
-    #endregion REGION_PANEL
+    #endregion
+
+    #region REGION_CANVAS
 
     private Canvas GetCanvas(CanvasLayer layer)
     {
@@ -115,9 +102,24 @@ public class UIManager : MonoBehaviour
         return canvas;
     }
 
+    #endregion
+
+    #region REGION_COVER_PANEL
+
+    public void InitCover()
+    {
+        if (!coverLoaded)
+        {
+            LoadPanelAsync("PnlStart", CanvasLayer.Default);
+            coverLoaded = true;
+        }
+    }
+
     public void RemoveCover()
     {
         Destroy(coverCanvas.gameObject);
         coverCanvas = null;
     }
+
+    #endregion
 }
