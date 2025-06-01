@@ -33,26 +33,23 @@ public class Game : MonoBehaviour
 
     private void OnEnable()
     {
-        gate.Start();
+        // since other mgrs are included in entityManager
+        // only entity manager start is required here
         entityManager.Start();
-        eventManager.Start();
-        timerManager.Start();
     }
 
     private void OnDisable()
     {
-        gate.Stop();
+        // since other mgrs are included in entityManager
+        // only entity manager stop is required here
         entityManager.Stop();
-        eventManager.Stop();
-        timerManager.Stop();
     }
 
     private void Update()
     {
-        gate.Update();
+        // since other mgrs are included in entityManager
+        // only entity manager update is required here
         entityManager.Update();
-        eventManager.Update();
-        timerManager.Update();
     }
 
     #region REGION_RPC

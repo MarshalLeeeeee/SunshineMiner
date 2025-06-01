@@ -71,6 +71,7 @@ public class Entity
 
     public void LoadComponent<T>(string compName) where T : Component, new()
     {
+        Debugger.Log($"LoadComponent: {compName}");
         if (components.ContainsKey(compName))
         {
             return;

@@ -9,11 +9,31 @@ public class EntityManagerBase : Manager
 
     public EntityManagerBase(string eid) : base(eid) { }
 
+    public override void Start()
+    {
+        foreach (var mgr in managers.Values)
+        {
+            mgr.Start();
+        }
+    }
+
     public override void Update()
     {
+        foreach (var mgr in managers.Values)
+        {
+            mgr.Update();
+        }
         foreach (var player in players.Values)
         {
             player.Update();
+        }
+    }
+
+    public override void Stop()
+    {
+        foreach (var mgr in managers.Values)
+        {
+            mgr.Stop();
         }
     }
 
@@ -21,11 +41,21 @@ public class EntityManagerBase : Manager
 
     private T? CreateEntity<T>() where T : Entity
     {
-        return (T?)Activator.CreateInstance(typeof(T));
+        T? entity = (T?)Activator.CreateInstance(typeof(T));
+        if (entity != null)
+        {
+            entity.OnLoad();
+        }
+        return entity;
     }
     private T? CreateEntity<T>(string eid) where T : Entity
     {
-        return (T?)Activator.CreateInstance(typeof(T), eid);
+        T? entity = (T?)Activator.CreateInstance(typeof(T), eid);
+        if (entity != null)
+        {
+            entity.OnLoad();
+        }
+        return entity;
     }
     private T? CreateEntity<T>(CustomDict baseProperty, CustomDict compProperty) where T : Entity
     {
@@ -37,6 +67,7 @@ public class EntityManagerBase : Manager
         if (entity != null)
         {
             entity.InitFromDict(baseProperty, compProperty);
+            entity.OnLoad();
         }
         return entity;
     }

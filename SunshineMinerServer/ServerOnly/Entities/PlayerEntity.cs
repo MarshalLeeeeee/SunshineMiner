@@ -16,6 +16,7 @@ public class PlayerEntity : PlayerEntityBase
     public void UpdateProxy(Guid proxyId_)
     {
         Game.Instance.gate.RemoveProxy(proxyId);
+        proxyId = proxyId_;
 
         Msg msgOwn = new Msg(eid.Getter(), "EntityManager", "CreatePrimaryPlayerRemote");
         msgOwn.arg = SerializeProperty(SyncConst.OwnClient);

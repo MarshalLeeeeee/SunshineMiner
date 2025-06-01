@@ -8,13 +8,9 @@ public class PlayerEntity : PlayerEntityBase
     public PlayerEntity() : base() { }
     public PlayerEntity(string eid) : base(eid) { }
 
-    public override void InitFromDict(CustomDict baseProperty, CustomDict compProperty)
+    public override void OnLoad()
     {
-        base.InitFromDict(baseProperty, compProperty);
-        Debugger.Log($"Eid: {eid.Getter()}");
-        Debugger.Log($"Eid: {eid.Getter()}");
-        Debugger.Log($"Eid: {eid.Getter()}");
-        Debugger.Log($"Eid: {eid.Getter()}");
-        Debugger.Log($"Eid: {eid.Getter()}");
+        base.OnLoad();
+        LoadComponent<PrefabComp>("prefabComp");
     }
 }

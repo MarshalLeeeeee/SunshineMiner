@@ -34,11 +34,9 @@ internal class Game : IDisposable
      */
     public void Start()
     {
-        gate.Start();
+        // since other mgrs are included in entityManager
+        // only entity manager start is required here
         entityManager.Start();
-        eventManager.Start();
-        accountManager.Start();
-        timerManager.Start();
         isRunning = true;
         Debugger.Log("Server game starts...");
 
@@ -57,10 +55,9 @@ internal class Game : IDisposable
             if (currentTime >= nextTickTime)
             {
                 dt = (float)(currentTime - (nextTickTime - Const.TickInterval)) / 1000f;
-                gate.Update();
+                // since other mgrs are included in entityManager
+                // only entity manager update is required here
                 entityManager.Update();
-                eventManager.Update();
-                timerManager.Update();
 
                 nextTickTime = currentTime + Const.TickInterval;
             }
@@ -75,10 +72,9 @@ internal class Game : IDisposable
     public void Dispose()
     {
         isRunning = false;
-        gate.Stop();
+        // since other mgrs are included in entityManager
+        // only entity manager stop is required here
         entityManager.Stop();
-        eventManager.Stop();
-        timerManager.Stop();
         Debugger.Log("Server game ends...");
     }
 
