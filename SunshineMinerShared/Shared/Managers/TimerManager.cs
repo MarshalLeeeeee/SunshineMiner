@@ -9,8 +9,6 @@ public class TimerManager : Manager
     private Dictionary<Guid, Timer> timers = new Dictionary<Guid, Timer>();
     private ConcurrentQueue<Action> queuedActions = new ConcurrentQueue<Action>();
 
-    public TimerManager(string eid) : base(eid) { }
-
     public Guid AddTimer(int delay, Action callback)
     {
         var timer = new Timer(_ => {

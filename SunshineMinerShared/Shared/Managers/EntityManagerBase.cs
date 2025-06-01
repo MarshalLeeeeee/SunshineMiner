@@ -7,8 +7,6 @@ public class EntityManagerBase : Manager
     private Dictionary<string, PlayerEntity> players = new Dictionary<string, PlayerEntity>();
     private Dictionary<string, Manager> managers = new Dictionary<string, Manager>();
 
-    public EntityManagerBase(string eid) : base(eid) { }
-
     public override void Start()
     {
         foreach (var mgr in managers.Values)

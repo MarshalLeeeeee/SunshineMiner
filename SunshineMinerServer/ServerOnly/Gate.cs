@@ -234,7 +234,7 @@ internal class Gate : Manager
 
     private long lastCheckTime;
 
-    public Gate(string eid) : base(eid)
+    public Gate()
     {
         listener = new TcpListener(IPAddress.Any, Const.Port);
         listenerTask = Task.CompletedTask;

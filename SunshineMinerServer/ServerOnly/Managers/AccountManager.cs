@@ -8,8 +8,6 @@ internal class AccountManager : Manager
 {
     private Dictionary<string, string> account2player = new Dictionary<string, string>();
 
-    public AccountManager(string eid) : base(eid) { }
-
     /*
      * Authorize account
      * TODO

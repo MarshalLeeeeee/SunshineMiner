@@ -7,8 +7,6 @@ public class EventManager : Manager
 {
     private Dictionary<string, Dictionary<string, Delegate>> globalEvents = new Dictionary<string, Dictionary<string, Delegate>>();
 
-    public EventManager(string eid) : base(eid) { }
-
     #region REGION_GLOBAL_EVENT_REGISTERATION
 
     private void DoRegisterGlobalEvent(string eventName, string callbackName, Delegate handler)

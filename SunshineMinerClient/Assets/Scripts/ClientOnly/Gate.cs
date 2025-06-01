@@ -33,8 +33,6 @@ public class Gate : Manager
 
     private ConcurrentQueue<Msg> msgs = new ConcurrentQueue<Msg>();
 
-    public Gate(string eid) : base(eid) { }
-
     /*
      * Instantiate instance
      * Create Tcp client

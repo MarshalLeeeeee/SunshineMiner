@@ -13,20 +13,22 @@ internal class Game : IDisposable
 
     private bool isRunning;
     public float dt { get; private set; } // current delta time in tick
-    public Gate gate { get; private set; } // handle connection and msg
-    public EntityManager entityManager { get; private set; } // manage entities
-    public EventManager eventManager { get; private set; } // manage events and global events
-    public AccountManager accountManager { get; private set; } // manage account and online states
-    public TimerManager timerManager { get; private set; }
+
+    private Dictionary<string, Manager> managers = new Dictionary<string, Manager>();
+    //public Gate gate { get; private set; } // handle connection and msg
+    //public EntityManager entityManager { get; private set; } // manage entities
+    //public EventManager eventManager { get; private set; } // manage events and global events
+    //public AccountManager accountManager { get; private set; } // manage account and online states
+    //public TimerManager timerManager { get; private set; }
 
     public Game()
     {
         Instance = this;
-        entityManager = new EntityManager(Guid.NewGuid().ToString());
-        gate = entityManager.CreateManager<Gate>("Gate");
-        eventManager = entityManager.CreateManager<EventManager>("EventManager");
-        accountManager = entityManager.CreateManager<AccountManager>("AccountManager");
-        timerManager = entityManager.CreateManager<TimerManager>("TimerManager");
+        CreateManager<Gate>("Gate");
+        CreateManager<EntityManager>("EntityManager");
+        CreateManager<EventManager>("EventManager");
+        CreateManager<TimerManager>("TimerManager");
+        CreateManager<AccountManager>("AccountManager");
     }
 
     /*
@@ -34,9 +36,7 @@ internal class Game : IDisposable
      */
     public void Start()
     {
-        // since other mgrs are included in entityManager
-        // only entity manager start is required here
-        entityManager.Start();
+        StartManagers();
         isRunning = true;
         Debugger.Log("Server game starts...");
 
@@ -55,10 +55,7 @@ internal class Game : IDisposable
             if (currentTime >= nextTickTime)
             {
                 dt = (float)(currentTime - (nextTickTime - Const.TickInterval)) / 1000f;
-                // since other mgrs are included in entityManager
-                // only entity manager update is required here
-                entityManager.Update();
-
+                UpdateManagers();
                 nextTickTime = currentTime + Const.TickInterval;
             }
 
@@ -72,24 +69,114 @@ internal class Game : IDisposable
     public void Dispose()
     {
         isRunning = false;
-        // since other mgrs are included in entityManager
-        // only entity manager stop is required here
-        entityManager.Stop();
+        StopManagers();
         Debugger.Log("Server game ends...");
     }
+
+    #region REGION_MANAGER
+
+    private void CreateManager<T>(string name) where T : Manager, new()
+    {
+        T mgr = new T();
+        managers[name] = mgr;
+    }
+
+    private T? GetManager<T>(string name) where T : Manager
+    {
+        if (managers.TryGetValue(name, out Manager manager))
+        {
+            return (T)manager;
+        }
+        return null;
+    }
+
+    private void StartManagers()
+    {
+        foreach (var manager in managers.Values)
+        {
+            manager.Start();
+        }
+    }
+
+    private void UpdateManagers()
+    {
+        foreach (var manager in managers.Values)
+        {
+            manager.Update();
+        }
+    }
+
+    private void StopManagers()
+    {
+        foreach (var manager in managers.Values)
+        {
+            manager.Stop();
+        }
+        managers.Clear();
+    }
+
+    public Gate? gate
+    {
+        get
+        {
+            return GetManager<Gate>("Gate");
+        }
+    }
+
+    public EntityManager? entityManager
+    {
+        get
+        {
+            return GetManager<EntityManager>("EntityManager");
+        }
+    }
+
+    public EventManager? eventManager
+    {
+        get
+        {
+            return GetManager<EventManager>("EventManager");
+        }
+    }
+
+    public TimerManager? timerManager
+    {
+        get
+        {
+            return GetManager<TimerManager>("TimerManager");
+        }
+    }
+
+    public AccountManager? accountManager
+    {
+        get
+        {
+            return GetManager<AccountManager>("AccountManager");
+        }
+    }
+
+    #endregion
 
     #region REGION_RPC
 
     public void InvokeRpc(Msg msg, Proxy proxy)
     {
         string tgtId = msg.tgtId;
-        Entity? entity = entityManager.GetEntity(tgtId);
-        if (entity == null)
+        object instance = null;
+        if (managers.ContainsKey(tgtId))
+        {
+            instance = managers[tgtId];
+        }
+        else
+        {
+            instance = entityManager.GetEntity(tgtId);
+        }
+        if (instance == null)
         {
             return;
         }
 
-        var method = entity.GetType().GetMethod(msg.methodName);
+        var method = instance.GetType().GetMethod(msg.methodName);
         if (method == null)
         {
             return;
@@ -130,7 +217,7 @@ internal class Game : IDisposable
             methodArgs.Add(arg);
         }
         methodArgs.Add(proxy);
-        method.Invoke(entity, methodArgs.ToArray());
+        method.Invoke(instance, methodArgs.ToArray());
     }
 
     #endregion

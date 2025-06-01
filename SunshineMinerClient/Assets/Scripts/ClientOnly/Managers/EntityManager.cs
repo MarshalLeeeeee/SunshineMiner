@@ -4,7 +4,6 @@ using System.Collections.Generic;
 public class EntityManager : EntityManagerBase
 {
     public string primaryPid = "";
-    public EntityManager(string eid) : base(eid) { }
 
     #region REGION_PLAYER
 
