@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Threading.Tasks;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class ResourceManager : MonoBehaviour
 {

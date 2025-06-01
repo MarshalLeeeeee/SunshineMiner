@@ -58,8 +58,10 @@ internal class Game : IDisposable
                 UpdateManagers();
                 nextTickTime = currentTime + Const.TickInterval;
             }
-
-            Thread.Sleep(1);
+            else
+            {
+                Thread.Sleep((int)(nextTickTime - currentTime));
+            }
         }
     }
 
@@ -162,21 +164,21 @@ internal class Game : IDisposable
     public void InvokeRpc(Msg msg, Proxy proxy)
     {
         string tgtId = msg.tgtId;
-        object instance = null;
+        Entity entity = null;
         if (managers.ContainsKey(tgtId))
         {
-            instance = managers[tgtId];
+            entity = managers[tgtId];
         }
         else
         {
-            instance = entityManager.GetEntity(tgtId);
+            entity = entityManager.GetEntity(tgtId);
         }
-        if (instance == null)
+        if (entity == null)
         {
             return;
         }
 
-        var method = instance.GetType().GetMethod(msg.methodName);
+        var method = entity.GetType().GetMethod(msg.methodName);
         if (method == null)
         {
             return;
@@ -188,9 +190,13 @@ internal class Game : IDisposable
             return;
         }
 
-        CustomList args = msg.arg.WrapInList();
-
         int rpcType = rpcAttr.rpcType;
+        if (rpcType == RpcConst.OwnClient && proxy.eid != entity.eid.Getter())
+        {
+            return;
+        }
+
+        CustomList args = msg.arg.WrapInList();
         int[] rpcArgs = rpcAttr.argTypes;
 
         int argsCount = args.Count;
@@ -217,7 +223,7 @@ internal class Game : IDisposable
             methodArgs.Add(arg);
         }
         methodArgs.Add(proxy);
-        method.Invoke(instance, methodArgs.ToArray());
+        method.Invoke(entity, methodArgs.ToArray());
     }
 
     #endregion

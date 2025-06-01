@@ -16,7 +16,6 @@ public class EventManager : Manager
             globalEvents[eventName] = new Dictionary<string, Delegate>();
         }
         globalEvents[eventName].TryAdd(callbackName, handler);
-        Debugger.Log($"register event {eventName} {callbackName}");
     }
 
     public void RegisterGlobalEvent(string eventName, string callbackName, Action callback)

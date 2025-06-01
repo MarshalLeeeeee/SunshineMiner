@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerEntity : PlayerEntityBase
@@ -8,9 +9,9 @@ public class PlayerEntity : PlayerEntityBase
     public PlayerEntity() : base() { }
     public PlayerEntity(string eid) : base(eid) { }
 
-    public override void OnLoad()
+    public override void Init()
     {
-        base.OnLoad();
-        LoadComponent<PrefabComp>("prefabComp");
+        base.Init();
+        InitComponent("PrefabComp");
     }
 }

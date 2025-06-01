@@ -5,33 +5,12 @@ using System.Collections.Generic;
 public class EntityManagerBase : Manager
 {
     private Dictionary<string, PlayerEntity> players = new Dictionary<string, PlayerEntity>();
-    private Dictionary<string, Manager> managers = new Dictionary<string, Manager>();
-
-    public override void Start()
-    {
-        foreach (var mgr in managers.Values)
-        {
-            mgr.Start();
-        }
-    }
 
     public override void Update()
     {
-        foreach (var mgr in managers.Values)
-        {
-            mgr.Update();
-        }
         foreach (var player in players.Values)
         {
             player.Update();
-        }
-    }
-
-    public override void Stop()
-    {
-        foreach (var mgr in managers.Values)
-        {
-            mgr.Stop();
         }
     }
 
@@ -42,6 +21,7 @@ public class EntityManagerBase : Manager
         T? entity = (T?)Activator.CreateInstance(typeof(T));
         if (entity != null)
         {
+            entity.Init();
             entity.OnLoad();
         }
         return entity;
@@ -51,6 +31,7 @@ public class EntityManagerBase : Manager
         T? entity = (T?)Activator.CreateInstance(typeof(T), eid);
         if (entity != null)
         {
+            entity.Init();
             entity.OnLoad();
         }
         return entity;
@@ -64,7 +45,7 @@ public class EntityManagerBase : Manager
         T? entity = (T?)Activator.CreateInstance(typeof(T));
         if (entity != null)
         {
-            entity.InitFromDict(baseProperty, compProperty);
+            entity.Init(baseProperty, compProperty);
             entity.OnLoad();
         }
         return entity;
@@ -76,15 +57,7 @@ public class EntityManagerBase : Manager
 
     public Entity? GetEntity(string s)
     {
-        if (s == "EntityManager")
-        {
-            return this;
-        }
-        else if (managers.TryGetValue(s, out var manager))
-        {
-            return manager;
-        }
-        else if (players.TryGetValue(s, out var player))
+        if (players.TryGetValue(s, out var player))
         {
             return player;
         }
@@ -92,20 +65,6 @@ public class EntityManagerBase : Manager
         {
             return null;
         }
-    }
-
-    #endregion
-
-    #region REGION_MANAGER
-    public T? CreateManager<T>(string mgrName) where T : Manager
-    {
-        Guid eid = Guid.NewGuid();
-        T? manager = CreateEntity<T>(eid.ToString());
-        if (manager != null)
-        {
-            managers[mgrName] = manager;
-        }
-        return manager;
     }
 
     #endregion

@@ -513,7 +513,6 @@ public class CustomTypeStreamer
                 var value = property.GetValue(instance);
                 if (value != null)
                 {
-                    Debugger.Log($"Property name: {property.Name}, Value: {value}");
                     dict.Add(new CustomString(property.Name), (CustomType)value);
                 }
             }
@@ -528,7 +527,6 @@ public class CustomTypeStreamer
                 var value = field.GetValue(instance);
                 if (value != null)
                 {
-                    Debugger.Log($"Field name: {field.Name}, Value: {value}");
                     dict.Add(new CustomString(field.Name), (CustomType)value);
                 }
             }

@@ -56,7 +56,10 @@ internal class AccountManager : Manager
 
             if (player != null)
             {
+                proxy.eid = account2player[account];
                 player.UpdateProxy(proxy.pid);
+                player.SyncSelf();
+                player.SyncOthers();
             }
         }
     }

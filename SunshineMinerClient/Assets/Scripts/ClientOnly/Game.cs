@@ -11,11 +11,6 @@ public class Game : MonoBehaviour
 
     private Dictionary<string, Manager> managers = new Dictionary<string, Manager>();
 
-    //public Gate gate { get; private set; }
-    //public EntityManager entityManager { get; private set; }
-    //public EventManager eventManager { get; private set; }
-    //public TimerManager timerManager { get; private set; }
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -38,7 +33,7 @@ public class Game : MonoBehaviour
         StartManagers();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         UpdateManagers();
     }
@@ -129,21 +124,21 @@ public class Game : MonoBehaviour
     public void InvokeRpc(Msg msg)
     {
         string tgtId = msg.tgtId;
-        object instance = null;
+        Entity entity = null;
         if (managers.ContainsKey(tgtId))
         {
-            instance = managers[tgtId];
+            entity = managers[tgtId];
         }
         else
         {
-            instance = entityManager.GetEntity(tgtId);
+            entity = entityManager.GetEntity(tgtId);
         }
-        if (instance == null)
+        if (entity == null)
         {
             return;
         }
 
-        var method = instance.GetType().GetMethod(msg.methodName);
+        var method = entity.GetType().GetMethod(msg.methodName);
         if (method == null)
         {
             return;
@@ -178,7 +173,7 @@ public class Game : MonoBehaviour
             i += 1;
         }
 
-        method.Invoke(instance, args.ToArray());
+        method.Invoke(entity, args.ToArray());
     }
 
     #endregion

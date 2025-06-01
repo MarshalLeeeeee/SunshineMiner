@@ -32,7 +32,6 @@ public class PnlStartWidgetLogin : Widget
 
     private void OnBtnLoginClick()
     {
-        Debugger.Log($"{inputAccount}");
         Game.Instance.gate.Login(inputAccount.GetInput(), "");
     }
 }

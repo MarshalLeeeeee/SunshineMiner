@@ -8,6 +8,7 @@ public class MoveBehavior : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
 
     private Rigidbody rb;
+    public bool isPrimary = false;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +24,12 @@ public class MoveBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        UpdateFromInput();
+    }
+
+    private void UpdateFromInput()
+    {
+        if (!isPrimary) return;
         float verticalInput = 0f;
         if (InputManager.Instance.GetAction("Forward")) verticalInput += 1f;
         if (InputManager.Instance.GetAction("Backward")) verticalInput -= 1f;

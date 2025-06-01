@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Xml.Schema;
 
 
 public class Entity
@@ -18,7 +19,12 @@ public class Entity
         eid = new CustomString(eid_);
     }
 
-    public virtual void InitFromDict(CustomDict baseProperty, CustomDict compProperty)
+    public virtual void Init()
+    {
+
+    }
+
+    public virtual void Init(CustomDict baseProperty, CustomDict compProperty)
     {
         Type type = GetType();
         foreach (DictionaryEntry kvp in baseProperty)
@@ -28,7 +34,7 @@ public class Entity
                 name,
                 BindingFlags.Public | BindingFlags.Instance
             );
-            if ( property != null )
+            if (property != null)
             {
                 property.SetValue(this, kvp.Value);
             }
@@ -41,6 +47,12 @@ public class Entity
                 field.SetValue(this, kvp.Value);
             }
         }
+        foreach (DictionaryEntry kvp in compProperty)
+        {
+            string compName = ((CustomString)(kvp.Key)).Getter();
+            Component component = InitComponent(compName, (CustomDict)(kvp.Value));
+        }
+        Init();
     }
 
     public virtual void OnLoad()
@@ -57,6 +69,12 @@ public class Entity
         {
             component.Update();
         }
+        PostUpdate();
+    }
+
+    protected virtual void PostUpdate()
+    {
+        
     }
 
     public virtual void OnUnload()
@@ -69,15 +87,30 @@ public class Entity
 
     #region REGION_COMPONENT_MANAGEMENT
 
-    public void LoadComponent<T>(string compName) where T : Component, new()
+    public Component InitComponent(string compName)
     {
-        Debugger.Log($"LoadComponent: {compName}");
-        if (components.ContainsKey(compName))
+        if (!components.ContainsKey(compName))
         {
-            return;
+            components[compName] = ComponentFactory.CreateComponent(compName);
+            components[compName].Init(eid.Getter());
         }
-        components[compName] = new T();
-        components[compName].OnLoad();
+        return components[compName];
+    }
+
+    public Component InitComponent(string compName, CustomDict compProperty)
+    {
+        if (!components.ContainsKey(compName))
+        {
+            components[compName] = ComponentFactory.CreateComponent(compName);
+            components[compName].Init(eid.Getter(), compProperty);
+        }
+        return components[compName];
+    }
+
+    public void LoadComponent<T>(string compName) where T : Component
+    {
+        T component = (T)InitComponent(compName);
+        component.OnLoad();
     }
 
     public T? GetComponent<T>(string compName) where T : Component
@@ -119,7 +152,6 @@ public class Entity
         }
         properties.Add(baseProperty);
         properties.Add(compProperty);
-        Debugger.Log($"{properties.CustomToString()}");
         return properties;
     }
 

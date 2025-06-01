@@ -16,6 +16,7 @@ using System.Numerics;
 public class Proxy
 {
     public Guid pid { get; }
+    public string eid;
     public long lastHeartbeatTime;
     public long lastCheckTime { get; set; }
 
@@ -29,6 +30,7 @@ public class Proxy
     public Proxy(TcpClient client_)
     {
         pid = Guid.NewGuid();
+        eid = "";
         lastHeartbeatTime = 0;
         lastCheckTime = 0;
 

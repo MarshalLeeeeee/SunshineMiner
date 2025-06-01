@@ -70,9 +70,12 @@
     <Compile Include="Assets\Scripts\Shared\Managers\EventManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Game.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Utils\Debugger.cs" />
+    <Compile Include="Assets\Scripts\Shared\Utils\ComponentFactoryBase.cs" />
+    <Compile Include="Assets\Scripts\Shared\Components\AreaCompBase.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\UIBase.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\Component.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Components\AreaComp.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panels\PnlLoading.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\PnlStart\PnlWelcome.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panel.cs" />
@@ -81,12 +84,14 @@
     <Compile Include="Assets\Scripts\ClientOnly\Gate.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Sync.cs" />
     <Compile Include="Assets\Scripts\Shared\Entities\PlayerEntityBase.cs" />
+    <Compile Include="Assets\Scripts\Shared\Utils\Math.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Prefab\MoveBehavior.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\EntityManager.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\EntityManagerBase.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Components\PrefabComp.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Rpc.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\TimerManager.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Utils\ComponentFactory.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widget.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Const.cs" />
