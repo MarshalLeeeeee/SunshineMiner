@@ -7,7 +7,7 @@ public class Manager : Entity
 
     public virtual void Start()
     {
-
+        Init();
     }
 
     public virtual void Stop()

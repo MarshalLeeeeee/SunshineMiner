@@ -38,10 +38,6 @@ public class EntityManagerBase : Manager
     }
     private T? CreateEntity<T>(CustomDict baseProperty, CustomDict compProperty) where T : Entity
     {
-        // Debugger.Log("Base property");
-        // Debugger.Log($"{baseProperty.CustomToString()}");
-        // Debugger.Log("Comp property");
-        // Debugger.Log($"{compProperty.CustomToString()}");
         T? entity = (T?)Activator.CreateInstance(typeof(T));
         if (entity != null)
         {

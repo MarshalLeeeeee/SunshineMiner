@@ -4,9 +4,20 @@ public class PrefabComp : Component
 {
     public GameObject? prefabObject = null;
 
-    public override void Init(string eid)
+    public Vec3? prefabPosition
     {
-        base.Init(eid);
+        get
+        {
+            if (prefabObject != null)
+            {
+                Vector3 p = prefabObject.transform.position;
+                return new Vec3(p.x, p.y, p.z);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     public override void OnLoad()

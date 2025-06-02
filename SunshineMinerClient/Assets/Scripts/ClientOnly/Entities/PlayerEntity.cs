@@ -9,9 +9,10 @@ public class PlayerEntity : PlayerEntityBase
     public PlayerEntity() : base() { }
     public PlayerEntity(string eid) : base(eid) { }
 
-    public override void Init()
+    protected override void InitComponents()
     {
-        base.Init();
-        InitComponent("PrefabComp");
+        base.InitComponents();
+        InitComponent<PrefabComp>("PrefabComp");
+        InitComponent<AreaComp>("AreaComp");
     }
 }

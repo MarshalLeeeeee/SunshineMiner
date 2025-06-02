@@ -18,14 +18,14 @@ public class PnlStart : Panel
 
     private void OnEnable()
     {
-        Game.Instance.eventManager.RegisterGlobalEvent<bool>("GateConnectingOver", "OnGateConnectingOver", OnGateConnectingOver);
-        Game.Instance.eventManager.RegisterGlobalEvent<bool>("LoginRes", "OnLoginRes", OnLoginRes);
+        Game.Instance.eventManager?.RegisterGlobalEvent<bool>("GateConnectingOver", "OnGateConnectingOver", OnGateConnectingOver);
+        Game.Instance.eventManager?.RegisterGlobalEvent<bool>("LoginRes", "OnLoginRes", OnLoginRes);
     }
 
     private void OnDisable()
     {
-        Game.Instance.eventManager.UnregisterGlobalEvent("GateConnectingOver", "OnGateConnectingOver");
-        Game.Instance.eventManager.UnregisterGlobalEvent("LoginRes", "OnLoginRes");
+        Game.Instance.eventManager?.UnregisterGlobalEvent("GateConnectingOver", "OnGateConnectingOver");
+        Game.Instance.eventManager?.UnregisterGlobalEvent("LoginRes", "OnLoginRes");
     }
 
     private void OnDestroy()

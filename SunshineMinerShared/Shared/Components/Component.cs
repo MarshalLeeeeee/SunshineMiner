@@ -5,27 +5,24 @@ using System.Reflection;
 
 public class Component
 {
-    protected string eid = "";
+    protected Entity? entity = null;
 
-    protected Entity? entity
+    /*
+     * Set corresponding entity eid
+     */
+    public virtual void Init(Entity e)
     {
-        get
-        {
-            return Game.Instance.entityManager.GetEntity(eid);
-        }
-    }
-
-    public virtual void Init(string eid)
-    {
-        this.eid = eid;
+        entity = e;
+        InitRpcMethods();
     }
 
     /*
+     * Set corresponding entity eid
      * Init properties from dict
      */
-    public virtual void Init(string eid, CustomDict compProperty)
+    public virtual void Init(Entity e, CustomDict compProperty)
     {
-        Init(eid);
+        entity = e;
         Type type = GetType();
         foreach (DictionaryEntry kvp in compProperty)
         {
@@ -47,6 +44,15 @@ public class Component
                 field.SetValue(this, kvp.Value);
             }
         }
+        InitRpcMethods();
+    }
+
+    private void InitRpcMethods()
+    {
+        if (entity == null) return;
+
+        Type type = GetType();
+        entity.InitComponentRpcMethods(type.Name);
     }
 
     /*
@@ -70,12 +76,11 @@ public class Component
      */
     public virtual void OnUnload()
     {
-
+        entity = null;
     }
 
     protected T? GetComponent<T>(string compName) where T : Component
     {
-        Entity? entity = this.entity;
         if (entity != null)
         {
             return entity.GetComponent<T>(compName);

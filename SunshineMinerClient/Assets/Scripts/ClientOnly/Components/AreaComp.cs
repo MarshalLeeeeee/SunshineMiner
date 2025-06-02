@@ -11,8 +11,7 @@ public class AreaComp : AreaCompBase
             PrefabComp prefabComp = GetComponent<PrefabComp>("PrefabComp");
             if (prefabComp != null)
             {
-                Vector3 p = prefabComp.prefabObject.transform.position;
-                return new Vec3(p.x, p.y, p.z);
+                return prefabComp.prefabPosition;
             }
             else
             {
@@ -29,12 +28,16 @@ public class AreaComp : AreaCompBase
         {
             return;
         }
+        if (Game.Instance.entityManager.primaryPid != entity.eid.Getter())
+        {
+            return;
+        }
         Vec3? prefabPosition = this.prefabPosition;
         if (prefabPosition == null)
         {
             return;
         }
-        Msg msg = new Msg("", entity.eid.Getter(), "SyncPositionRemote");
+        Msg msg = new Msg(entity.eid.Getter(), "SyncPositionRemote");
         CustomList arg = new CustomList();
         arg.Add(new CustomFloat(prefabPosition.x));
         arg.Add(new CustomFloat(prefabPosition.y));

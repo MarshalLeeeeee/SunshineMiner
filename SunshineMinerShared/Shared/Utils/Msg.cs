@@ -10,18 +10,13 @@ using System.Threading.Tasks;
 
 public class Msg
 {
-    public string srcId { get; }
     public string tgtId { get; }
     public string methodName { get; }
-    public long expiredTime { get; }
-    public CustomType arg;
-    public Msg(string srdId_, string tgtId_, string methodName_, long expiredTime_ = -1)
+    public CustomType arg = new CustomType();
+    public Msg(string tgtId_, string methodName_)
     {
-        srcId = srdId_;
         tgtId = tgtId_;
         methodName = methodName_;
-        expiredTime = expiredTime_;
-        arg = new CustomType();
     }
 }
 
@@ -33,23 +28,39 @@ public static class MsgStreamer
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
 
-        writer.Write(msg.srcId);
         writer.Write(msg.tgtId);
         writer.Write(msg.methodName);
-        writer.Write(msg.expiredTime);
         msg.arg.Serialize(writer);
         return stream.ToArray();
     }
 
-    public static Msg Deserialize(byte[] data)
+    public static Msg? Deserialize(byte[] data)
     {
         using var stream = new MemoryStream(data);
         using var reader = new BinaryReader(stream);
+        
+        try
+        {
+            // Debugger.Log($"conf0: ");
+            // string s1 = reader.ReadString();
+            // Debugger.Log($"conf1: s1: {s1}");
+            // string s2 = reader.ReadString();
+            // Debugger.Log($"conf2: s1: {s1} s2:{s2}");
+            // string s3 = reader.ReadString();
+            // Debugger.Log($"conf3: s1: {s1} s2:{s2} s3:{s3}");
+            // long ll = reader.ReadInt64();
+            // Msg msg = new Msg(s1, s2, s3, ll);
+            // Debugger.Log($"conf4: s1: {s1} s2:{s2} s3:{s3} ll:{ll}");
+            Msg msg = new Msg(reader.ReadString(), reader.ReadString());
+            CustomType arg = CustomTypeStreamer.Deserialize(reader);
+            msg.arg = arg;
+            return msg;
+        }
+        catch
+        {
+            return null;
+        }
 
-        Msg msg = new Msg(reader.ReadString(), reader.ReadString(), reader.ReadString(), reader.ReadInt64());
-        CustomType arg = CustomTypeStreamer.Deserialize(reader);
-        msg.arg = arg;
-        return msg;
     }
 
     public static (bool succ, Msg msg) ReadMsgFromStream(NetworkStream stream)
@@ -64,13 +75,13 @@ public static class MsgStreamer
         }
         if (lengthBytesRead < 4)
         {
-            return (false, new Msg("", "", ""));
+            return (false, new Msg("", ""));
         }
 
         int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
         if (messageLength <= 0)
         {
-            return (false, new Msg("", "", ""));
+            return (false, new Msg("", ""));
         }
         byte[] messageBuffer = new byte[messageLength];
         int totalBytesRead = 0;
@@ -82,9 +93,14 @@ public static class MsgStreamer
         }
         if (totalBytesRead < messageLength)
         {
-            return (false, new Msg("", "", ""));
+            return (false, new Msg("", ""));
         }
-        return (true, Deserialize(messageBuffer));
+        Msg? msg = Deserialize(messageBuffer);
+        if (msg == null)
+        {
+            return (false, new Msg("", ""));
+        }
+        return (true, msg);
     }
 
     public static async Task<(bool succ, Msg msg)> ReadMsgFromStreamAsync(NetworkStream stream, CancellationToken cancellationToken = default)
@@ -108,14 +124,14 @@ public static class MsgStreamer
             if (lengthBytesRead < 4)
             {
                 Debugger.Log("Head read failed");
-                return (false, new Msg("", "", ""));
+                return (false, new Msg("", ""));
             }
 
             int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
             if (messageLength <= 0)
             {
                 Debugger.Log("Head length abnormal");
-                return (false, new Msg("", "", ""));
+                return (false, new Msg("", ""));
             }
             byte[] messageBuffer = new byte[messageLength];
             int totalBytesRead = 0;
@@ -134,14 +150,19 @@ public static class MsgStreamer
             if (totalBytesRead < messageLength)
             {
                 Debugger.Log("Read data incomplete");
-                return (false, new Msg("", "", ""));
+                return (false, new Msg("", ""));
             }
-            return (true, Deserialize(messageBuffer));
+            Msg? msg = Deserialize(messageBuffer);
+            if (msg == null)
+            {
+                return (false, new Msg("", ""));
+            }
+            return (true, msg);
         }
         catch (Exception ex) when (ex is OperationCanceledException || ex is IOException)
         {
             Debugger.Log($"Read exception happens: {ex}");
-            return (false, new Msg("", "", ""));
+            return (false, new Msg("", ""));
         }
     }
 

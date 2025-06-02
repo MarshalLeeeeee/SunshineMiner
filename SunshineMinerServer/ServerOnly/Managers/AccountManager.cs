@@ -30,7 +30,7 @@ internal class AccountManager : Manager
      */
     public void Login(string account, string password, Proxy proxy)
     {
-        Msg msg = new Msg("", "Gate", "LoginResRemote");
+        Msg msg = new Msg("Gate", "LoginResRemote");
         if (!CheckAccount(account, password))
         {
             msg.arg = new CustomBool(false);
@@ -58,8 +58,8 @@ internal class AccountManager : Manager
             {
                 proxy.eid = account2player[account];
                 player.UpdateProxy(proxy.pid);
-                player.SyncSelf();
-                player.SyncOthers();
+                player.SyncSelfToAll();
+                player.SyncByOthers();
             }
         }
     }

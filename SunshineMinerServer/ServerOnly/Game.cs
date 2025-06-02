@@ -178,12 +178,19 @@ internal class Game : IDisposable
             return;
         }
 
-        var method = entity.GetType().GetMethod(msg.methodName);
-        if (method == null)
+        RpcMethodInfo? rpcMethod = entity.GetRpcMethodInfo(msg.methodName);
+        if (rpcMethod == null)
         {
             return;
         }
 
+        object? instance = rpcMethod.GetMethodInstance(entity);
+        if (instance == null)
+        {
+            return;
+        }
+
+        MethodInfo method = rpcMethod.methodInfo;
         var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
         if (rpcAttr == null)
         {
@@ -223,7 +230,7 @@ internal class Game : IDisposable
             methodArgs.Add(arg);
         }
         methodArgs.Add(proxy);
-        method.Invoke(entity, methodArgs.ToArray());
+        method.Invoke(instance, methodArgs.ToArray());
     }
 
     #endregion

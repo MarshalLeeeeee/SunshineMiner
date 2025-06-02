@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Xml.Schema;
+using Microsoft.VisualBasic;
 
 
 public class Entity
@@ -12,6 +14,8 @@ public class Entity
 
     private Dictionary<string, Component> components = new Dictionary<string, Component>();
 
+    private Dictionary<string, RpcMethodInfo> rpcMethods = new Dictionary<string, RpcMethodInfo>();
+
     public Entity() { }
 
     public Entity(string eid_)
@@ -19,12 +23,21 @@ public class Entity
         eid = new CustomString(eid_);
     }
 
-    public virtual void Init()
+    /*
+     * Init components
+     */
+    public void Init()
     {
-
+        InitRpcMethods();
+        InitComponents();
     }
 
-    public virtual void Init(CustomDict baseProperty, CustomDict compProperty)
+    /*
+     * Sync base property
+     * Init components
+     * Sync component property
+     */
+    public void Init(CustomDict baseProperty, CustomDict compProperty)
     {
         Type type = GetType();
         foreach (DictionaryEntry kvp in baseProperty)
@@ -47,12 +60,17 @@ public class Entity
                 field.SetValue(this, kvp.Value);
             }
         }
+        InitRpcMethods();
+        InitComponents();
         foreach (DictionaryEntry kvp in compProperty)
         {
             string compName = ((CustomString)(kvp.Key)).Getter();
-            Component component = InitComponent(compName, (CustomDict)(kvp.Value));
+            Component? component = GetComponent<Component>(compName);
+            if (component != null)
+            {
+                component.Init(this, (CustomDict)(kvp.Value));
+            }
         }
-        Init();
     }
 
     public virtual void OnLoad()
@@ -87,29 +105,31 @@ public class Entity
 
     #region REGION_COMPONENT_MANAGEMENT
 
-    public Component InitComponent(string compName)
+    protected virtual void InitComponents() { }
+
+    public T InitComponent<T>(string compName) where T : Component, new()
     {
         if (!components.ContainsKey(compName))
         {
-            components[compName] = ComponentFactory.CreateComponent(compName);
-            components[compName].Init(eid.Getter());
+            components[compName] = new T();
+            components[compName].Init(this);
         }
-        return components[compName];
+        return (T)components[compName];
     }
 
-    public Component InitComponent(string compName, CustomDict compProperty)
+    public T InitComponent<T>(string compName, CustomDict compProperty) where T : Component, new()
     {
         if (!components.ContainsKey(compName))
         {
-            components[compName] = ComponentFactory.CreateComponent(compName);
-            components[compName].Init(eid.Getter(), compProperty);
+            components[compName] = new T();
+            components[compName].Init(this, compProperty);
         }
-        return components[compName];
+        return (T)components[compName];
     }
 
-    public void LoadComponent<T>(string compName) where T : Component
+    public void LoadComponent<T>(string compName) where T : Component, new()
     {
-        T component = (T)InitComponent(compName);
+        T component = InitComponent<T>(compName);
         component.OnLoad();
     }
 
@@ -153,6 +173,55 @@ public class Entity
         properties.Add(baseProperty);
         properties.Add(compProperty);
         return properties;
+    }
+
+    #endregion
+
+    #region REGION_RPC
+
+    public void InitRpcMethods()
+    {
+        Type type = GetType();
+        var methods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        foreach (MethodInfo method in methods)
+        {
+            var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
+            if (rpcAttr == null)
+            {
+                continue;
+            }
+            rpcMethods[method.Name] = new RpcMethodInfo(method);
+        }
+    }
+
+    public void InitComponentRpcMethods(string compName)
+    {
+        Component? comp = GetComponent<Component>(compName);
+        if (comp == null) return;
+
+        Type type = comp.GetType();
+        var methods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        foreach (MethodInfo method in methods)
+        {
+            var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
+            if (rpcAttr == null)
+            {
+                continue;
+            }
+            rpcMethods[method.Name] = new RpcMethodInfo(compName, method);
+        }
+    }
+
+    public RpcMethodInfo? GetRpcMethodInfo(string methodName)
+    {
+        if (rpcMethods.TryGetValue(methodName, out RpcMethodInfo? rpcMethod))
+        {
+            return rpcMethod;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     #endregion

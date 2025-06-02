@@ -256,6 +256,7 @@ internal class Gate : Manager
      */
     public override void Start()
     {
+        base.Start();
         Debugger.Log("Gate starts...");
         StartListener();
         isActive = true;
@@ -272,6 +273,7 @@ internal class Gate : Manager
         isActive = false;
         StopListener();
         Debugger.Log("Gate stop over...");
+        base.Stop();
     }
 
     /*
@@ -280,6 +282,7 @@ internal class Gate : Manager
     public override void Update()
     {
         if (!isActive) return;
+        base.Update();
         // handle queued msgs
         HandleQueuedMsg();
         // Check validness of some proxies
@@ -399,7 +402,7 @@ internal class Gate : Manager
                 (msg) => OnReceiveMsg(proxy, msg),
                 OnProxyDisconnect
             );
-            Msg msg = new Msg("", "Gate", "ConnectionSuccRemote");
+            Msg msg = new Msg("Gate", "ConnectionSuccRemote");
             Task.Run(() => SendMsgAsync(proxy, msg));
             PushToCheckProxyQueue(proxy.pid);
             Debugger.Log($"Proxy [{proxy.pid}] is added {proxy.IsConnected()}");
@@ -421,7 +424,7 @@ internal class Gate : Manager
         {
             if (proxy != null)
             {
-                Msg msg = new Msg("", "Gate", "ConnectionLostRemote");
+                Msg msg = new Msg("Gate", "ConnectionLostRemote");
                 Task.Run(() => SendMsgAsync(proxy, msg));
                 proxy.Stop();
                 Debugger.Log($"Proxy [{pid}] is removed");
@@ -562,7 +565,7 @@ internal class Gate : Manager
      */
     static private void HandleMsg(Proxy proxy, Msg msg)
     {
-        Debugger.Log($"HandleMsg method name {msg.methodName} from ip {proxy.GetIp()}::{proxy.GetPort()}");
+        //Debugger.Log($"HandleMsg method name {msg.methodName} from ip {proxy.GetIp()}::{proxy.GetPort()}");
         Game.Instance.InvokeRpc(msg, proxy);
     }
 

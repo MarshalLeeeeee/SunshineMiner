@@ -36,6 +36,7 @@ public class Gate : Manager
      */
     public override void Start()
     {
+        base.Start();
         Debugger.Log("Gate Start...");
 
         client = new TcpClient();
@@ -51,6 +52,7 @@ public class Gate : Manager
      */
     public override void Update()
     {
+        base.Update();
         // check connection
         CheckConnection();
         // handle msgs
@@ -62,6 +64,7 @@ public class Gate : Manager
     public override void Stop()
     {
         ResetConnection();
+        base.Stop();
     }
 
     #region REGION_PUBLIC_UTILITY
@@ -103,7 +106,7 @@ public class Gate : Manager
 
     public void Login(string account,  string password)
     {
-        Msg msg = new Msg("", "AccountManager", "LoginRemote");
+        Msg msg = new Msg("AccountManager", "LoginRemote");
         CustomList arg = new CustomList();
         arg.Add(new CustomString(account));
         arg.Add(new CustomString(password));
@@ -461,7 +464,7 @@ public class Gate : Manager
         lastHeartbeatTime = now;
 
         Debugger.Log("Ping heartbeat!");
-        Msg msg = new Msg("", "Gate", "PingHeartbeatRemote");
+        Msg msg = new Msg("Gate", "PingHeartbeatRemote");
         _ = SendMsgAsync(msg);
     }
 

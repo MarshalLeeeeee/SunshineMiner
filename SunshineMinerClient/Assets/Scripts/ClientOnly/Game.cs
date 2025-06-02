@@ -138,12 +138,19 @@ public class Game : MonoBehaviour
             return;
         }
 
-        var method = entity.GetType().GetMethod(msg.methodName);
-        if (method == null)
+        RpcMethodInfo? rpcMethod = entity.GetRpcMethodInfo(msg.methodName);
+        if (rpcMethod == null)
         {
             return;
         }
 
+        object? instance = rpcMethod.GetMethodInstance(entity);
+        if (instance == null)
+        {
+            return;
+        }
+
+        MethodInfo method = rpcMethod.methodInfo;
         var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
         if (rpcAttr == null)
         {
@@ -172,8 +179,7 @@ public class Game : MonoBehaviour
             }
             i += 1;
         }
-
-        method.Invoke(entity, args.ToArray());
+        method.Invoke(instance, args.ToArray());
     }
 
     #endregion
