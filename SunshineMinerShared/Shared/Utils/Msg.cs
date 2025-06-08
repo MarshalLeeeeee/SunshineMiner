@@ -152,11 +152,14 @@ public static class MsgStreamer
                 Debugger.Log("Read data incomplete");
                 return (false, new Msg("", ""));
             }
+            //Debugger.Log($"Read data complete: messageLength: {messageLength} totalBytesRead:{totalBytesRead}");
             Msg? msg = Deserialize(messageBuffer);
             if (msg == null)
             {
+                Debugger.Log("Read msg failed");
                 return (false, new Msg("", ""));
             }
+            //Debugger.Log($"Read msg method name: {msg.methodName}");
             return (true, msg);
         }
         catch (Exception ex) when (ex is OperationCanceledException || ex is IOException)
