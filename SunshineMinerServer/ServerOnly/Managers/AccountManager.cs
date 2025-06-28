@@ -34,7 +34,7 @@ internal class AccountManager : Manager
         if (!CheckAccount(account, password))
         {
             msg.arg = new CustomBool(false);
-            _ = Gate.SendMsgAsync(proxy, msg);
+            Game.Instance.gate.AppendSendMsg(proxy, msg);
         }
         else {
             PlayerEntity? player = null;
@@ -52,7 +52,7 @@ internal class AccountManager : Manager
                 player = Game.Instance.entityManager.GetPlayer(account2player[account]);
             }
             msg.arg = new CustomBool(player != null);
-            _ = Gate.SendMsgAsync(proxy, msg);
+            Game.Instance.gate.AppendSendMsg(proxy, msg);
 
             if (player != null)
             {

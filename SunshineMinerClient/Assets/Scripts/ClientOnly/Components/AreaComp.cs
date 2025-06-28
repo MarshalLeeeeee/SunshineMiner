@@ -43,6 +43,6 @@ public class AreaComp : AreaCompBase
         arg.Add(new CustomFloat(prefabPosition.y));
         arg.Add(new CustomFloat(prefabPosition.z));
         msg.arg = arg;
-        _ = Game.Instance.gate.SendMsgAsync(msg);
+        Game.Instance.gate.AppendSendMsg(msg);
     }
 }

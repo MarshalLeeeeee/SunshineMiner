@@ -15,11 +15,6 @@ internal class Game : IDisposable
     public float dt { get; private set; } // current delta time in tick
 
     private Dictionary<string, Manager> managers = new Dictionary<string, Manager>();
-    //public Gate gate { get; private set; } // handle connection and msg
-    //public EntityManager entityManager { get; private set; } // manage entities
-    //public EventManager eventManager { get; private set; } // manage events and global events
-    //public AccountManager accountManager { get; private set; } // manage account and online states
-    //public TimerManager timerManager { get; private set; }
 
     public Game()
     {

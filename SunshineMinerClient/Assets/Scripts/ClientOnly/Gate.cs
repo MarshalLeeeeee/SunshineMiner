@@ -28,7 +28,8 @@ public class Gate : Manager
 
     private long lastHeartbeatTime;
 
-    private ConcurrentQueue<Msg> msgs = new ConcurrentQueue<Msg>();
+    private ConcurrentQueue<Msg> msgInbox = new ConcurrentQueue<Msg>();
+    private ConcurrentQueue<Msg> msgOutbox = new ConcurrentQueue<Msg>();
 
     /*
      * Instantiate instance
@@ -56,7 +57,8 @@ public class Gate : Manager
         // check connection
         CheckConnection();
         // handle msgs
-        ConsumeQueuedMsg();
+        ConsumeMsgInbox();
+        ConsumeMsgOutbox();
         // heartbeat
         PingHeartbeatRemote();
     }
@@ -111,7 +113,7 @@ public class Gate : Manager
         arg.Add(new CustomString(account));
         arg.Add(new CustomString(password));
         msg.arg = arg;
-        _ = SendMsgAsync(msg);
+        AppendSendMsg(msg);
     }
 
     #endregion
@@ -378,16 +380,16 @@ public class Gate : Manager
      */
     private void OnReceiveMsg(Msg msg)
     {
-        msgs.Enqueue(msg);
+        msgInbox.Enqueue(msg);
     }
 
     /*
-     * Consume and handle msg (in main thread)
+     * Consume and handle received msg (in main thread)
      */
-    private void ConsumeQueuedMsg()
+    private void ConsumeMsgInbox()
     {
         int cnt = 0;
-        while (cnt < Const.HandleMsgCntPerUpdate && msgs.TryDequeue(out var msg))
+        while (cnt < Const.MsgReceiveCntPerUpdate && msgInbox.TryDequeue(out var msg))
         {
             if (msg == null) continue;
             cnt++;
@@ -404,21 +406,41 @@ public class Gate : Manager
         Game.Instance.InvokeRpc(msg);
     }
 
+    public void AppendSendMsg(Msg msg)
+    {
+        msgOutbox.Enqueue(msg);
+    }
+
     /*
-     * Send msg async
+     * Consume and handle msg pending for sending (in main thread)
      */
-    public async Task<bool> SendMsgAsync(Msg msg)
+    private void ConsumeMsgOutbox()
+    {
+        int cnt = 0;
+        while (cnt < Const.MsgSendCntPerUpdate && msgOutbox.TryDequeue(out var msg))
+        {
+            if (msg == null) continue;
+            cnt++;
+            SendMsg(msg);
+        }
+    }
+
+    /*
+     * Send msg to server (in main thread)
+     * If connection is not valid, reset connection
+     */
+    private void SendMsg(Msg msg)
     {
         if (!IsConnected())
         {
             Debugger.Log("Not connected, cannot send message");
-            return false;
+            return;
         }
 
         if (!IsSocketConnected())
         {
             Debugger.Log("Socket not connected, cannot send message");
-            return false;
+            return;
         }
 
         try
@@ -427,23 +449,22 @@ public class Gate : Manager
             if (!streamRes.succ)
             {
                 Debugger.Log("Invalid stream in sending msg");
-                return false;
+                return;
             }
 
             NetworkStream stream = streamRes.stream;
-            return await MsgStreamer.WriteMsgToStreamAsync(stream, msg)
-                .ConfigureAwait(false);
+            MsgStreamer.WriteMsgToStream(stream, msg);
         }
         catch (OperationCanceledException)
         {
             Debugger.Log("Message sending was canceled");
-            return false;
+            return;
         }
         catch (Exception ex)
         {
             Debugger.Log($"Error sending message: {ex}");
             ResetConnection();
-            return false;
+            return;
         }
     }
 
@@ -465,7 +486,7 @@ public class Gate : Manager
 
         Debugger.Log("Ping heartbeat!");
         Msg msg = new Msg("Gate", "PingHeartbeatRemote");
-        _ = SendMsgAsync(msg);
+        AppendSendMsg(msg);
     }
 
     #endregion

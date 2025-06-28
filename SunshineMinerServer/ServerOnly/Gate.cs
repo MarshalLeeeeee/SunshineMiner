@@ -225,30 +225,18 @@ public class Proxy
 
 internal class Gate : Manager
 {
-    private TcpListener listener;
-    private Task listenerTask;
-    private CancellationTokenSource listenerCts;
+    private TcpListener listener = new TcpListener(IPAddress.Any, Const.Port);
+    private Task listenerTask = Task.CompletedTask;
+    private CancellationTokenSource listenerCts = new CancellationTokenSource();
 
-    private ConcurrentDictionary<Guid, Proxy> proxies; // thread shared
-    private ConcurrentQueue<(Guid pid, Msg msg)> msgs; // thread shared
-    private ConcurrentQueue<Guid> checkProxyQueue; // thread shared
-    private volatile bool isActive;// thread shared
+    private ConcurrentDictionary<Guid, Proxy> proxies = new ConcurrentDictionary<Guid, Proxy>(); // thread shared
+    private ConcurrentQueue<(Guid pid, Msg msg)> msgInbox = new ConcurrentQueue<(Guid pid, Msg msg)>(); // thread shared
+    private ConcurrentQueue<(Guid pid, Msg msg)> msgOutbox = new ConcurrentQueue<(Guid pid, Msg msg)>(); // thread shared
+    private ConcurrentQueue<Guid> checkProxyQueue = new ConcurrentQueue<Guid>(); // thread shared
+    private volatile bool isActive = false;// thread shared
+    private long lastCheckTime = 0;
 
-    private long lastCheckTime;
-
-    public Gate()
-    {
-        listener = new TcpListener(IPAddress.Any, Const.Port);
-        listenerTask = Task.CompletedTask;
-        listenerCts = new CancellationTokenSource();
-
-        proxies = new ConcurrentDictionary<Guid, Proxy>();
-        msgs = new ConcurrentQueue<(Guid pid, Msg msg)>();
-        checkProxyQueue = new ConcurrentQueue<Guid>();
-        isActive = false;
-
-        lastCheckTime = 0;
-    }
+    public Gate() {}
 
     /*
      * Start gate service (in main thread)
@@ -284,7 +272,8 @@ internal class Gate : Manager
         if (!isActive) return;
         base.Update();
         // handle queued msgs
-        HandleQueuedMsg();
+        ConsumeMsgInbox();
+        ConsumeMsgOutbox();
         // Check validness of some proxies
         CheckProxies();
     }
@@ -403,7 +392,7 @@ internal class Gate : Manager
                 OnProxyDisconnect
             );
             Msg msg = new Msg("Gate", "ConnectionSuccRemote");
-            Task.Run(() => SendMsgAsync(proxy, msg));
+            AppendSendMsg(proxy, msg);
             PushToCheckProxyQueue(proxy.pid);
             Debugger.Log($"Proxy [{proxy.pid}] is added {proxy.IsConnected()}");
             return true;
@@ -425,7 +414,7 @@ internal class Gate : Manager
             if (proxy != null)
             {
                 Msg msg = new Msg("Gate", "ConnectionLostRemote");
-                Task.Run(() => SendMsgAsync(proxy, msg));
+                AppendSendMsg(proxy, msg);
                 proxy.Stop();
                 Debugger.Log($"Proxy [{pid}] is removed");
             }
@@ -527,12 +516,39 @@ internal class Gate : Manager
     #region REGION_MSG
 
     /*
-     * Send msg async (in off thread)
+     * Send msg (in any thread)
+     * If connection is not valid, reset connection
      */
-    static public async Task SendMsgAsync(Proxy proxy, Msg msg)
+    public void AppendSendMsg(Proxy proxy, Msg msg)
     {
         if (!proxy.IsConnected()) return;
-        await MsgStreamer.WriteMsgToStreamAsync(proxy.stream, msg);
+        msgOutbox.Enqueue((proxy.pid, msg));
+    }
+
+    /*
+     * Consume and handle msg pending for sending (in main thread)
+     */
+    private void ConsumeMsgOutbox()
+    {
+        int cnt = 0;
+        while (cnt < Const.MsgSendCntPerUpdate && msgOutbox.TryDequeue(out var item))
+        {
+            Guid pid = item.pid;
+            if (!proxies.TryGetValue(pid, out var proxy)) continue;
+            if (proxy == null) continue;
+            SendMsg(proxy, item.msg);
+            cnt += 1;
+        }
+    }
+
+    /*
+     * Send msg to proxy (in main thread)
+     * If connection is not valid, do nothing
+     */
+    private void SendMsg(Proxy proxy, Msg msg)
+    {
+        if (!proxy.IsConnected()) return;
+        MsgStreamer.WriteMsgToStream(proxy.stream, msg);
     }
 
     /*
@@ -541,16 +557,16 @@ internal class Gate : Manager
     private void OnReceiveMsg(Proxy proxy, Msg msg)
     {
         Guid pid = proxy.pid;
-        msgs.Enqueue((pid, msg));
+        msgInbox.Enqueue((pid, msg));
     }
 
     /*
      * Consume and hangle msg from queue (in main thread)
      */
-    private void HandleQueuedMsg()
+    private void ConsumeMsgInbox()
     {
         int cnt = 0;
-        while (cnt < Const.HangleMsgCntPerUpdate && msgs.TryDequeue(out var item))
+        while (cnt < Const.MsgReceiveCntPerUpdate && msgInbox.TryDequeue(out var item))
         {
             Guid pid = item.pid;
             if (!proxies.TryGetValue(pid, out var proxy)) continue;
@@ -604,7 +620,7 @@ internal class Gate : Manager
         Proxy? proxy = GetProxy(proxyId);
         if (proxy != null)
         {
-            _ = SendMsgAsync(proxy, msg);
+            AppendSendMsg(proxy, msg);
         }
     }
 
