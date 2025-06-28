@@ -22,10 +22,10 @@ public class Game : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        CreateManager<Gate>("Gate");
-        CreateManager<EntityManager>("EntityManager");
-        CreateManager<EventManager>("EventManager");
-        CreateManager<TimerManager>("TimerManager");
+        CreateManager<Gate>();
+        CreateManager<EntityManager>();
+        CreateManager<EventManager>();
+        CreateManager<TimerManager>();
     }
 
     private void OnEnable()
@@ -45,17 +45,25 @@ public class Game : MonoBehaviour
 
     #region REGION_MANAGER
 
-    private void CreateManager<T>(string name) where T : Manager, new()
+    private void CreateManager<T>() where T : Manager, new()
     {
+        Type type = typeof(T);
+        string name = type.Name;
         T mgr = new T();
         managers[name] = mgr;
     }
 
-    private T? GetManager<T>(string name) where T : Manager
+    private T? GetManager<T>() where T : Manager
     {
+        Type type = typeof(T);
+        string name = type.Name;
         if (managers.TryGetValue(name, out Manager manager))
         {
-            return (T)manager;
+            if (manager != null && manager is T mgr)
+            {
+                return mgr;
+            }
+            return null;
         }
         return null;
     }
@@ -89,7 +97,7 @@ public class Game : MonoBehaviour
     {
         get
         {
-            return GetManager<Gate>("Gate");
+            return GetManager<Gate>();
         }
     }
 
@@ -97,7 +105,7 @@ public class Game : MonoBehaviour
     {
         get
         {
-            return GetManager<EntityManager>("EntityManager");
+            return GetManager<EntityManager>();
         }
     }
 
@@ -105,7 +113,7 @@ public class Game : MonoBehaviour
     {
         get
         {
-            return GetManager<EventManager>("EventManager");
+            return GetManager<EventManager>();
         }
     }
 
@@ -113,7 +121,7 @@ public class Game : MonoBehaviour
     {
         get
         {
-            return GetManager<TimerManager>("TimerManager");
+            return GetManager<TimerManager>();
         }
     }
 

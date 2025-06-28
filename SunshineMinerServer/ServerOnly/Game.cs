@@ -19,11 +19,11 @@ internal class Game : IDisposable
     public Game()
     {
         Instance = this;
-        CreateManager<Gate>("Gate");
-        CreateManager<EntityManager>("EntityManager");
-        CreateManager<EventManager>("EventManager");
-        CreateManager<TimerManager>("TimerManager");
-        CreateManager<AccountManager>("AccountManager");
+        CreateManager<Gate>();
+        CreateManager<EntityManager>();
+        CreateManager<EventManager>();
+        CreateManager<TimerManager>();
+        CreateManager<AccountManager>();
     }
 
     /*
@@ -72,17 +72,25 @@ internal class Game : IDisposable
 
     #region REGION_MANAGER
 
-    private void CreateManager<T>(string name) where T : Manager, new()
+    private void CreateManager<T>() where T : Manager, new()
     {
+        Type type = typeof(T);
+        string name = type.Name;
         T mgr = new T();
         managers[name] = mgr;
     }
 
-    private T? GetManager<T>(string name) where T : Manager
+    private T? GetManager<T>() where T : Manager
     {
+        Type type = typeof(T);
+        string name = type.Name;
         if (managers.TryGetValue(name, out Manager manager))
         {
-            return (T)manager;
+            if (manager != null && manager is T mgr)
+            {
+                return mgr;
+            }
+            return null;
         }
         return null;
     }
@@ -116,7 +124,7 @@ internal class Game : IDisposable
     {
         get
         {
-            return GetManager<Gate>("Gate");
+            return GetManager<Gate>();
         }
     }
 
@@ -124,7 +132,7 @@ internal class Game : IDisposable
     {
         get
         {
-            return GetManager<EntityManager>("EntityManager");
+            return GetManager<EntityManager>();
         }
     }
 
@@ -132,7 +140,7 @@ internal class Game : IDisposable
     {
         get
         {
-            return GetManager<EventManager>("EventManager");
+            return GetManager<EventManager>();
         }
     }
 
@@ -140,7 +148,7 @@ internal class Game : IDisposable
     {
         get
         {
-            return GetManager<TimerManager>("TimerManager");
+            return GetManager<TimerManager>();
         }
     }
 
@@ -148,7 +156,7 @@ internal class Game : IDisposable
     {
         get
         {
-            return GetManager<AccountManager>("AccountManager");
+            return GetManager<AccountManager>();
         }
     }
 
