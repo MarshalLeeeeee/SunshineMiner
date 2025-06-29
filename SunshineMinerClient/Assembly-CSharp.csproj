@@ -71,7 +71,6 @@
     <Compile Include="Assets\Scripts\Shared\GameCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Game.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Utils\Debugger.cs" />
-    <Compile Include="Assets\Scripts\Shared\Utils\ComponentFactoryBase.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\AreaCompBase.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\UIBase.cs" />
@@ -92,7 +91,6 @@
     <Compile Include="Assets\Scripts\ClientOnly\Components\PrefabComp.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Rpc.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\TimerManager.cs" />
-    <Compile Include="Assets\Scripts\ClientOnly\Utils\ComponentFactory.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widget.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Prefab\GameBehavior.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\ResourceManager.cs" />
