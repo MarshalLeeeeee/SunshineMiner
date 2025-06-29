@@ -46,7 +46,7 @@ public class RpcMethodInfo
         }
         else
         {
-            return entity.GetComponent<Component>(compName);
+            return entity.GetComponentByName(compName);
         }
     }
 }

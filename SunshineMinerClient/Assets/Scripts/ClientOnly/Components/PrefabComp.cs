@@ -35,7 +35,7 @@ public class PrefabComp : Component
     {
         prefabObject = ResourceManager.Instantiate(gameObject);
         Vector3 p = new Vector3(0, 0, 0);
-        AreaComp? areaComp = GetComponent<AreaComp>("AreaComp");
+        AreaComp? areaComp = GetComponent<AreaComp>();
         if (areaComp != null )
         {
             Vec3 areaPosition = areaComp.areaPosition;

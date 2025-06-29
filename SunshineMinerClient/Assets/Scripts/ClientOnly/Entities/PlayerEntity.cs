@@ -12,7 +12,7 @@ public class PlayerEntity : PlayerEntityBase
     protected override void InitComponents()
     {
         base.InitComponents();
-        InitComponent<PrefabComp>("PrefabComp");
-        InitComponent<AreaComp>("AreaComp");
+        InitComponent<PrefabComp>();
+        InitComponent<AreaComp>();
     }
 }

@@ -8,7 +8,7 @@ public class AreaComp : AreaCompBase
     {
         get
         {
-            PrefabComp prefabComp = GetComponent<PrefabComp>("PrefabComp");
+            PrefabComp prefabComp = GetComponent<PrefabComp>();
             if (prefabComp != null)
             {
                 return prefabComp.prefabPosition;

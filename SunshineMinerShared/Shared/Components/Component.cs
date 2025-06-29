@@ -79,11 +79,11 @@ public class Component
         entity = null;
     }
 
-    protected T? GetComponent<T>(string compName) where T : Component
+    protected T? GetComponent<T>() where T : Component
     {
         if (entity != null)
         {
-            return entity.GetComponent<T>(compName);
+            return entity.GetComponent<T>();
         }
         else
         {

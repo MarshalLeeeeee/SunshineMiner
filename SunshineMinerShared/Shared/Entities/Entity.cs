@@ -65,7 +65,7 @@ public class Entity
         foreach (DictionaryEntry kvp in compProperty)
         {
             string compName = ((CustomString)(kvp.Key)).Getter();
-            Component? component = GetComponent<Component>(compName);
+            Component? component = GetComponentByName(compName);
             if (component != null)
             {
                 component.Init(this, (CustomDict)(kvp.Value));
@@ -87,12 +87,6 @@ public class Entity
         {
             component.Update();
         }
-        PostUpdate();
-    }
-
-    protected virtual void PostUpdate()
-    {
-        
     }
 
     public virtual void OnUnload()
@@ -107,8 +101,10 @@ public class Entity
 
     protected virtual void InitComponents() { }
 
-    public T InitComponent<T>(string compName) where T : Component, new()
+    public T InitComponent<T>() where T : Component, new()
     {
+        Type type = typeof(T);
+        string compName = type.Name;
         if (!components.ContainsKey(compName))
         {
             components[compName] = new T();
@@ -117,8 +113,10 @@ public class Entity
         return (T)components[compName];
     }
 
-    public T InitComponent<T>(string compName, CustomDict compProperty) where T : Component, new()
+    public T InitComponent<T>(CustomDict compProperty) where T : Component, new()
     {
+        Type type = typeof(T);
+        string compName = type.Name;
         if (!components.ContainsKey(compName))
         {
             components[compName] = new T();
@@ -127,19 +125,34 @@ public class Entity
         return (T)components[compName];
     }
 
-    public void LoadComponent<T>(string compName) where T : Component, new()
+    public void LoadComponent<T>() where T : Component, new()
     {
-        T component = InitComponent<T>(compName);
+        T component = InitComponent<T>();
         component.OnLoad();
     }
 
-    public T? GetComponent<T>(string compName) where T : Component
+    public T? GetComponent<T>() where T : Component
     {
+        Type type = typeof(T);
+        string compName = type.Name;
         if (components.TryGetValue(compName, out var component))
         {
             if (component != null && component is T comp)
             {
                 return comp;
+            }
+            else return null;
+        }
+        else return null;
+    }
+
+    public Component? GetComponentByName(string compName)
+    {
+        if (components.TryGetValue(compName, out Component component))
+        {
+            if (component != null)
+            {
+                return component;
             }
             else return null;
         }
@@ -196,7 +209,7 @@ public class Entity
 
     public void InitComponentRpcMethods(string compName)
     {
-        Component? comp = GetComponent<Component>(compName);
+        Component? comp = GetComponentByName(compName);
         if (comp == null) return;
 
         Type type = comp.GetType();

@@ -14,7 +14,7 @@ public class PlayerEntity : PlayerEntityBase
     protected override void InitComponents()
     {
         base.InitComponents();
-        InitComponent<AreaComp>("AreaComp");
+        InitComponent<AreaComp>();
     }
 
     #region REGION_PROXY
