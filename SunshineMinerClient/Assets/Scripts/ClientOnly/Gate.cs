@@ -454,6 +454,7 @@ public class Gate : Manager
 
             NetworkStream stream = streamRes.stream;
             MsgStreamer.WriteMsgToStream(stream, msg);
+            Debugger.Log($"Message sent: {msg.methodName}");
         }
         catch (OperationCanceledException)
         {

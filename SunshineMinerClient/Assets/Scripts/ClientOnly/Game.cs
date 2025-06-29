@@ -2,95 +2,26 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 
-public class Game : MonoBehaviour
+public class Game : GameCommon
 {
     // Singleton instance
-    public static Game Instance { get; private set; }
+    public static Game Instance { get; private set; } = null!;
 
-    private Dictionary<string, Manager> managers = new Dictionary<string, Manager>();
-
-    private void Awake()
+    public Game()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
         Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        CreateManager<Gate>();
-        CreateManager<EntityManager>();
-        CreateManager<EventManager>();
-        CreateManager<TimerManager>();
-    }
-
-    private void OnEnable()
-    {
-        StartManagers();
-    }
-
-    private void FixedUpdate()
-    {
-        UpdateManagers();
-    }
-
-    private void OnDisable()
-    {
-        StopManagers();
+        InitManagers();
     }
 
     #region REGION_MANAGER
 
-    private void CreateManager<T>() where T : Manager, new()
+    protected override void InitManagers()
     {
-        Type type = typeof(T);
-        string name = type.Name;
-        T mgr = new T();
-        managers[name] = mgr;
-    }
-
-    private T? GetManager<T>() where T : Manager
-    {
-        Type type = typeof(T);
-        string name = type.Name;
-        if (managers.TryGetValue(name, out Manager manager))
-        {
-            if (manager != null && manager is T mgr)
-            {
-                return mgr;
-            }
-            return null;
-        }
-        return null;
-    }
-
-    private void StartManagers()
-    {
-        foreach (var manager in managers.Values)
-        {
-            manager.Start();
-        }
-    }
-
-    private void UpdateManagers()
-    {
-        foreach (var manager in managers.Values)
-        {
-            manager.Update();
-        }
-    }
-
-    private void StopManagers()
-    {
-        foreach (var manager in managers.Values)
-        {
-            manager.Stop();
-        }
-        managers.Clear();
+        CreateManager<Gate>();
+        CreateManager<EntityManager>();
+        CreateManager<EventManager>();
+        CreateManager<TimerManager>();
     }
 
     public Gate? gate

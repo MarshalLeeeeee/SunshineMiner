@@ -223,7 +223,7 @@ public class Proxy
     #endregion
 }
 
-internal class Gate : Manager
+public class Gate : Manager
 {
     private TcpListener listener = new TcpListener(IPAddress.Any, Const.Port);
     private Task listenerTask = Task.CompletedTask;

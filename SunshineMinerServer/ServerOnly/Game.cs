@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-internal class Game : IDisposable
+public class Game : GameCommon, IDisposable
 {
     // Singleton instance
     public static Game Instance { get; private set; } = null!;
@@ -14,16 +14,10 @@ internal class Game : IDisposable
     private bool isRunning;
     public float dt { get; private set; } // current delta time in tick
 
-    private Dictionary<string, Manager> managers = new Dictionary<string, Manager>();
-
     public Game()
     {
         Instance = this;
-        CreateManager<Gate>();
-        CreateManager<EntityManager>();
-        CreateManager<EventManager>();
-        CreateManager<TimerManager>();
-        CreateManager<AccountManager>();
+        InitManagers();
     }
 
     /*
@@ -72,52 +66,13 @@ internal class Game : IDisposable
 
     #region REGION_MANAGER
 
-    private void CreateManager<T>() where T : Manager, new()
+    protected override void InitManagers()
     {
-        Type type = typeof(T);
-        string name = type.Name;
-        T mgr = new T();
-        managers[name] = mgr;
-    }
-
-    private T? GetManager<T>() where T : Manager
-    {
-        Type type = typeof(T);
-        string name = type.Name;
-        if (managers.TryGetValue(name, out Manager manager))
-        {
-            if (manager != null && manager is T mgr)
-            {
-                return mgr;
-            }
-            return null;
-        }
-        return null;
-    }
-
-    private void StartManagers()
-    {
-        foreach (var manager in managers.Values)
-        {
-            manager.Start();
-        }
-    }
-
-    private void UpdateManagers()
-    {
-        foreach (var manager in managers.Values)
-        {
-            manager.Update();
-        }
-    }
-
-    private void StopManagers()
-    {
-        foreach (var manager in managers.Values)
-        {
-            manager.Stop();
-        }
-        managers.Clear();
+        CreateManager<Gate>();
+        CreateManager<EntityManager>();
+        CreateManager<EventManager>();
+        CreateManager<TimerManager>();
+        CreateManager<AccountManager>();
     }
 
     public Gate? gate

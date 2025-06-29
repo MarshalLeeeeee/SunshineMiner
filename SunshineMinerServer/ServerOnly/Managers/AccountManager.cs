@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-internal class AccountManager : Manager
+public class AccountManager : Manager
 {
     private Dictionary<string, string> account2player = new Dictionary<string, string>();
 
