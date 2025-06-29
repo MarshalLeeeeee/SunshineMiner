@@ -66,11 +66,12 @@
     <Compile Include="Assets\Scripts\Shared\Utils\CustomType.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\InputManager.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\Manager.cs" />
-    <Compile Include="Assets\Scripts\Shared\Managers\EventManager.cs" />
     <Compile Include="Assets\Scripts\Shared\GameCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Game.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Utils\Debugger.cs" />
+    <Compile Include="Assets\Scripts\Shared\Managers\TimerManagerCommon.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\AreaCompBase.cs" />
+    <Compile Include="Assets\Scripts\Shared\Managers\EntityManagerCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\UIBase.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\Component.cs" />
@@ -86,18 +87,19 @@
     <Compile Include="Assets\Scripts\Shared\Utils\Math.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Prefab\MoveBehavior.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\EntityManager.cs" />
-    <Compile Include="Assets\Scripts\Shared\Managers\EntityManagerBase.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Components\PrefabComp.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Managers\EventManager.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Rpc.cs" />
-    <Compile Include="Assets\Scripts\Shared\Managers\TimerManager.cs" />
     <Compile Include="Assets\Scripts\Shared\ConstCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widget.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Prefab\GameBehavior.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\ResourceManager.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Managers\TimerManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Const.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\BgTouch.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Msg.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\UIManager.cs" />
+    <Compile Include="Assets\Scripts\Shared\Managers\EventManagerCommon.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

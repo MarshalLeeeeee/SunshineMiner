@@ -1,8 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
-public class EntityManagerBase : Manager
+public class EntityManagerCommon : Manager
 {
     private Dictionary<string, PlayerEntity> players = new Dictionary<string, PlayerEntity>();
 

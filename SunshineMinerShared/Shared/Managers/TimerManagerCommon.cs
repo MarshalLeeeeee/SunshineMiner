@@ -1,10 +1,9 @@
 using System;
 using System.Threading;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-public class TimerManager : Manager
+public class TimerManagerCommon : Manager
 {
     private Dictionary<Guid, Timer> timers = new Dictionary<Guid, Timer>();
     private ConcurrentQueue<Action> queuedActions = new ConcurrentQueue<Action>();

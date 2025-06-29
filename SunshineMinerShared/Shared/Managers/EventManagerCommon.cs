@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 
-public class EventManager : Manager
+public class EventManagerCommon : Manager
 {
     private Dictionary<string, Dictionary<string, Delegate>> globalEvents = new Dictionary<string, Dictionary<string, Delegate>>();
 

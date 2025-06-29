@@ -1,0 +1,2 @@
+
+public class TimerManager : TimerManagerCommon { }
