@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-public class AreaComp : AreaCompBase
+﻿
+public class AreaComp : AreaCompCommon
 {
     [Rpc(RpcConst.OwnClient, CustomTypeConst.TypeFloat, CustomTypeConst.TypeFloat, CustomTypeConst.TypeFloat)]
     public void SyncPositionRemote(CustomFloat x_, CustomFloat y_, CustomFloat z_, Proxy proxy)

@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public class AreaComp : AreaCompBase
+public class AreaComp : AreaCompCommon
 {
     public Vec3? prefabPosition
     {

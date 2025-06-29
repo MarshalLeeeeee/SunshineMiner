@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 
-public class AreaCompBase : Component
+public class AreaCompCommon : Component
 {
     [PropertySync(SyncConst.AllClient)]
     public CustomFloat x = new CustomFloat();
