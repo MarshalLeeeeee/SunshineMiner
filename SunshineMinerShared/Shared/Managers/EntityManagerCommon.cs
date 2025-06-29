@@ -21,7 +21,7 @@ public class EntityManagerCommon : Manager
         if (entity != null)
         {
             entity.Init();
-            entity.OnLoad();
+            entity.Enable();
         }
         return entity;
     }
@@ -31,7 +31,7 @@ public class EntityManagerCommon : Manager
         if (entity != null)
         {
             entity.Init();
-            entity.OnLoad();
+            entity.Enable();
         }
         return entity;
     }
@@ -41,7 +41,7 @@ public class EntityManagerCommon : Manager
         if (entity != null)
         {
             entity.Init(baseProperty, compProperty);
-            entity.OnLoad();
+            entity.Enable();
         }
         return entity;
     }

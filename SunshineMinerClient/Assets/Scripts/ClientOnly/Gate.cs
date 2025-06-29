@@ -30,10 +30,9 @@ public class Gate : Manager
      * Instantiate instance
      * Create Tcp client
      */
-    public override void Start()
+    public override void Enable()
     {
-        base.Start();
-        Debugger.Log("Gate Start...");
+        base.Enable();
 
         client = new TcpClient();
         msgListenerTask = Task.CompletedTask;
@@ -58,10 +57,10 @@ public class Gate : Manager
         PingHeartbeatRemote();
     }
 
-    public override void Stop()
+    public override void Disable()
     {
         ResetConnection();
-        base.Stop();
+        base.Disable();
     }
 
     #region REGION_PUBLIC_UTILITY

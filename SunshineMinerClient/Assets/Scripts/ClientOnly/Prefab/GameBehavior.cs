@@ -23,7 +23,7 @@ public class GameBehavior : MonoBehaviour
 
     private void OnEnable()
     {
-        game.StartManagers();
+        game.EnableManagers();
     }
 
     private void FixedUpdate()
@@ -33,6 +33,6 @@ public class GameBehavior : MonoBehaviour
 
     private void OnDisable()
     {
-        game.StopManagers();
+        game.DisableManagers();
     }
 }

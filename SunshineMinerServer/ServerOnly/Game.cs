@@ -19,7 +19,7 @@ public class Game : GameCommon, IDisposable
      */
     public void Start()
     {
-        StartManagers();
+        EnableManagers();
         isRunning = true;
         Debugger.Log("Server game starts...");
 
@@ -54,7 +54,7 @@ public class Game : GameCommon, IDisposable
     public void Dispose()
     {
         isRunning = false;
-        StopManagers();
+        DisableManagers();
         Debugger.Log("Server game ends...");
     }
 

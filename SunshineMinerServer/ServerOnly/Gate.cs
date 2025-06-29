@@ -219,22 +219,20 @@ public class Gate : Manager
     private CancellationTokenSource listenerCts = new CancellationTokenSource();
 
     private ConcurrentDictionary<Guid, Proxy> proxies = new ConcurrentDictionary<Guid, Proxy>(); // thread shared
-    private ConcurrentQueue<(Guid pid, Msg msg)> msgInbox = new ConcurrentQueue<(Guid pid, Msg msg)>(); // thread shared
-    private ConcurrentQueue<(Guid pid, Msg msg)> msgOutbox = new ConcurrentQueue<(Guid pid, Msg msg)>(); // thread shared
     private ConcurrentQueue<Guid> checkProxyQueue = new ConcurrentQueue<Guid>(); // thread shared
     private volatile bool isActive = false;// thread shared
     private long lastCheckTime = 0;
 
-    public Gate() {}
+    private ConcurrentQueue<(Guid pid, Msg msg)> msgInbox = new ConcurrentQueue<(Guid pid, Msg msg)>(); // thread shared
+    private ConcurrentQueue<(Guid pid, Msg msg)> msgOutbox = new ConcurrentQueue<(Guid pid, Msg msg)>(); // thread shared
 
     /*
      * Start gate service (in main thread)
      * * Start listener to handle new connections in off thread
      */
-    public override void Start()
+    public override void Enable()
     {
-        base.Start();
-        Debugger.Log("Gate starts...");
+        base.Enable();
         StartListener();
         isActive = true;
     }
@@ -243,14 +241,14 @@ public class Gate : Manager
      * Stop gate service (in main thread)
      * * Stop listener to handle new connections
      */
-    public override void Stop()
+    public override void Disable()
     {
         if (!isActive) return; 
         Debugger.Log("Gate is shutting down...");
         isActive = false;
         StopListener();
         Debugger.Log("Gate stop over...");
-        base.Stop();
+        base.Disable();
     }
 
     /*

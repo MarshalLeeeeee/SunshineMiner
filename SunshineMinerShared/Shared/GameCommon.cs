@@ -12,8 +12,8 @@ public class GameCommon
         Type type = typeof(T);
         string name = type.Name;
         T mgr = new T();
-        Debugger.Log($"Creating manager: {name}");
         managers[name] = mgr;
+        mgr.Init();
     }
 
     protected T? GetManager<T>() where T : Manager
@@ -33,11 +33,11 @@ public class GameCommon
 
     protected virtual void InitManagers() { }
 
-    public void StartManagers()
+    public void EnableManagers()
     {
         foreach (var manager in managers.Values)
         {
-            manager.Start();
+            manager.Enable();
         }
     }
 
@@ -49,11 +49,11 @@ public class GameCommon
         }
     }
 
-    public void StopManagers()
+    public void DisableManagers()
     {
         foreach (var manager in managers.Values)
         {
-            manager.Stop();
+            manager.Disable();
         }
         managers.Clear();
     }

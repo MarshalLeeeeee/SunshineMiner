@@ -58,7 +58,7 @@ public class Component
     /*
      * invoked when the component is loaded to the entity
      */
-    public virtual void OnLoad()
+    public virtual void Enable()
     {
 
     }
@@ -74,7 +74,7 @@ public class Component
     /*
      * invoked when the component is unloaded from the entity
      */
-    public virtual void OnUnload()
+    public virtual void Disable()
     {
         entity = null;
     }

@@ -73,11 +73,11 @@ public class Entity
         }
     }
 
-    public virtual void OnLoad()
+    public virtual void Enable()
     {
         foreach (Component component in components.Values)
         {
-            component.OnLoad();
+            component.Enable();
         }
     }
 
@@ -89,11 +89,11 @@ public class Entity
         }
     }
 
-    public virtual void OnUnload()
+    public virtual void Disable()
     {
         foreach (Component component in components.Values)
         {
-            component.OnUnload();
+            component.Disable();
         }
     }
 
@@ -128,7 +128,7 @@ public class Entity
     public void LoadComponent<T>() where T : Component, new()
     {
         T component = InitComponent<T>();
-        component.OnLoad();
+        component.Enable();
     }
 
     public T? GetComponent<T>() where T : Component
@@ -165,7 +165,7 @@ public class Entity
         {
             if (component != null)
             {
-                component.OnUnload();
+                component.Disable();
             }
         }
     }
