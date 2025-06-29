@@ -1,13 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using System.IO;
-using System.Text;
 using System.Collections.Concurrent;
-using UnityEngine;
 
 internal static class ConnectState
 {
@@ -231,7 +226,7 @@ public class Gate : Manager
         }
         catch (Exception ex)
         {
-            Debug.LogError($"Error cleaning up connection: {ex}");
+            Debugger.Log($"Error cleaning up connection: {ex}");
         }
         finally
         {

@@ -1,12 +1,11 @@
-﻿using System;
-
+﻿
 internal class Env
 {
     public const bool IsServer = true;
     public const bool IsClient = false;
 }
 
-internal class Const : ConstBase
+internal class Const : ConstCommon
 {
     public const int Port = 41320; // port for the gate service
     public const int TickInterval = 10; // tick interval of Game.Update

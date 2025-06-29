@@ -1,4 +1,3 @@
-using System;
 
 internal class Env
 {
@@ -6,7 +5,7 @@ internal class Env
     public const bool IsClient = true;
 }
 
-internal class Const : ConstBase
+internal class Const : ConstCommon
 {
     public const int Port = 41320; // port for the gate service
     public const int MsgReceiveCntPerUpdate = 1000; // cnt of handled mag in one update
