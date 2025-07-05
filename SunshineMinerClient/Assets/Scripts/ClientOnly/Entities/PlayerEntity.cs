@@ -8,7 +8,7 @@ public class PlayerEntity : PlayerEntityCommon
     {
         base.InitComponents();
         InitComponent<PrefabComp>();
-        InitComponent<AreaComp>();
         InitComponent<RpcComp>();
+        InitComponent<AreaComp>();
     }
 }

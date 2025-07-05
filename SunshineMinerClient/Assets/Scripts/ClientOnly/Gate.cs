@@ -454,7 +454,6 @@ public class Gate : Manager
 
             NetworkStream stream = streamRes.stream;
             MsgStreamer.WriteMsgToStream(stream, msg);
-            Debugger.Log($"Message sent: {msg.methodName}");
         }
         catch (OperationCanceledException)
         {
@@ -485,7 +484,6 @@ public class Gate : Manager
         if (now - lastHeartbeatTime < Const.HeartBeatInterval) return;
         lastHeartbeatTime = now;
 
-        Debugger.Log("Ping heartbeat!");
         Msg msg = new Msg("Gate", "PingHeartbeatRemote");
         AppendSendMsg(msg);
     }

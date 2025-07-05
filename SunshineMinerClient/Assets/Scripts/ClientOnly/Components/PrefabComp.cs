@@ -20,9 +20,9 @@ public class PrefabComp : Component
         }
     }
 
-    public override void Enable()
+    protected override void DoEnable()
     {
-        base.Enable();
+        base.DoEnable();
         LoadPrefab("Assets/Models/Entities/Player.prefab");
     }
 

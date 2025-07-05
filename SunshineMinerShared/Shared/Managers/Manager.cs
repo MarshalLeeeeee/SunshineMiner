@@ -1,5 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
-public class Manager : Entity {}
+public class Manager : Entity
+{
+    public Manager()
+    {
+        Type type = GetType();
+        eid = new CustomString(type.Name);
+    }
+}

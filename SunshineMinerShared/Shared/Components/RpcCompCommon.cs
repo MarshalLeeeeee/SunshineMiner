@@ -7,20 +7,28 @@ public class RpcCompCommon : Component
 {
     protected Dictionary<string, RpcMethodInfo> rpcMethods = new Dictionary<string, RpcMethodInfo>();
 
-    public override void Enable()
+    protected override void DoEnable()
     {
-        base.Enable();
+        base.DoEnable();
         EnableRpcMethod();
+        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.Getter(), "EnableComponent", "OnEntityEnableComponent", EnableCompRpcMethod);
+        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.Getter(), "DisableComponent", "OnEntityDisableComponent", DisableCompRpcMethod);
     }
 
-    public override void Disable()
+    protected override void DoDisable()
     {
+        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.Getter(), "EnableComponent", "OnEntityEnableComponent");
+        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.Getter(), "DisableComponent", "OnEntityDisableComponent");
         DisableRpcMethod();
-        base.Disable();
+        base.DoDisable();
     }
 
     public RpcMethodInfo? GetRpcMethodInfo(string methodName)
     {
+        if (!enabled || entity == null)
+        {
+            return null;
+        }
         if (rpcMethods.TryGetValue(methodName, out RpcMethodInfo? rpcMethod))
         {
             return rpcMethod;
@@ -28,12 +36,17 @@ public class RpcCompCommon : Component
         return null;
     }
 
-    protected virtual void EnableRpcMethod()
+    protected virtual int GetRpcType()
     {
-
+        return 0;
     }
 
-    protected void EnableRpcMethodWithType(int rpcType)
+    protected void EnableRpcMethod()
+    {
+        EnableRpcMethodWithType(GetRpcType());
+    }
+
+    private void EnableRpcMethodWithType(int rpcType)
     {
         if (entity == null) return;
 
@@ -83,12 +96,12 @@ public class RpcCompCommon : Component
         rpcMethods.Clear();
     }
 
-    protected virtual void EnableCompRpcMethod(Component comp)
+    protected void EnableCompRpcMethod(Component comp)
     {
-        
+        EnableCompRpcMethodWithType(comp, GetRpcType());
     }
 
-    protected void EnableCompRpcMethodWithType(Component comp, int rpcType)
+    private void EnableCompRpcMethodWithType(Component comp, int rpcType)
     {
         Type compType = comp.GetType();
         string compName = compType.Name;
@@ -108,14 +121,15 @@ public class RpcCompCommon : Component
         }
     }
 
-    protected virtual void DisableCompRpcMethod(Component comp)
+    protected void DisableCompRpcMethod(Component comp)
     {
-        
+        DisableCompRpcMethodWithType(comp, GetRpcType());
     }
 
-    protected void DisableCompRpcMethodWithType(Component comp, int rpcType)
+    private void DisableCompRpcMethodWithType(Component comp, int rpcType)
     {
         Type compType = comp.GetType();
+        string compName = compType.Name;
         var compMethods = compType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
         foreach (MethodInfo method in compMethods)
         {

@@ -38,16 +38,6 @@ public static class MsgStreamer
         
         try
         {
-            // Debugger.Log($"conf0: ");
-            // string s1 = reader.ReadString();
-            // Debugger.Log($"conf1: s1: {s1}");
-            // string s2 = reader.ReadString();
-            // Debugger.Log($"conf2: s1: {s1} s2:{s2}");
-            // string s3 = reader.ReadString();
-            // Debugger.Log($"conf3: s1: {s1} s2:{s2} s3:{s3}");
-            // long ll = reader.ReadInt64();
-            // Msg msg = new Msg(s1, s2, s3, ll);
-            // Debugger.Log($"conf4: s1: {s1} s2:{s2} s3:{s3} ll:{ll}");
             Msg msg = new Msg(reader.ReadString(), reader.ReadString());
             CustomType arg = CustomTypeStreamer.Deserialize(reader);
             msg.arg = arg;

@@ -1,18 +1,8 @@
 ﻿
 public class RpcComp: RpcCompCommon
 {
-    protected override void EnableRpcMethod()
+    protected override int GetRpcType()
     {
-        EnableRpcMethodWithType(RpcConst.Client);
-    }
-
-    protected override void EnableCompRpcMethod(Component comp)
-    {
-        EnableCompRpcMethodWithType(comp, RpcConst.Client);
-    }
-
-    protected override void DisableCompRpcMethod(Component comp)
-    {
-        DisableCompRpcMethodWithType(comp, RpcConst.Client);
+        return RpcConst.Client;
     }
 }

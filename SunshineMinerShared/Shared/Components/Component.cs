@@ -5,7 +5,7 @@ using System.Reflection;
 public class Component
 {
     protected Entity? entity = null;
-    public bool enabled = false;
+    protected bool enabled = false;
 
     /*
      * invoked when the componented is loaded to an entity
@@ -50,9 +50,21 @@ public class Component
     /*
      * invoked when the component is enabled
      */
-    public virtual void Enable()
+    public void Enable()
     {
+        if (enabled) return;
+        DoEnable();
         enabled = true;
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.Getter(), "EnableComponent", this);
+    }
+
+    /*
+     * invoked when the component is enabled
+     * override this method to implement custom enable logic
+     */
+    protected virtual void DoEnable()
+    {
+
     }
 
     /*
@@ -66,9 +78,21 @@ public class Component
     /*
      * invoked when the component is disabled
      */
-    public virtual void Disable()
+    public void Disable()
     {
+        if (!enabled) return;
+        DoDisable();
         enabled = false;
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.Getter(), "DisableComponent", this);
+    }
+
+    /*
+     * invoked when the component is disabled
+     * override this method to implement custom disable logic
+     */
+    protected virtual void DoDisable()
+    {
+
     }
 
     /*
