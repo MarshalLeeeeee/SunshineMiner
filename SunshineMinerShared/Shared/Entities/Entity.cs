@@ -89,39 +89,16 @@ public class Entity
         }
     }
 
+    public virtual void Destroy()
+    {
+        foreach (Component component in components.Values)
+        {
+            component.Destroy();
+        }
+        components.Clear();
+    }
+
     #region REGION_COMPONENT_MANAGEMENT
-
-    protected virtual void InitComponents() { }
-
-    public T InitComponent<T>() where T : Component, new()
-    {
-        Type type = typeof(T);
-        string compName = type.Name;
-        if (!components.ContainsKey(compName))
-        {
-            components[compName] = new T();
-            components[compName].Init(this);
-        }
-        return (T)components[compName];
-    }
-
-    public T InitComponent<T>(CustomDict compProperty) where T : Component, new()
-    {
-        Type type = typeof(T);
-        string compName = type.Name;
-        if (!components.ContainsKey(compName))
-        {
-            components[compName] = new T();
-            components[compName].Init(this, compProperty);
-        }
-        return (T)components[compName];
-    }
-
-    public void LoadComponent<T>() where T : Component, new()
-    {
-        T component = InitComponent<T>();
-        component.Enable();
-    }
 
     public T? GetComponent<T>() where T : Component
     {
@@ -151,9 +128,80 @@ public class Entity
         else return null;
     }
 
-    public void UnloadComponent(string compName)
+    public IEnumerable<KeyValuePair<string, Component>> IterComponents()
     {
-        if (components.Remove(compName, out Component? component))
+        foreach (KeyValuePair<string, Component> kvp in components)
+        {
+            yield return kvp;
+        }
+    }
+
+    protected virtual void InitComponents() { }
+
+    public T InitComponent<T>() where T : Component, new()
+    {
+        Type type = typeof(T);
+        string compName = type.Name;
+        if (!components.ContainsKey(compName))
+        {
+            components[compName] = new T();
+            components[compName].Init(this);
+        }
+        return (T)components[compName];
+    }
+
+    public T InitComponent<T>(CustomDict compProperty) where T : Component, new()
+    {
+        Type type = typeof(T);
+        string compName = type.Name;
+        if (!components.ContainsKey(compName))
+        {
+            components[compName] = new T();
+            components[compName].Init(this, compProperty);
+        }
+        return (T)components[compName];
+    }
+
+    public void EnableComponent<T>() where T : Component
+    {
+        Type type = typeof(T);
+        string compName = type.Name;
+        if (components.TryGetValue(compName, out Component? component))
+        {
+            if (component != null && component is T comp)
+            {
+                comp.Enable();
+            }
+        }
+    }
+
+    public void EnableComponentByName(string compName)
+    {
+        if (components.TryGetValue(compName, out Component? component))
+        {
+            if (component != null)
+            {
+                component.Enable();
+            }
+        }
+    }
+
+    public void DisableComponent<T>() where T : Component
+    {
+        Type type = typeof(T);
+        string compName = type.Name;
+        if (components.TryGetValue(compName, out Component? component))
+        {
+            if (component != null && component is T comp)
+            {
+                comp.Disable();
+            }
+        }
+    }
+
+    public void DisableComponentByName(string compName)
+    {
+        if (components.TryGetValue(compName, out Component? component))
         {
             if (component != null)
             {
@@ -162,12 +210,29 @@ public class Entity
         }
     }
 
-    public IEnumerable<KeyValuePair<string, Component>> IterComponents()
+    public void DestroyComponent<T>() where T : Component
     {
-        foreach (KeyValuePair<string, Component> kvp in components)
+        Type type = typeof(T);
+        string compName = type.Name;
+        if (components.TryGetValue(compName, out Component? component))
         {
-            yield return kvp;
+            if (component != null && component is T comp)
+            {
+                comp.Disable();
+            }
         }
+    }
+
+    public void DestroyComponentByName(string compName)
+    {
+        if (components.TryGetValue(compName, out Component? component))
+        {
+            if (component != null)
+            {
+                component.Disable();
+            }
+        }
+        components.Remove(compName);
     }
 
     #endregion

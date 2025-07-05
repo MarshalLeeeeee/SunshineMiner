@@ -5,8 +5,10 @@ using System.Reflection;
 public class Component
 {
     protected Entity? entity = null;
+    public bool enabled = false;
 
     /*
+     * invoked when the componented is loaded to an entity
      * Set corresponding entity eid
      */
     public virtual void Init(Entity e)
@@ -15,8 +17,9 @@ public class Component
     }
 
     /*
-     * Set corresponding entity eid
-     * Init properties from dict
+     * invoked when the componented is loaded to an entity
+     * set corresponding entity eid
+     * init properties from dict
      */
     public virtual void Init(Entity e, CustomDict compProperty)
     {
@@ -45,11 +48,11 @@ public class Component
     }
 
     /*
-     * invoked when the component is loaded to the entity
+     * invoked when the component is enabled
      */
     public virtual void Enable()
     {
-
+        enabled = true;
     }
 
     /*
@@ -61,9 +64,19 @@ public class Component
     }
 
     /*
-     * invoked when the component is unloaded from the entity
+     * invoked when the component is disabled
      */
     public virtual void Disable()
+    {
+        enabled = false;
+    }
+
+    /*
+     * invoked when the component is unloaded from an entity
+     * clear the entity reference
+     * ready to be destroyed and recycled
+     */
+    public virtual void Destroy()
     {
         entity = null;
     }

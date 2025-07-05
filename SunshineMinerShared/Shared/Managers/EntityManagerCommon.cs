@@ -13,7 +13,7 @@ public class EntityManagerCommon : Manager
         }
     }
 
-    #region REGION_CREATE_ENTITY
+    #region REGION_ENTITY_COMMON
 
     private T? CreateEntity<T>() where T : Entity
     {
@@ -45,10 +45,12 @@ public class EntityManagerCommon : Manager
         }
         return entity;
     }
-
-    #endregion
-
-    #region REGION_GET_ENITTY
+    
+    private void DestroyEntity(Entity e)
+    {
+        e.Disable();
+        e.Destroy();
+    }
 
     public Entity? GetEntity(string s)
     {
@@ -86,6 +88,15 @@ public class EntityManagerCommon : Manager
             Game.Instance.eventManager.TriggerGlobalEvent("CreatePlayer", player);
         }
         return player;
+    }
+
+    public void DestroyPlayer(string pid)
+    {
+        if (players.Remove(pid, out var player))
+        {
+            Game.Instance.eventManager.TriggerGlobalEvent("DestroyPlayer", player);
+            DestroyEntity(player);
+        }
     }
 
     public PlayerEntity? GetPlayer(string eid)
