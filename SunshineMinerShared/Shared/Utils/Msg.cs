@@ -9,7 +9,7 @@ public class Msg
 {
     public string tgtId { get; }
     public string methodName { get; }
-    public CustomType arg = new CustomType();
+    public CustomList arg = new CustomList();
     public Msg(string tgtId_, string methodName_)
     {
         tgtId = tgtId_;
@@ -40,8 +40,12 @@ public static class MsgStreamer
         {
             Msg msg = new Msg(reader.ReadString(), reader.ReadString());
             CustomType arg = CustomTypeStreamer.Deserialize(reader);
-            msg.arg = arg;
-            return msg;
+            if (arg != null && arg is CustomList)
+            {
+                msg.arg = (CustomList)arg;
+                return msg;
+            }
+            return null;
         }
         catch
         {

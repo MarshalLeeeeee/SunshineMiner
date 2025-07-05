@@ -161,7 +161,7 @@ public class Game : GameCommon, IDisposable
             return;
         }
 
-        CustomList args = msg.arg.WrapInList();
+        CustomList args = msg.arg;
         int[] rpcArgs = rpcAttr.argTypes;
 
         int argsCount = args.Count;

@@ -35,11 +35,9 @@ public class AreaComp : AreaCompCommon
             return;
         }
         Msg msg = new Msg(entity.eid.Getter(), "SyncPositionRemote");
-        CustomList arg = new CustomList();
-        arg.Add(new CustomFloat(prefabPosition.x));
-        arg.Add(new CustomFloat(prefabPosition.y));
-        arg.Add(new CustomFloat(prefabPosition.z));
-        msg.arg = arg;
+        msg.arg.Add(new CustomFloat(prefabPosition.x));
+        msg.arg.Add(new CustomFloat(prefabPosition.y));
+        msg.arg.Add(new CustomFloat(prefabPosition.z));
         Game.Instance.gate.AppendSendMsg(msg);
     }
 }

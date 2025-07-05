@@ -99,7 +99,7 @@ public class Game : GameCommon
             return;
         }
 
-        CustomList args = msg.arg.WrapInList();
+        CustomList args = msg.arg;
 
         int rpcType = rpcAttr.rpcType;
         int[] rpcArgs = rpcAttr.argTypes;

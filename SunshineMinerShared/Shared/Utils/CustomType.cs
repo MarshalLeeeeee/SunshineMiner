@@ -31,11 +31,6 @@ public class CustomType
     {
         return "";
     }
-
-    public virtual CustomList WrapInList()
-    {
-        return new CustomList();
-    }
 }
 public class CustomInt : CustomType
 {
@@ -64,13 +59,6 @@ public class CustomInt : CustomType
     public override string CustomToString()
     {
         return $"{(int)obj}";
-    }
-
-    public override CustomList WrapInList()
-    {
-        CustomList list = new CustomList();
-        list.Add(this);
-        return list;
     }
 }
 public class CustomFloat : CustomType
@@ -101,13 +89,6 @@ public class CustomFloat : CustomType
     {
         return $"{(float)obj}";
     }
-
-    public override CustomList WrapInList()
-    {
-        CustomList list = new CustomList();
-        list.Add(this);
-        return list;
-    }
 }
 public class CustomString : CustomType
 {
@@ -136,13 +117,6 @@ public class CustomString : CustomType
     public override string CustomToString()
     {
         return $"\"{(string)obj}\"";
-    }
-
-    public override CustomList WrapInList()
-    {
-        CustomList list = new CustomList();
-        list.Add(this);
-        return list;
     }
 }
 
@@ -180,13 +154,6 @@ public class CustomBool : CustomType
         {
             return "false";
         }
-    }
-
-    public override CustomList WrapInList()
-    {
-        CustomList list = new CustomList();
-        list.Add(this);
-        return list;
     }
 }
 
@@ -253,11 +220,6 @@ public class CustomList : CustomType, IEnumerable
             ss += arg.CustomToString() + ", ";
         }
         return $"[{ss}]";
-    }
-
-    public override CustomList WrapInList()
-    {
-        return this;
     }
 }
 public class CustomDict : CustomType, IEnumerable
@@ -340,13 +302,6 @@ public class CustomDict : CustomType, IEnumerable
             ss += k.CustomToString() + ": " + v.CustomToString() + ", ";
         }
         return "{" + $"{ss}" + "}";
-    }
-
-    public override CustomList WrapInList()
-    {
-        CustomList list = new CustomList();
-        list.Add(this);
-        return list;
     }
 }
 

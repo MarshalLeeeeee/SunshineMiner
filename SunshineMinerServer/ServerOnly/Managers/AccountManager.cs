@@ -34,7 +34,7 @@ public class AccountManager : Manager
         Msg msg = new Msg("Gate", "LoginResRemote");
         if (!CheckAccount(account, password))
         {
-            msg.arg = new CustomBool(false);
+            msg.arg.Add(new CustomBool(false));
             Game.Instance.gate.AppendSendMsg(proxy, msg);
         }
         else {
@@ -52,7 +52,7 @@ public class AccountManager : Manager
             {
                 player = Game.Instance.entityManager.GetPlayer(account2player[account]);
             }
-            msg.arg = new CustomBool(player != null);
+            msg.arg.Add(new CustomBool(player != null));
             Game.Instance.gate.AppendSendMsg(proxy, msg);
 
             if (player != null)
