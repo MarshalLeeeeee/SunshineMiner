@@ -3,6 +3,12 @@ public class AccountManager : Manager
 {
     private Dictionary<string, string> account2player = new Dictionary<string, string>();
 
+    protected override void InitComponents()
+    {
+        base.InitComponents();
+        InitComponent<RpcComp>();
+    }
+
     /*
      * Authorize account
      * TODO

@@ -3,6 +3,12 @@ public class EntityManager : EntityManagerCommon
 {
     public string primaryPid = "";
 
+    protected override void InitComponents()
+    {
+        base.InitComponents();
+        InitComponent<RpcComp>();
+    }
+
     #region REGION_PLAYER
 
     [Rpc(RpcConst.Server, CustomTypeConst.TypeDict, CustomTypeConst.TypeDict)]

@@ -12,7 +12,6 @@ public class Component
     public virtual void Init(Entity e)
     {
         entity = e;
-        InitRpcMethods();
     }
 
     /*
@@ -43,15 +42,6 @@ public class Component
                 field.SetValue(this, kvp.Value);
             }
         }
-        InitRpcMethods();
-    }
-
-    private void InitRpcMethods()
-    {
-        if (entity == null) return;
-
-        Type type = GetType();
-        entity.InitComponentRpcMethods(type.Name);
     }
 
     /*

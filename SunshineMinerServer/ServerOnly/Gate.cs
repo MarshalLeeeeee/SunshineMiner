@@ -226,6 +226,12 @@ public class Gate : Manager
     private ConcurrentQueue<(Guid pid, Msg msg)> msgInbox = new ConcurrentQueue<(Guid pid, Msg msg)>(); // thread shared
     private ConcurrentQueue<(Guid pid, Msg msg)> msgOutbox = new ConcurrentQueue<(Guid pid, Msg msg)>(); // thread shared
 
+    protected override void InitComponents()
+    {
+        base.InitComponents();
+        InitComponent<RpcComp>();
+    }
+
     /*
      * Start gate service (in main thread)
      * * Start listener to handle new connections in off thread

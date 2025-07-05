@@ -68,6 +68,7 @@
     <Compile Include="Assets\Scripts\Shared\Managers\Manager.cs" />
     <Compile Include="Assets\Scripts\Shared\GameCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Game.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Components\RpcComp.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Utils\Debugger.cs" />
     <Compile Include="Assets\Scripts\Shared\Entities\PlayerEntityCommon.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\TimerManagerCommon.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Assets\Scripts\ClientOnly\Managers\EntityManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Components\PrefabComp.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\EventManager.cs" />
+    <Compile Include="Assets\Scripts\Shared\Components\RpcCompCommon.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Rpc.cs" />
     <Compile Include="Assets\Scripts\Shared\ConstCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widget.cs" />

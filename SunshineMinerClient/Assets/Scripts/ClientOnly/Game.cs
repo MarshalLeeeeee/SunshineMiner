@@ -74,7 +74,13 @@ public class Game : GameCommon
             return;
         }
 
-        RpcMethodInfo? rpcMethod = entity.GetRpcMethodInfo(msg.methodName);
+        RpcComp? rpcComp = entity.GetComponent<RpcComp>();
+        if (rpcComp == null)
+        {
+            return;
+        }
+
+        RpcMethodInfo? rpcMethod = rpcComp.GetRpcMethodInfo(msg.methodName);
         if (rpcMethod == null)
         {
             return;

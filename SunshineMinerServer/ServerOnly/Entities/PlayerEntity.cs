@@ -10,6 +10,7 @@ public class PlayerEntity : PlayerEntityCommon
     {
         base.InitComponents();
         InitComponent<AreaComp>();
+        InitComponent<RpcComp>();
     }
 
     #region REGION_PROXY

@@ -10,8 +10,6 @@ public class Entity
 
     private Dictionary<string, Component> components = new Dictionary<string, Component>();
 
-    private Dictionary<string, RpcMethodInfo> rpcMethods = new Dictionary<string, RpcMethodInfo>();
-
     public Entity() { }
 
     public Entity(string eid_)
@@ -24,7 +22,6 @@ public class Entity
      */
     public void Init()
     {
-        InitRpcMethods();
         InitComponents();
     }
 
@@ -56,7 +53,6 @@ public class Entity
                 field.SetValue(this, kvp.Value);
             }
         }
-        InitRpcMethods();
         InitComponents();
         foreach (DictionaryEntry kvp in compProperty)
         {
@@ -166,6 +162,14 @@ public class Entity
         }
     }
 
+    public IEnumerable<KeyValuePair<string, Component>> IterComponents()
+    {
+        foreach (KeyValuePair<string, Component> kvp in components)
+        {
+            yield return kvp;
+        }
+    }
+
     #endregion
 
     #region REGION_SERIALIZE
@@ -182,55 +186,6 @@ public class Entity
         properties.Add(baseProperty);
         properties.Add(compProperty);
         return properties;
-    }
-
-    #endregion
-
-    #region REGION_RPC
-
-    public void InitRpcMethods()
-    {
-        Type type = GetType();
-        var methods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-        foreach (MethodInfo method in methods)
-        {
-            var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
-            if (rpcAttr == null)
-            {
-                continue;
-            }
-            rpcMethods[method.Name] = new RpcMethodInfo(method);
-        }
-    }
-
-    public void InitComponentRpcMethods(string compName)
-    {
-        Component? comp = GetComponentByName(compName);
-        if (comp == null) return;
-
-        Type type = comp.GetType();
-        var methods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-        foreach (MethodInfo method in methods)
-        {
-            var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
-            if (rpcAttr == null)
-            {
-                continue;
-            }
-            rpcMethods[method.Name] = new RpcMethodInfo(compName, method);
-        }
-    }
-
-    public RpcMethodInfo? GetRpcMethodInfo(string methodName)
-    {
-        if (rpcMethods.TryGetValue(methodName, out RpcMethodInfo? rpcMethod))
-        {
-            return rpcMethod;
-        }
-        else
-        {
-            return null;
-        }
     }
 
     #endregion

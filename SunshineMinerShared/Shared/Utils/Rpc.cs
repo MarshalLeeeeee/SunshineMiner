@@ -6,6 +6,8 @@ public class RpcConst
     public const int OwnClient = (1 << 0);
     public const int AnyClient = (1 << 1);
     public const int Server = (1 << 2);
+
+    public const int Client = OwnClient | AnyClient;
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]

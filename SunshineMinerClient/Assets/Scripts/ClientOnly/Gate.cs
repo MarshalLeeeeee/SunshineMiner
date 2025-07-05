@@ -26,6 +26,12 @@ public class Gate : Manager
     private ConcurrentQueue<Msg> msgInbox = new ConcurrentQueue<Msg>();
     private ConcurrentQueue<Msg> msgOutbox = new ConcurrentQueue<Msg>();
 
+    protected override void InitComponents()
+    {
+        base.InitComponents();
+        InitComponent<RpcComp>();
+    }
+
     /*
      * Instantiate instance
      * Create Tcp client
