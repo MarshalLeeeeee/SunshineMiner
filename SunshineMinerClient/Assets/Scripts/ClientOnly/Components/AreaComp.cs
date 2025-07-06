@@ -20,12 +20,7 @@ public class AreaComp : AreaCompCommon
     public override void Update()
     {
         base.Update();
-        Entity entity = this.entity;
         if (entity == null)
-        {
-            return;
-        }
-        if (Game.Instance.entityManager.primaryPid != entity.eid.Getter())
         {
             return;
         }
@@ -34,10 +29,21 @@ public class AreaComp : AreaCompCommon
         {
             return;
         }
-        Msg msg = new Msg(entity.eid.Getter(), "SyncPositionRemote");
-        msg.arg.Add(new CustomFloat(prefabPosition.x));
-        msg.arg.Add(new CustomFloat(prefabPosition.y));
-        msg.arg.Add(new CustomFloat(prefabPosition.z));
-        Game.Instance.gate.AppendSendMsg(msg);
+        if (Game.Instance.entityManager.primaryPid == entity.eid.Getter())
+        {
+            Msg msg = new Msg(entity.eid.Getter(), "SyncPositionRemote");
+            msg.arg.Add(new CustomFloat(prefabPosition.x));
+            msg.arg.Add(new CustomFloat(prefabPosition.y));
+            msg.arg.Add(new CustomFloat(prefabPosition.z));
+            Game.Instance.gate.AppendSendMsg(msg);
+        }
+        else
+        {
+            PrefabComp prefabComp = GetComponent<PrefabComp>();
+            if (prefabComp != null)
+            {
+                prefabComp.UpdatePosition(areaPosition);
+            }
+        }
     }
 }

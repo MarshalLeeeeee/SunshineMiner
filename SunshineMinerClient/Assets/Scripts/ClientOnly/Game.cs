@@ -115,7 +115,7 @@ public class Game : GameCommon
         while (i < rpcArgsCount)
         {
             CustomType arg = args[i];
-            if (arg.type != rpcArgs[i])
+            if (rpcArgs[i] != CustomTypeConst.TypeUndefined && arg.type != rpcArgs[i])
             {
                 return;
             }

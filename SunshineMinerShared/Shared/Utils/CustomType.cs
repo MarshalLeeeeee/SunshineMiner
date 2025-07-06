@@ -16,6 +16,8 @@ static public class CustomTypeConst
     public const int TypeListTail = 125;
     public const int TypeDict = 126;
     public const int TypeDictTail = 127;
+
+    public static readonly int[] TypePrimary = { TypeInt, TypeFloat, TypeString, TypeBool };
 }
 
 public class CustomType
@@ -34,6 +36,7 @@ public class CustomType
 }
 public class CustomInt : CustomType
 {
+    public Action<CustomType, CustomType>? OnSetter = null;
     public CustomInt(int v = 0)
     {
         type = CustomTypeConst.TypeInt;
@@ -42,7 +45,13 @@ public class CustomInt : CustomType
 
     public void Setter(int v)
     {
+        int old = (int)obj;
+        if (old == v) return;
         obj = v;
+        if (OnSetter != null)
+        {
+            OnSetter(new CustomInt(old), new CustomInt(v));
+        }
     }
 
     public int Getter()
@@ -63,6 +72,7 @@ public class CustomInt : CustomType
 }
 public class CustomFloat : CustomType
 {
+    public Action<CustomType, CustomType>? OnSetter = null;
     public CustomFloat(float v = 0f)
     {
         type = CustomTypeConst.TypeFloat;
@@ -71,7 +81,13 @@ public class CustomFloat : CustomType
 
     public void Setter(float v)
     {
+        float old = (float)obj;
+        if (old == v) return;
         obj = v;
+        if (OnSetter != null)
+        {
+            OnSetter(new CustomFloat(old), new CustomFloat(v));
+        }
     }
 
     public float Getter()
@@ -92,6 +108,7 @@ public class CustomFloat : CustomType
 }
 public class CustomString : CustomType
 {
+    public Action<CustomType>? OnSetter = null;
     public CustomString(string v = "")
     {
         type = CustomTypeConst.TypeString;
@@ -100,7 +117,12 @@ public class CustomString : CustomType
 
     public void Setter(string v)
     {
+        if ((string)obj == v) return;
         obj = v;
+        if (OnSetter != null)
+        {
+            OnSetter(this);
+        }
     }
 
     public string Getter()
@@ -122,6 +144,7 @@ public class CustomString : CustomType
 
 public class CustomBool : CustomType
 {
+    public Action<CustomType>? OnSetter = null;
     public CustomBool(bool v = false)
     {
         type = CustomTypeConst.TypeBool;
@@ -130,7 +153,12 @@ public class CustomBool : CustomType
 
     public void Setter(bool v)
     {
+        if ((bool)obj == v) return;
         obj = v;
+        if (OnSetter != null)
+        {
+            OnSetter(this);
+        }
     }
 
     public bool Getter()
@@ -159,6 +187,11 @@ public class CustomBool : CustomType
 
 public class CustomList : CustomType, IEnumerable
 {
+    public Action<CustomType>? OnAdd = null;
+    public Action<CustomType, CustomInt>? OnInsert = null;
+    public Action<CustomType, CustomInt, CustomType>? OnRemove = null;
+    public Action<CustomType>? OnClear = null;
+    public Action<CustomType, CustomInt>? OnSet = null;
     public CustomList()
     {
         type = CustomTypeConst.TypeList;
@@ -169,6 +202,72 @@ public class CustomList : CustomType, IEnumerable
     {
         List<CustomType> l = (List<CustomType>)obj;
         l.Add(arg);
+        if (OnAdd != null)
+        {
+            OnAdd(this);
+        }
+    }
+
+    public void Insert(int index, CustomType arg)
+    {
+        List<CustomType> l = (List<CustomType>)obj;
+        int count = l.Count;
+        if (index < 0 || index > count) return; // Invalid index
+
+        l.Insert(index, arg);
+        if (OnInsert != null)
+        {
+            OnInsert(this, new CustomInt(index));
+        }
+    }
+
+    public void Remove(CustomType arg)
+    {
+        List<CustomType> l = (List<CustomType>)obj;
+        if (l.Contains(arg))
+        {
+            int index = l.IndexOf(arg);
+            l.Remove(arg);
+            if (OnRemove != null)
+            {
+                OnRemove(this, new CustomInt(index), arg);
+            }
+        }
+    }
+
+    public void RemoveAt(int index)
+    {
+        List<CustomType> l = (List<CustomType>)obj;
+        if (index < 0 || index >= l.Count) return; // Invalid index
+
+        CustomType arg = l[index];
+        l.RemoveAt(index);
+        if (OnRemove != null)
+        {
+            OnRemove(this, new CustomInt(index), arg);
+        }
+    }
+
+    public void Clear()
+    {
+        List<CustomType> l = (List<CustomType>)obj;
+        l.Clear();
+        if (OnClear != null)
+        {
+            OnClear(this);
+        }
+    }
+
+    public bool Contains(CustomType arg)
+    {
+        List<CustomType> l = (List<CustomType>)obj;
+        return l.Contains(arg);
+    }
+
+    public int IndexOf(CustomType arg)
+    {
+        List<CustomType> l = (List<CustomType>)obj;
+        return l.IndexOf(arg);
     }
 
     public CustomType this[int index]
@@ -182,6 +281,10 @@ public class CustomList : CustomType, IEnumerable
         {
             List<CustomType> l = (List<CustomType>)obj;
             l[index] = value;
+            if (OnSet != null)
+            {
+                OnSet(this, new CustomInt(index));
+            }
         }
     }
 
@@ -224,6 +327,9 @@ public class CustomList : CustomType, IEnumerable
 }
 public class CustomDict : CustomType, IEnumerable
 {
+    public Action<CustomType, CustomType>? OnSet = null;
+    public Action<CustomType, CustomType>? OnRemove = null;
+    public Action<CustomType>? OnClear = null;
     public CustomDict()
     {
         type = CustomTypeConst.TypeDict;
@@ -233,6 +339,33 @@ public class CustomDict : CustomType, IEnumerable
     public void Add(CustomType key, CustomType value)
     {
         ((Dictionary<CustomType, CustomType>)obj).Add(key, value);
+        if (OnSet != null)
+        {
+            OnSet(this, key);
+        }
+    }
+
+    public void Remove(CustomType key)
+    {
+        Dictionary<CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
+        if (d.ContainsKey(key))
+        {
+            d.Remove(key);
+            if (OnRemove != null)
+            {
+                OnRemove(this, key);
+            }
+        }
+    }
+
+    public void Clear()
+    {
+        Dictionary<CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
+        d.Clear();
+        if (OnClear != null)
+        {
+            OnClear(this);
+        }
     }
 
     public CustomType this[CustomType key]
@@ -257,6 +390,10 @@ public class CustomDict : CustomType, IEnumerable
                 if (Equals(kvp.Key, key))
                 {
                     d[key] = value;
+                    if (OnSet != null)
+                    {
+                        OnSet(this, key);
+                    }
                     return;
                 }
             }
@@ -264,10 +401,41 @@ public class CustomDict : CustomType, IEnumerable
         }
     }
 
+    public bool TryGetValue(CustomType key, out CustomType? value)
+    {
+        Dictionary<CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
+        if (d.TryGetValue(key, out value))
+        {
+            return true;
+        }
+        value = null;
+        return false;
+    }
+
     public bool ContainsKey(CustomType key)
     {
         Dictionary<CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
         return d.ContainsKey(key);
+    }
+
+    public int Count => ((Dictionary<CustomType, CustomType>)obj).Count;
+
+    public CustomType[] Keys
+    {
+        get
+        {
+            Dictionary<CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
+            return new List<CustomType>(d.Keys).ToArray();
+        }
+    }
+
+    public CustomType[] Values
+    {
+        get
+        {
+            Dictionary<CustomType, CustomType> d = (Dictionary<CustomType, CustomType>)obj;
+            return new List<CustomType>(d.Values).ToArray();
+        }
     }
 
     public IEnumerator GetEnumerator()

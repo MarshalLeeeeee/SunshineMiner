@@ -7,8 +7,9 @@ public class PlayerEntity : PlayerEntityCommon
     protected override void InitComponents()
     {
         base.InitComponents();
-        InitComponent<PrefabComp>();
         InitComponent<RpcComp>();
+        InitComponent<PropSyncComp>();
+        InitComponent<PrefabComp>();
         InitComponent<AreaComp>();
     }
 }

@@ -49,4 +49,13 @@ public class PrefabComp : Component
             moveBehavior.isPrimary = (entity.eid.Getter() == Game.Instance.entityManager.primaryPid);
         }
     }
+
+    public void UpdatePosition(Vec3 position)
+    {
+        if (prefabObject == null)
+        {
+            return;
+        }
+        prefabObject.transform.position = new Vector3(position.x, position.y, position.z);
+    }
 }

@@ -11,14 +11,14 @@ public class RpcCompCommon : Component
     {
         base.DoEnable();
         EnableRpcMethod();
-        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.Getter(), "EnableComponent", "OnEntityEnableComponent", EnableCompRpcMethod);
-        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.Getter(), "DisableComponent", "OnEntityDisableComponent", DisableCompRpcMethod);
+        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.Getter(), "EnableComponent", "EnableCompRpcMethod", EnableCompRpcMethod);
+        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.Getter(), "DisableComponent", "DisableCompRpcMethod", DisableCompRpcMethod);
     }
 
     protected override void DoDisable()
     {
-        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.Getter(), "EnableComponent", "OnEntityEnableComponent");
-        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.Getter(), "DisableComponent", "OnEntityDisableComponent");
+        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.Getter(), "EnableComponent", "EnableCompRpcMethod");
+        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.Getter(), "DisableComponent", "DisableCompRpcMethod");
         DisableRpcMethod();
         base.DoDisable();
     }
