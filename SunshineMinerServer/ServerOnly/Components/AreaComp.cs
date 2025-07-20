@@ -1,12 +1,12 @@
 ﻿
 public class AreaComp : AreaCompCommon
 {
-    [Rpc(RpcConst.OwnClient, CustomTypeConst.TypeFloat, CustomTypeConst.TypeFloat, CustomTypeConst.TypeFloat)]
-    public void SyncPositionRemote(CustomFloat x_, CustomFloat y_, CustomFloat z_, Proxy proxy)
+    [Rpc(RpcConst.OwnClient, SyncDataConst.DataTypeFloat, SyncDataConst.DataTypeFloat, SyncDataConst.DataTypeFloat)]
+    public void SyncPositionRemote(SyncDataFloatNode x_, SyncDataFloatNode y_, SyncDataFloatNode z_, Proxy proxy)
     {
         // TODO position validate
-        x.Setter(x_.Getter());
-        y.Setter(y_.Getter());
-        z.Setter(z_.Getter());
+        x.SetValue(x_.GetValue());
+        y.SetValue(y_.GetValue());
+        z.SetValue(z_.GetValue());
     }
 }

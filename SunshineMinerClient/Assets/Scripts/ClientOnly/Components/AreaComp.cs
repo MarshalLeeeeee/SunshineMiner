@@ -29,12 +29,12 @@ public class AreaComp : AreaCompCommon
         {
             return;
         }
-        if (Game.Instance.entityManager.primaryPid == entity.eid.Getter())
+        if (Game.Instance.entityManager.primaryPid == entity.eid.GetValue())
         {
-            Msg msg = new Msg(entity.eid.Getter(), "SyncPositionRemote");
-            msg.arg.Add(new CustomFloat(prefabPosition.x));
-            msg.arg.Add(new CustomFloat(prefabPosition.y));
-            msg.arg.Add(new CustomFloat(prefabPosition.z));
+            Msg msg = new Msg(entity.eid.GetValue(), "SyncPositionRemote");
+            msg.arg.Add(new SyncDataFloatNode(prefabPosition.x));
+            msg.arg.Add(new SyncDataFloatNode(prefabPosition.y));
+            msg.arg.Add(new SyncDataFloatNode(prefabPosition.z));
             Game.Instance.gate.AppendSendMsg(msg);
         }
         else

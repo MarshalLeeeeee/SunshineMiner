@@ -4,21 +4,21 @@ using System.Xml.Linq;
 
 public class PropSyncComp : PropSyncCompCommon
 {
-    protected override Action<CustomType, CustomType>? GetOnSetter(int syncType, string objectName, string name)
+    protected override Action<SyncDataNode, SyncDataNode>? GetOnSetter(int syncType, string objectName, string name)
     {
         return OnSetter;
     }
 
-    private void OnSetter(CustomType o, CustomType n)
+    private void OnSetter(SyncDataNode o, SyncDataNode n)
     {
-        Debugger.Log($"PropSyncComp OnSetter old {o.CustomToString()} new {n.CustomToString()}");
+        Debugger.Log($"PropSyncComp OnSetter old {o} new {n}");
     }
 
-    [Rpc(RpcConst.Server, CustomTypeConst.TypeUndefined, CustomTypeConst.TypeString, CustomTypeConst.TypeString)]
-    public void PropSyncSetterRemote(CustomType value, CustomString objectName_, CustomString name_)
+    [Rpc(RpcConst.Server, SyncDataConst.DataTypeUndefined, SyncDataConst.DataTypeString, SyncDataConst.DataTypeString)]
+    public void PropSyncSetterRemote(SyncDataNode value, SyncDataStringNode objectName_, SyncDataStringNode name_)
     {
-        string objectName = objectName_.Getter();
-        string name = name_.Getter();
+        string objectName = objectName_.GetValue();
+        string name = name_.GetValue();
         object? instance = null;
         if (objectName == "base")
         {

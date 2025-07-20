@@ -30,20 +30,20 @@ public class PlayerEntity : PlayerEntityCommon
     {
         Msg msgOwn = new Msg("EntityManager", "CreatePrimaryPlayerRemote");
         msgOwn.arg = SerializeProperty(SyncConst.OwnClient);
-        Game.Instance.gate.RpcToOwnClient(eid.Getter(), msgOwn);
+        Game.Instance.gate.RpcToOwnClient(eid.GetValue(), msgOwn);
 
         Msg msgOther = new Msg("EntityManager", "CreatePlayerRemote");
         msgOther.arg = SerializeProperty(SyncConst.AllClient);
-        Game.Instance.gate.RpcToOtherClient(eid.Getter(), msgOther);
+        Game.Instance.gate.RpcToOtherClient(eid.GetValue(), msgOther);
     }
 
     public void SyncByOthers()
     {
-        foreach (PlayerEntity player in Game.Instance.entityManager.GetOtherPlayer(eid.Getter()))
+        foreach (PlayerEntity player in Game.Instance.entityManager.GetOtherPlayer(eid.GetValue()))
         {
             Msg msgOther = new Msg("EntityManager", "CreatePlayerRemote");
             msgOther.arg = player.SerializeProperty(SyncConst.AllClient);
-            Game.Instance.gate.RpcToOwnClient(eid.Getter(), msgOther);
+            Game.Instance.gate.RpcToOwnClient(eid.GetValue(), msgOther);
         }
     }
 

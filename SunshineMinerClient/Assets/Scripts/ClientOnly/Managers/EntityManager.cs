@@ -11,18 +11,18 @@ public class EntityManager : EntityManagerCommon
 
     #region REGION_PLAYER
 
-    [Rpc(RpcConst.Server, CustomTypeConst.TypeDict, CustomTypeConst.TypeDict)]
-    public void CreatePrimaryPlayerRemote(CustomDict baseProperty, CustomDict compProperty)
+    [Rpc(RpcConst.Server, SyncDataConst.DataTypeDictionary, SyncDataConst.DataTypeDictionary)]
+    public void CreatePrimaryPlayerRemote(SyncDataDictionaryNode<string> baseProperty, SyncDataDictionaryNode<string> compProperty)
     {
         PlayerEntity player = CreatePlayer(baseProperty, compProperty);
         if (player != null)
         {
-            primaryPid = player.eid.Getter();
+            primaryPid = player.eid.GetValue();
         }
     }
 
-    [Rpc(RpcConst.Server, CustomTypeConst.TypeDict, CustomTypeConst.TypeDict)]
-    public void CreatePlayerRemote(CustomDict baseProperty, CustomDict compProperty)
+    [Rpc(RpcConst.Server, SyncDataConst.DataTypeDictionary, SyncDataConst.DataTypeDictionary)]
+    public void CreatePlayerRemote(SyncDataDictionaryNode<string> baseProperty, SyncDataDictionaryNode<string> compProperty)
     {
         CreatePlayer(baseProperty, compProperty);
     }

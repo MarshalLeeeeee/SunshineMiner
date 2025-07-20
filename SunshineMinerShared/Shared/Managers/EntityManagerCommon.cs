@@ -35,7 +35,7 @@ public class EntityManagerCommon : Manager
         }
         return entity;
     }
-    private T? CreateEntity<T>(CustomDict baseProperty, CustomDict compProperty) where T : Entity
+    private T? CreateEntity<T>(SyncDataDictionaryNode<string> baseProperty, SyncDataDictionaryNode<string> compProperty) where T : Entity
     {
         T? entity = (T?)Activator.CreateInstance(typeof(T));
         if (entity != null)
@@ -73,18 +73,18 @@ public class EntityManagerCommon : Manager
         PlayerEntity? player = CreateEntity<PlayerEntity>(eid);
         if (player != null)
         {
-            players[player.eid.Getter()] = player;
+            players[player.eid.GetValue()] = player;
             Game.Instance.eventManager.TriggerGlobalEvent("CreatePlayer", player);
         }
         return player;
     }
 
-    public PlayerEntity? CreatePlayer(CustomDict baseProperty, CustomDict compProperty)
+    public PlayerEntity? CreatePlayer(SyncDataDictionaryNode<string> baseProperty, SyncDataDictionaryNode<string> compProperty)
     {
         PlayerEntity? player = CreateEntity<PlayerEntity>(baseProperty, compProperty);
         if (player != null)
         {
-            players[player.eid.Getter()] = player;
+            players[player.eid.GetValue()] = player;
             Game.Instance.eventManager.TriggerGlobalEvent("CreatePlayer", player);
         }
         return player;

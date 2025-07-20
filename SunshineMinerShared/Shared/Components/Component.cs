@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 
 public class Component
@@ -21,13 +22,13 @@ public class Component
      * set corresponding entity eid
      * init properties from dict
      */
-    public virtual void Init(Entity e, CustomDict compProperty)
+    public virtual void Init(Entity e, SyncDataDictionaryNode<string> compProperty)
     {
         entity = e;
         Type type = GetType();
-        foreach (DictionaryEntry kvp in compProperty)
+        foreach (KeyValuePair<string, SyncDataNode> kvp in compProperty)
         {
-            string name = ((CustomString)(kvp.Key)).Getter();
+            string name = kvp.Key;
             PropertyInfo? property = type.GetProperty(
                 name,
                 BindingFlags.Public | BindingFlags.Instance
@@ -55,7 +56,7 @@ public class Component
         if (enabled) return;
         DoEnable();
         enabled = true;
-        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.Getter(), "EnableComponent", this);
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "EnableComponent", this);
     }
 
     /*
@@ -83,7 +84,7 @@ public class Component
         if (!enabled) return;
         DoDisable();
         enabled = false;
-        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.Getter(), "DisableComponent", this);
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "DisableComponent", this);
     }
 
     /*

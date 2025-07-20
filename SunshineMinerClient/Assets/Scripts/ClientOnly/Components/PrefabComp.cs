@@ -46,7 +46,7 @@ public class PrefabComp : Component
         if (entity != null)
         {
             MoveBehavior moveBehavior = prefabObject.GetComponent<MoveBehavior>();
-            moveBehavior.isPrimary = (entity.eid.Getter() == Game.Instance.entityManager.primaryPid);
+            moveBehavior.isPrimary = (entity.eid.GetValue() == Game.Instance.entityManager.primaryPid);
         }
     }
 

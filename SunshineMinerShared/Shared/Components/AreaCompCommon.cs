@@ -2,19 +2,19 @@
 public class AreaCompCommon : Component
 {
     [PropertySync(SyncConst.AllClient)]
-    public CustomFloat x = new CustomFloat();
+    public SyncDataFloatNode x = new SyncDataFloatNode();
 
     [PropertySync(SyncConst.AllClient)]
-    public CustomFloat y = new CustomFloat();
+    public SyncDataFloatNode y = new SyncDataFloatNode();
 
     [PropertySync(SyncConst.AllClient)]
-    public CustomFloat z = new CustomFloat();
+    public SyncDataFloatNode z = new SyncDataFloatNode();
 
     public Vec3 areaPosition
     {
         get
         {
-            return new Vec3(x.Getter(), y.Getter(), z.Getter());
+            return new Vec3(x.GetValue(), y.GetValue(), z.GetValue());
         }
     }
 }

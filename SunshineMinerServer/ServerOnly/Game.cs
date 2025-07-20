@@ -156,12 +156,12 @@ public class Game : GameCommon, IDisposable
         }
 
         int rpcType = rpcAttr.rpcType;
-        if (rpcType == RpcConst.OwnClient && proxy.eid != entity.eid.Getter())
+        if (rpcType == RpcConst.OwnClient && proxy.eid != entity.eid.GetValue())
         {
             return;
         }
 
-        CustomList args = msg.arg;
+        SyncDataListNode args = msg.arg;
         int[] rpcArgs = rpcAttr.argTypes;
 
         int argsCount = args.Count;
@@ -174,8 +174,8 @@ public class Game : GameCommon, IDisposable
         int i = 0;
         while (i < rpcArgsCount)
         {
-            CustomType arg = args[i];
-            if (arg.type != rpcArgs[i])
+            SyncDataNode arg = args[i];
+            if (arg.dataType != rpcArgs[i])
             {
                 return;
             }
@@ -183,7 +183,7 @@ public class Game : GameCommon, IDisposable
         }
 
         List<object> methodArgs = new List<object>();
-        foreach (CustomType arg in args)
+        foreach (SyncDataNode arg in args)
         {
             methodArgs.Add(arg);
         }

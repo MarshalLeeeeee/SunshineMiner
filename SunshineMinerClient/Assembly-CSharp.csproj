@@ -63,7 +63,6 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\PnlStart\PnlLogin.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panels\PnlStart.cs" />
-    <Compile Include="Assets\Scripts\Shared\Utils\CustomType.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\InputManager.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\Manager.cs" />
     <Compile Include="Assets\Scripts\Shared\GameCommon.cs" />
@@ -110,7 +109,6 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile-2-Pass.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
-    <None Include="Assets\AddressableAssetsData\link.xml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
