@@ -4,18 +4,18 @@ using System.Xml.Linq;
 
 public class PropSyncComp : PropSyncCompCommon
 {
-    protected override Action<SyncDataNode, SyncDataNode>? GetOnSetter(int syncType, string objectName, string name)
+    protected override Action<DataNode, DataNode>? GetOnSetter(int syncType, string objectName, string name)
     {
         return OnSetter;
     }
 
-    private void OnSetter(SyncDataNode o, SyncDataNode n)
+    private void OnSetter(DataNode o, DataNode n)
     {
         Debugger.Log($"PropSyncComp OnSetter old {o} new {n}");
     }
 
-    [Rpc(RpcConst.Server, SyncDataConst.DataTypeUndefined, SyncDataConst.DataTypeString, SyncDataConst.DataTypeString)]
-    public void PropSyncSetterRemote(SyncDataNode value, SyncDataStringNode objectName_, SyncDataStringNode name_)
+    [Rpc(RpcConst.Server, DataNodeConst.DataTypeUndefined, DataNodeConst.DataTypeString, DataNodeConst.DataTypeString)]
+    public void PropSyncSetterRemote(DataNode value, DataStringNode objectName_, DataStringNode name_)
     {
         string objectName = objectName_.GetValue();
         string name = name_.GetValue();

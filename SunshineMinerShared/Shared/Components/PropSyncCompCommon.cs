@@ -27,11 +27,11 @@ public class PropSyncCompCommon : Component
         if (entity == null) return;
 
         // enable prop sync for entity
-        foreach ((SyncDataNode property, int syncType, string propName) in GetSyncProperties(entity))
+        foreach ((DataNode property, int syncType, string propName) in GetSyncProperties(entity))
         {
             EnableCustomTypeSync(property, syncType, "base", propName);
         }
-        foreach ((SyncDataNode field, int syncType, string fieldName) in GetSyncFields(entity))
+        foreach ((DataNode field, int syncType, string fieldName) in GetSyncFields(entity))
         {
             EnableCustomTypeSync(field, syncType, "base", fieldName);
         }
@@ -49,11 +49,11 @@ public class PropSyncCompCommon : Component
         if (entity == null) return;
 
         // enable prop sync for entity
-        foreach ((SyncDataNode property, int syncType, string propName) in GetSyncProperties(entity))
+        foreach ((DataNode property, int syncType, string propName) in GetSyncProperties(entity))
         {
             DisableCustomTypeSync(property);
         }
-        foreach ((SyncDataNode field, int syncType, string fieldName) in GetSyncFields(entity))
+        foreach ((DataNode field, int syncType, string fieldName) in GetSyncFields(entity))
         {
             DisableCustomTypeSync(field);
         }
@@ -70,11 +70,11 @@ public class PropSyncCompCommon : Component
     {
         Type compType = comp.GetType();
         string compName = compType.Name;
-        foreach ((SyncDataNode property, int syncType, string propName) in GetSyncProperties(comp))
+        foreach ((DataNode property, int syncType, string propName) in GetSyncProperties(comp))
         {
             EnableCustomTypeSync(property, syncType, compName, propName);
         }
-        foreach ((SyncDataNode field, int syncType, string fieldName) in GetSyncFields(comp))
+        foreach ((DataNode field, int syncType, string fieldName) in GetSyncFields(comp))
         {
             EnableCustomTypeSync(field, syncType, compName, fieldName);
         }
@@ -82,17 +82,17 @@ public class PropSyncCompCommon : Component
 
     protected void DisableCompPropSync(Component comp)
     {
-        foreach ((SyncDataNode property, int syncType, string propName) in GetSyncProperties(comp))
+        foreach ((DataNode property, int syncType, string propName) in GetSyncProperties(comp))
         {
             DisableCustomTypeSync(property);
         }
-        foreach ((SyncDataNode field, int syncType, string filedName) in GetSyncFields(comp))
+        foreach ((DataNode field, int syncType, string filedName) in GetSyncFields(comp))
         {
             DisableCustomTypeSync(field);
         }
     }
 
-    private IEnumerable<(SyncDataNode property, int syncType, string propName)> GetSyncProperties(object instance)
+    private IEnumerable<(DataNode property, int syncType, string propName)> GetSyncProperties(object instance)
     {
         Type type = instance.GetType();
         var propertyInfos = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
@@ -102,7 +102,7 @@ public class PropSyncCompCommon : Component
             if (attr != null)
             {
                 var value = propertyInfo.GetValue(instance);
-                if (value != null && value is SyncDataNode property)
+                if (value != null && value is DataNode property)
                 {
                     yield return (property, attr.syncType, propertyInfo.Name);
                 }
@@ -110,7 +110,7 @@ public class PropSyncCompCommon : Component
         }
     }
 
-    private IEnumerable<(SyncDataNode property, int syncType, string fieldName)> GetSyncFields(object instance)
+    private IEnumerable<(DataNode property, int syncType, string fieldName)> GetSyncFields(object instance)
     {
         Type type = instance.GetType();
         var fieldInfos = type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
@@ -120,7 +120,7 @@ public class PropSyncCompCommon : Component
             if (attr != null)
             {
                 var value = fieldInfo.GetValue(instance);
-                if (value != null && value is SyncDataNode field)
+                if (value != null && value is DataNode field)
                 {
                     yield return (field, attr.syncType, fieldInfo.Name);
                 }
@@ -128,31 +128,31 @@ public class PropSyncCompCommon : Component
         }
     }
 
-    private void EnableCustomTypeSync(SyncDataNode arg, int syncType, string objectName, string name)
+    private void EnableCustomTypeSync(DataNode arg, int syncType, string objectName, string name)
     {
-        if (arg is SyncDataIntNode intArg)
+        if (arg is DataIntNode intArg)
         {
             intArg.OnSetter = GetOnSetter(syncType, objectName, name);
         }
-        else if (arg is SyncDataFloatNode floatArg)
+        else if (arg is DataFloatNode floatArg)
         {
             floatArg.OnSetter = GetOnSetter(syncType, objectName, name);
         }
     }
 
-    private void DisableCustomTypeSync(SyncDataNode arg)
+    private void DisableCustomTypeSync(DataNode arg)
     {
-        if (arg is SyncDataIntNode intArg)
+        if (arg is DataIntNode intArg)
         {
             intArg.OnSetter = null;
         }
-        else if (arg is SyncDataFloatNode floatArg)
+        else if (arg is DataFloatNode floatArg)
         {
             floatArg.OnSetter = null;
         }
     }
 
-    protected virtual Action<SyncDataNode, SyncDataNode>? GetOnSetter(int syncType, string objectName, string name)
+    protected virtual Action<DataNode, DataNode>? GetOnSetter(int syncType, string objectName, string name)
     {
         return null;
     }

@@ -6,7 +6,7 @@ using System.Reflection;
 public class Entity
 {
     [PropertySync(SyncConst.AllClient)]
-    public SyncDataStringNode eid = new SyncDataStringNode();
+    public DataStringNode eid = new DataStringNode();
 
     private Dictionary<string, Component> components = new Dictionary<string, Component>();
 
@@ -14,7 +14,7 @@ public class Entity
 
     public Entity(string eid_)
     {
-        eid = new SyncDataStringNode(eid_);
+        eid = new DataStringNode(eid_);
     }
 
     /*
@@ -30,10 +30,10 @@ public class Entity
      * Init components
      * Sync component property
      */
-    public void Init(SyncDataDictionaryNode<string> baseProperty, SyncDataDictionaryNode<string> compProperty)
+    public void Init(DataDictionaryNode<string> baseProperty, DataDictionaryNode<string> compProperty)
     {
         Type type = GetType();
-        foreach (KeyValuePair<string, SyncDataNode> kvp in baseProperty)
+        foreach (KeyValuePair<string, DataNode> kvp in baseProperty)
         {
             string name = kvp.Key;
             PropertyInfo? property = type.GetProperty(
@@ -54,13 +54,13 @@ public class Entity
             }
         }
         InitComponents();
-        foreach (KeyValuePair<string, SyncDataNode> kvp in compProperty)
+        foreach (KeyValuePair<string, DataNode> kvp in compProperty)
         {
             string compName = kvp.Key;
             Component? component = GetComponentByName(compName);
             if (component != null)
             {
-                component.Init(this, (kvp.Value as SyncDataDictionaryNode<string>));
+                component.Init(this, (kvp.Value as DataDictionaryNode<string>));
             }
         }
     }
@@ -150,7 +150,7 @@ public class Entity
         return (T)components[compName];
     }
 
-    public T InitComponent<T>(SyncDataDictionaryNode<string> compProperty) where T : Component, new()
+    public T InitComponent<T>(DataDictionaryNode<string> compProperty) where T : Component, new()
     {
         Type type = typeof(T);
         string compName = type.Name;
@@ -239,11 +239,11 @@ public class Entity
 
     #region REGION_SERIALIZE
 
-    public SyncDataListNode SerializeProperty(int syncType)
+    public DataListNode SerializeProperty(int syncType)
     {
-        SyncDataListNode properties = new SyncDataListNode();
-        SyncDataDictionaryNode<string> baseProperty = SyncStreamer.SerializeProperties(this, syncType);
-        SyncDataDictionaryNode<string> compProperty = new SyncDataDictionaryNode<string>();
+        DataListNode properties = new DataListNode();
+        DataDictionaryNode<string> baseProperty = SyncStreamer.SerializeProperties(this, syncType);
+        DataDictionaryNode<string> compProperty = new DataDictionaryNode<string>();
         foreach (var kvp in components)
         {
             compProperty.Add(kvp.Key, SyncStreamer.SerializeProperties(kvp.Value, syncType));

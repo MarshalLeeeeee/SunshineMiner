@@ -5,6 +5,6 @@ public class Manager : Entity
     public Manager()
     {
         Type type = GetType();
-        eid = new SyncDataStringNode(type.Name);
+        eid = new DataStringNode(type.Name);
     }
 }

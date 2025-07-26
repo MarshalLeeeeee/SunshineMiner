@@ -9,7 +9,7 @@ public class Msg
 {
     public string tgtId { get; }
     public string methodName { get; }
-    public SyncDataListNode arg = new SyncDataListNode();
+    public DataListNode arg = new DataListNode();
     public Msg(string tgtId_, string methodName_)
     {
         tgtId = tgtId_;
@@ -39,8 +39,8 @@ public static class MsgStreamer
         try
         {
             Msg msg = new Msg(reader.ReadString(), reader.ReadString());
-            SyncDataNode arg = SyncStreamer.Deserialize(reader);
-            if (arg != null && arg is SyncDataListNode listNode)
+            DataNode arg = SyncStreamer.Deserialize(reader);
+            if (arg != null && arg is DataListNode listNode)
             {
                 msg.arg = listNode;
                 return msg;

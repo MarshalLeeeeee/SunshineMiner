@@ -161,7 +161,7 @@ public class Game : GameCommon, IDisposable
             return;
         }
 
-        SyncDataListNode args = msg.arg;
+        DataListNode args = msg.arg;
         int[] rpcArgs = rpcAttr.argTypes;
 
         int argsCount = args.Count;
@@ -174,7 +174,7 @@ public class Game : GameCommon, IDisposable
         int i = 0;
         while (i < rpcArgsCount)
         {
-            SyncDataNode arg = args[i];
+            DataNode arg = args[i];
             if (arg.dataType != rpcArgs[i])
             {
                 return;
@@ -183,7 +183,7 @@ public class Game : GameCommon, IDisposable
         }
 
         List<object> methodArgs = new List<object>();
-        foreach (SyncDataNode arg in args)
+        foreach (DataNode arg in args)
         {
             methodArgs.Add(arg);
         }

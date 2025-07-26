@@ -1,8 +1,8 @@
 ﻿
 public class AreaComp : AreaCompCommon
 {
-    [Rpc(RpcConst.OwnClient, SyncDataConst.DataTypeFloat, SyncDataConst.DataTypeFloat, SyncDataConst.DataTypeFloat)]
-    public void SyncPositionRemote(SyncDataFloatNode x_, SyncDataFloatNode y_, SyncDataFloatNode z_, Proxy proxy)
+    [Rpc(RpcConst.OwnClient, DataNodeConst.DataTypeFloat, DataNodeConst.DataTypeFloat, DataNodeConst.DataTypeFloat)]
+    public void SyncPositionRemote(DataFloatNode x_, DataFloatNode y_, DataFloatNode z_, Proxy proxy)
     {
         // TODO position validate
         x.SetValue(x_.GetValue());

@@ -99,7 +99,7 @@ public class Game : GameCommon
             return;
         }
 
-        SyncDataListNode args = msg.arg;
+        DataListNode args = msg.arg;
 
         int rpcType = rpcAttr.rpcType;
         int[] rpcArgs = rpcAttr.argTypes;
@@ -114,8 +114,8 @@ public class Game : GameCommon
         int i = 0;
         while (i < rpcArgsCount)
         {
-            SyncDataNode arg = args[i];
-            if (rpcArgs[i] != SyncDataConst.DataTypeUndefined && arg.dataType != rpcArgs[i])
+            DataNode arg = args[i];
+            if (rpcArgs[i] != DataNodeConst.DataTypeUndefined && arg.dataType != rpcArgs[i])
             {
                 return;
             }

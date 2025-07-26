@@ -84,8 +84,10 @@
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panel.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Entities\PlayerEntity.cs" />
     <Compile Include="Assets\Scripts\Shared\Entities\Entity.cs" />
+    <Compile Include="Assets\Scripts\Shared\Utils\DataNode.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Gate.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Sync.cs" />
+    <Compile Include="Assets\Scripts\Shared\Utils\FuncNode.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Math.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Prefab\MoveBehavior.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\EntityManager.cs" />

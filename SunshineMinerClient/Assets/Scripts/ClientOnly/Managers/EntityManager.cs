@@ -11,8 +11,8 @@ public class EntityManager : EntityManagerCommon
 
     #region REGION_PLAYER
 
-    [Rpc(RpcConst.Server, SyncDataConst.DataTypeDictionary, SyncDataConst.DataTypeDictionary)]
-    public void CreatePrimaryPlayerRemote(SyncDataDictionaryNode<string> baseProperty, SyncDataDictionaryNode<string> compProperty)
+    [Rpc(RpcConst.Server, DataNodeConst.DataTypeDictionary, DataNodeConst.DataTypeDictionary)]
+    public void CreatePrimaryPlayerRemote(DataDictionaryNode<string> baseProperty, DataDictionaryNode<string> compProperty)
     {
         PlayerEntity player = CreatePlayer(baseProperty, compProperty);
         if (player != null)
@@ -21,8 +21,8 @@ public class EntityManager : EntityManagerCommon
         }
     }
 
-    [Rpc(RpcConst.Server, SyncDataConst.DataTypeDictionary, SyncDataConst.DataTypeDictionary)]
-    public void CreatePlayerRemote(SyncDataDictionaryNode<string> baseProperty, SyncDataDictionaryNode<string> compProperty)
+    [Rpc(RpcConst.Server, DataNodeConst.DataTypeDictionary, DataNodeConst.DataTypeDictionary)]
+    public void CreatePlayerRemote(DataDictionaryNode<string> baseProperty, DataDictionaryNode<string> compProperty)
     {
         CreatePlayer(baseProperty, compProperty);
     }

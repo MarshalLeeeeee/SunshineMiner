@@ -109,8 +109,8 @@ public class Gate : Manager
     public void Login(string account,  string password)
     {
         Msg msg = new Msg("AccountManager", "LoginRemote");
-        msg.arg.Add(new SyncDataStringNode(account));
-        msg.arg.Add(new SyncDataStringNode(password));
+        msg.arg.Add(new DataStringNode(account));
+        msg.arg.Add(new DataStringNode(password));
         AppendSendMsg(msg);
     }
 
@@ -490,8 +490,8 @@ public class Gate : Manager
 
     #region REGION_LOGIN
 
-    [Rpc(RpcConst.Server, SyncDataConst.DataTypeBool)]
-    public void LoginResRemote(SyncDataBoolNode res)
+    [Rpc(RpcConst.Server, DataNodeConst.DataTypeBool)]
+    public void LoginResRemote(DataBoolNode res)
     {
         bool resValue = res.GetValue();
         Game.Instance.eventManager.TriggerGlobalEvent("LoginRes", resValue);

@@ -22,11 +22,11 @@ public class Component
      * set corresponding entity eid
      * init properties from dict
      */
-    public virtual void Init(Entity e, SyncDataDictionaryNode<string> compProperty)
+    public virtual void Init(Entity e, DataDictionaryNode<string> compProperty)
     {
         entity = e;
         Type type = GetType();
-        foreach (KeyValuePair<string, SyncDataNode> kvp in compProperty)
+        foreach (KeyValuePair<string, DataNode> kvp in compProperty)
         {
             string name = kvp.Key;
             PropertyInfo? property = type.GetProperty(
