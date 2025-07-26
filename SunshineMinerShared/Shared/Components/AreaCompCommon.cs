@@ -2,13 +2,13 @@
 public class AreaCompCommon : Component
 {
     [PropertySync(SyncConst.AllClient)]
-    public DataFloatNode x = new DataFloatNode();
+    public PropFloatNode x = new PropFloatNode();
 
     [PropertySync(SyncConst.AllClient)]
-    public DataFloatNode y = new DataFloatNode();
+    public PropFloatNode y = new PropFloatNode();
 
     [PropertySync(SyncConst.AllClient)]
-    public DataFloatNode z = new DataFloatNode();
+    public PropFloatNode z = new PropFloatNode();
 
     public Vec3 areaPosition
     {

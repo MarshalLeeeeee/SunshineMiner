@@ -5,6 +5,6 @@ public class Manager : Entity
     public Manager()
     {
         Type type = GetType();
-        eid = new DataStringNode(type.Name);
+        eid = new PropStringNode(type.Name);
     }
 }

@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\Shared\Entities\PlayerEntityCommon.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\ComponentFactory.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\TimerManagerCommon.cs" />
+    <Compile Include="Assets\Scripts\Shared\Utils\PropNode.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\EntityManagerCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\UIBase.cs" />
@@ -85,7 +86,6 @@
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panel.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Entities\PlayerEntity.cs" />
     <Compile Include="Assets\Scripts\Shared\Entities\Entity.cs" />
-    <Compile Include="Assets\Scripts\Shared\Utils\DataNode.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Gate.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Sync.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\FuncNode.cs" />

@@ -40,12 +40,12 @@ public class Component : FuncNode
         InitComponents();
     }
 
-    public void Init(DataDictionaryNode<string> info)
+    public void Init(PropDictionaryNode<string> info)
     {
         Type type = GetType();
-        if (info.TryGetValue("_Property", out DataNode? dataNode) && dataNode is DataDictionaryNode<string> propertyInfo)
+        if (info.TryGetValue("_Property", out PropNode? dataNode) && dataNode is PropDictionaryNode<string> propertyInfo)
         {
-            foreach (KeyValuePair<string, DataNode> kvp in propertyInfo)
+            foreach (KeyValuePair<string, PropNode> kvp in propertyInfo)
             {
                 string name = kvp.Key;
                 PropertyInfo? property = type.GetProperty(
@@ -67,11 +67,11 @@ public class Component : FuncNode
             }
         }
         InitComponents();
-        foreach (KeyValuePair<string, DataNode> kvp in info)
+        foreach (KeyValuePair<string, PropNode> kvp in info)
         {
             string name = kvp.Key;
             if (name == "_Property") continue;
-            if (kvp.Value is DataDictionaryNode<string> compInfo)
+            if (kvp.Value is PropDictionaryNode<string> compInfo)
             {
                 InitComponentByName(name, compInfo);
             }
@@ -242,7 +242,7 @@ public class Component : FuncNode
         return component;
     }
 
-    public T InitComponent<T>(DataDictionaryNode<string> info) where T : Component, new()
+    public T InitComponent<T>(PropDictionaryNode<string> info) where T : Component, new()
     {
         Type type = typeof(T);
         string compName = type.Name;
@@ -267,7 +267,7 @@ public class Component : FuncNode
         }
     }
 
-    public void InitComponentByName(string compName, DataDictionaryNode<string> info)
+    public void InitComponentByName(string compName, PropDictionaryNode<string> info)
     {
         Component? component = GetComponentByName(compName);
         if (component == null)
@@ -355,17 +355,17 @@ public class Component : FuncNode
 
     #region REGION_SERIALIZE
 
-    public DataDictionaryNode<string> SerializeWithSyncType(int syncType)
+    public PropDictionaryNode<string> SerializeWithSyncType(int syncType)
     {
-        DataDictionaryNode<string> info = new DataDictionaryNode<string>();
-        DataDictionaryNode<string> propInfo = SyncStreamer.SerializeProperties(this, syncType);
+        PropDictionaryNode<string> info = new PropDictionaryNode<string>();
+        PropDictionaryNode<string> propInfo = PropStreamer.SerializeInstance(this, syncType);
         if (propInfo.Count > 0)
         {
             info.Add("_Property", propInfo);
         }
         foreach (var kvp in IterComponents())
         {
-            DataDictionaryNode<string> compInfo = kvp.Value.SerializeWithSyncType(syncType);
+            PropDictionaryNode<string> compInfo = kvp.Value.SerializeWithSyncType(syncType);
             if (compInfo.Count > 0)
             {
                 info.Add(kvp.Key, compInfo);

@@ -18,8 +18,8 @@ public class AccountManager : Manager
         return true;
     }
 
-    [Rpc(RpcConst.AnyClient, DataNodeConst.DataTypeString, DataNodeConst.DataTypeString)]
-    public void LoginRemote(DataStringNode account, DataStringNode password, Proxy proxy)
+    [Rpc(RpcConst.AnyClient, PropNodeConst.DataTypeString, PropNodeConst.DataTypeString)]
+    public void LoginRemote(PropStringNode account, PropStringNode password, Proxy proxy)
     {
         string accountStr = account.GetValue();
         string passwordStr = password.GetValue();
@@ -34,7 +34,7 @@ public class AccountManager : Manager
         Msg msg = new Msg("Gate", "LoginResRemote");
         if (!CheckAccount(account, password))
         {
-            msg.arg.Add(new DataBoolNode(false));
+            msg.arg.Add(new PropBoolNode(false));
             Game.Instance.gate.AppendSendMsg(proxy, msg);
         }
         else {
@@ -52,7 +52,7 @@ public class AccountManager : Manager
             {
                 player = Game.Instance.entityManager.GetPlayer(account2player[account]);
             }
-            msg.arg.Add(new DataBoolNode(player != null));
+            msg.arg.Add(new PropBoolNode(player != null));
             Game.Instance.gate.AppendSendMsg(proxy, msg);
 
             if (player != null)

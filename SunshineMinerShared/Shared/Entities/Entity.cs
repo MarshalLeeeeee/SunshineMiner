@@ -12,13 +12,13 @@ using System.Reflection;
 public class Entity : Component
 {
     [PropertySync(SyncConst.AllClient)]
-    public DataStringNode eid = new DataStringNode();
+    public PropStringNode eid = new PropStringNode();
 
     public Entity() { }
 
     public Entity(string eid_)
     {
-        eid = new DataStringNode(eid_);
+        eid = new PropStringNode(eid_);
     }
 
     /*

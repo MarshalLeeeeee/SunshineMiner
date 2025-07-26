@@ -32,9 +32,9 @@ public class AreaComp : AreaCompCommon
         if (Game.Instance.entityManager.primaryPid == entity.eid.GetValue())
         {
             Msg msg = new Msg(entity.eid.GetValue(), "SyncPositionRemote");
-            msg.arg.Add(new DataFloatNode(prefabPosition.x));
-            msg.arg.Add(new DataFloatNode(prefabPosition.y));
-            msg.arg.Add(new DataFloatNode(prefabPosition.z));
+            msg.arg.Add(new PropFloatNode(prefabPosition.x));
+            msg.arg.Add(new PropFloatNode(prefabPosition.y));
+            msg.arg.Add(new PropFloatNode(prefabPosition.z));
             Game.Instance.gate.AppendSendMsg(msg);
         }
         else

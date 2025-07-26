@@ -161,7 +161,7 @@ public class Game : GameCommon, IDisposable
             return;
         }
 
-        DataListNode args = msg.arg;
+        PropListNode args = msg.arg;
         int[] rpcArgs = rpcAttr.argTypes;
 
         int argsCount = args.Count;
@@ -174,7 +174,7 @@ public class Game : GameCommon, IDisposable
         int i = 0;
         while (i < rpcArgsCount)
         {
-            DataNode arg = args[i];
+            PropNode arg = args[i];
             if (arg.dataType != rpcArgs[i])
             {
                 return;
@@ -183,7 +183,7 @@ public class Game : GameCommon, IDisposable
         }
 
         List<object> methodArgs = new List<object>();
-        foreach (DataNode arg in args)
+        foreach (PropNode arg in args)
         {
             methodArgs.Add(arg);
         }

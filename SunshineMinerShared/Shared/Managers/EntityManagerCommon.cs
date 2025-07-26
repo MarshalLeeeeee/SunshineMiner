@@ -35,7 +35,7 @@ public class EntityManagerCommon : Manager
         }
         return entity;
     }
-    private T? CreateEntity<T>(DataDictionaryNode<string> info) where T : Entity
+    private T? CreateEntity<T>(PropDictionaryNode<string> info) where T : Entity
     {
         T? entity = (T?)Activator.CreateInstance(typeof(T));
         if (entity != null)
@@ -79,7 +79,7 @@ public class EntityManagerCommon : Manager
         return player;
     }
 
-    public PlayerEntity? CreatePlayer(DataDictionaryNode<string> info)
+    public PlayerEntity? CreatePlayer(PropDictionaryNode<string> info)
     {
         PlayerEntity? player = CreateEntity<PlayerEntity>(info);
         if (player != null)

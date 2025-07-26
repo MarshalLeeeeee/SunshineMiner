@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-
-public class DataNodeConst
+public class PropNodeConst
 {
     public const int DataTypeUndefined = 0;
     public const int DataTypeInt = 1;
@@ -30,12 +29,11 @@ public class DataNodeConst
     public const int DataTypePath = 15;
 }
 
-
-public class DataNode
+public class PropNode
 {
     /*
-    * For DataLeafNode, if immutable, value is unchangable after constructor.
-    * For DataBranchNode, if immutable, children nodes are unchangable after constructor.
+    * For PropLeafNode, if immutable, value is unchangable after constructor.
+    * For PropBranchNode, if immutable, children nodes are unchangable after constructor.
     */
     protected bool immutable = false;
 
@@ -51,7 +49,7 @@ public class DataNode
     }
     protected virtual int GetDataType()
     {
-        return DataNodeConst.DataTypeUndefined;
+        return PropNodeConst.DataTypeUndefined;
     }
 
     /*
@@ -67,31 +65,31 @@ public class DataNode
     */
     public override string ToString()
     {
-        return "DataNode(Null)";
+        return "PropNode(Null)";
     }
 
 }
 
-public class DataLeafNode : DataNode
+public class PropLeafNode : PropNode
 {
-    public Action<DataNode, DataNode>? OnSetter = null;
+    public Action<PropNode, PropNode>? OnSetter = null;
 }
 
-public class DataBranchNode : DataNode
+public class PropBranchNode : PropNode
 {
 
 }
 
-public class DataIntNode : DataLeafNode
+public class PropIntNode : PropLeafNode
 {
     private int value = 0;
 
-    public DataIntNode() {}
-    public DataIntNode(int value_)
+    public PropIntNode() {}
+    public PropIntNode(int value_)
     {
         value = value_;
     }
-    public DataIntNode(int value_, bool immutable_)
+    public PropIntNode(int value_, bool immutable_)
     {
         value = value_;
         immutable = immutable_;
@@ -99,7 +97,7 @@ public class DataIntNode : DataLeafNode
 
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypeInt;
+        return PropNodeConst.DataTypeInt;
     }
 
     public int GetValue()
@@ -115,20 +113,20 @@ public class DataIntNode : DataLeafNode
         value = value_;
         if (OnSetter != null)
         {
-            DataIntNode oldNode = new DataIntNode(oldValue, true);
+            PropIntNode oldNode = new PropIntNode(oldValue, true);
             OnSetter(oldNode, this);
         }
     }
     
-    public static DataIntNode Deserialize(BinaryReader reader)
+    public static PropIntNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new DataIntNode(reader.ReadInt32());
+            return new PropIntNode(reader.ReadInt32());
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataIntNode.", ex);
+            throw new InvalidDataException("Failed to deserialize PropIntNode.", ex);
         }
     }
 
@@ -140,20 +138,20 @@ public class DataIntNode : DataLeafNode
 
     public override string ToString()
     {
-        return $"DataIntNode({value})";
+        return $"PropIntNode({value})";
     }
 }
 
-public class DataFloatNode : DataLeafNode
+public class PropFloatNode : PropLeafNode
 {
     private float value = 0f;
 
-    public DataFloatNode() {}
-    public DataFloatNode(float value_)
+    public PropFloatNode() {}
+    public PropFloatNode(float value_)
     {
         value = value_;
     }
-    public DataFloatNode(float value_, bool immutable_)
+    public PropFloatNode(float value_, bool immutable_)
     {
         value = value_;
         immutable = immutable_;
@@ -161,7 +159,7 @@ public class DataFloatNode : DataLeafNode
 
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypeFloat;
+        return PropNodeConst.DataTypeFloat;
     }
 
     public float GetValue()
@@ -177,20 +175,20 @@ public class DataFloatNode : DataLeafNode
         value = value_;
         if (OnSetter != null)
         {
-            DataFloatNode oldNode = new DataFloatNode(oldValue, true);
+            PropFloatNode oldNode = new PropFloatNode(oldValue, true);
             OnSetter(oldNode, this);
         }
     }
     
-    public static DataFloatNode Deserialize(BinaryReader reader)
+    public static PropFloatNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new DataFloatNode(reader.ReadSingle());
+            return new PropFloatNode(reader.ReadSingle());
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataFloatNode.", ex);
+            throw new InvalidDataException("Failed to deserialize PropFloatNode.", ex);
         }
     }
 
@@ -202,20 +200,20 @@ public class DataFloatNode : DataLeafNode
 
     public override string ToString()
     {
-        return $"DataFloatNode({value})";
+        return $"PropFloatNode({value})";
     }
 }
 
-public class DataStringNode : DataLeafNode
+public class PropStringNode : PropLeafNode
 {
     private string value = "";
 
-    public DataStringNode() {}
-    public DataStringNode(string value_)
+    public PropStringNode() {}
+    public PropStringNode(string value_)
     {
         value = value_;
     }
-    public DataStringNode(string value_, bool immutable_)
+    public PropStringNode(string value_, bool immutable_)
     {
         value = value_;
         immutable = immutable_;
@@ -223,7 +221,7 @@ public class DataStringNode : DataLeafNode
 
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypeString;
+        return PropNodeConst.DataTypeString;
     }
 
     public string GetValue()
@@ -237,15 +235,15 @@ public class DataStringNode : DataLeafNode
         value = value_;
     }
     
-    public static DataStringNode Deserialize(BinaryReader reader)
+    public static PropStringNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new DataStringNode(reader.ReadString());
+            return new PropStringNode(reader.ReadString());
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataStringNode.", ex);
+            throw new InvalidDataException("Failed to deserialize PropStringNode.", ex);
         }
     }
 
@@ -257,20 +255,20 @@ public class DataStringNode : DataLeafNode
 
     public override string ToString()
     {
-        return $"DataStringNode({value})";
+        return $"PropStringNode({value})";
     }
 }
 
-public class DataBoolNode : DataLeafNode
+public class PropBoolNode : PropLeafNode
 {
     private bool value = false;
 
-    public DataBoolNode() {}
-    public DataBoolNode(bool value_)
+    public PropBoolNode() {}
+    public PropBoolNode(bool value_)
     {
         value = value_;
     }
-    public DataBoolNode(bool value_, bool immutable_)
+    public PropBoolNode(bool value_, bool immutable_)
     {
         value = value_;
         immutable = immutable_;
@@ -278,7 +276,7 @@ public class DataBoolNode : DataLeafNode
 
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypeBool;
+        return PropNodeConst.DataTypeBool;
     }
 
     public bool GetValue()
@@ -292,15 +290,15 @@ public class DataBoolNode : DataLeafNode
         value = value_;
     }
     
-    public static DataBoolNode Deserialize(BinaryReader reader)
+    public static PropBoolNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new DataBoolNode(reader.ReadBoolean());
+            return new PropBoolNode(reader.ReadBoolean());
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataBoolNode.", ex);
+            throw new InvalidDataException("Failed to deserialize PropBoolNode.", ex);
         }
     }
 
@@ -312,26 +310,26 @@ public class DataBoolNode : DataLeafNode
 
     public override string ToString()
     {
-        return $"DataBoolNode({value})";
+        return $"PropBoolNode({value})";
     }
 }
 
-public class DataListTailNode: DataNode
+public class PropListTailNode: PropNode
 {
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypeListTail;
+        return PropNodeConst.DataTypeListTail;
     }
     
-    public static DataListTailNode Deserialize(BinaryReader reader)
+    public static PropListTailNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new DataListTailNode();
+            return new PropListTailNode();
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataListTailNode.", ex);
+            throw new InvalidDataException("Failed to deserialize PropListTailNode.", ex);
         }
     }
 
@@ -342,28 +340,28 @@ public class DataListTailNode: DataNode
 
     public override string ToString()
     {
-        return "DataListTailNode(null)";
+        return "PropListTailNode(null)";
     }
 }
 
-public class DataListNode : DataBranchNode, IEnumerable<DataNode>
+public class PropListNode : PropBranchNode, IEnumerable<PropNode>
 {
-    private List<DataNode> children = new List<DataNode>();
+    private List<PropNode> children = new List<PropNode>();
 
-    public DataListNode() {}
-    public DataListNode(bool immutable_)
+    public PropListNode() {}
+    public PropListNode(bool immutable_)
     {
         immutable = immutable_;
     }
 
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypeList;
+        return PropNodeConst.DataTypeList;
     }
 
     #region REGION_LIST_API
 
-    public DataNode this[int index]
+    public PropNode this[int index]
     {
         get
         {
@@ -385,22 +383,22 @@ public class DataListNode : DataBranchNode, IEnumerable<DataNode>
         get { return children.Count; }
     }
 
-    public bool Contains(DataNode child)
+    public bool Contains(PropNode child)
     {
         return children.Contains(child);
     }
 
-    public int IndexOf(DataNode child)
+    public int IndexOf(PropNode child)
     {
         return children.IndexOf(child);
     }
 
-    public DataNode[] ToArray()
+    public PropNode[] ToArray()
     {
         return children.ToArray();
     }
 
-    public IEnumerator<DataNode> GetEnumerator()
+    public IEnumerator<PropNode> GetEnumerator()
     {
         return children.GetEnumerator();
     }
@@ -410,13 +408,13 @@ public class DataListNode : DataBranchNode, IEnumerable<DataNode>
         return GetEnumerator();
     }
 
-    public void Add(DataNode child)
+    public void Add(PropNode child)
     {
         if (immutable) return;
         children.Add(child);
     }
 
-    public void Insert(int index, DataNode child)
+    public void Insert(int index, PropNode child)
     {
         if (immutable) return;
         if (index < 0 || index > children.Count)
@@ -424,7 +422,7 @@ public class DataListNode : DataBranchNode, IEnumerable<DataNode>
         children.Insert(index, child);
     }
 
-    public void Remove(DataNode child)
+    public void Remove(PropNode child)
     {
         if (immutable) return;
         children.Remove(child);
@@ -446,22 +444,22 @@ public class DataListNode : DataBranchNode, IEnumerable<DataNode>
 
     #endregion
     
-    public static DataListNode Deserialize(BinaryReader reader)
+    public static PropListNode Deserialize(BinaryReader reader)
     {
         try
         {
-            DataListNode listNode = new DataListNode();
+            PropListNode listNode = new PropListNode();
             while (true)
             {
-                DataNode node = SyncStreamer.Deserialize(reader);
-                if (node is DataListTailNode tailNode) break;
+                PropNode node = PropStreamer.Deserialize(reader);
+                if (node is PropListTailNode tailNode) break;
                 else listNode.Add(node);
             }
             return listNode;
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataListNode.", ex);
+            throw new InvalidDataException("Failed to deserialize PropListNode.", ex);
         }
     }
 
@@ -472,7 +470,7 @@ public class DataListNode : DataBranchNode, IEnumerable<DataNode>
         {
             child.Serialize(writer);
         }
-        writer.Write(DataNodeConst.DataTypeListTail);
+        writer.Write(PropNodeConst.DataTypeListTail);
     }
 
     public override string ToString()
@@ -482,26 +480,26 @@ public class DataListNode : DataBranchNode, IEnumerable<DataNode>
         {
             ls += child.ToString() + ", ";
         }
-        return $"DataListNode([{ls}])";
+        return $"PropListNode([{ls}])";
     }
 }
 
-public class DataDictionaryTailNode : DataNode
+public class PropDictionaryTailNode : PropNode
 {
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypeDictionaryTail;
+        return PropNodeConst.DataTypeDictionaryTail;
     }
     
-    public static DataDictionaryTailNode Deserialize(BinaryReader reader)
+    public static PropDictionaryTailNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new DataDictionaryTailNode();
+            return new PropDictionaryTailNode();
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataDictionaryTailNode.", ex);
+            throw new InvalidDataException("Failed to deserialize PropDictionaryTailNode.", ex);
         }
     }
 
@@ -512,20 +510,20 @@ public class DataDictionaryTailNode : DataNode
 
     public override string ToString()
     {
-        return "DataDictionaryTailNode(null)";
+        return "PropDictionaryTailNode(null)";
     }
 }
 
-public class DataDictionaryNode<TKey> : DataBranchNode, IEnumerable<KeyValuePair<TKey, DataNode>>
+public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair<TKey, PropNode>>
 {
-    private Dictionary<TKey, DataNode> children = new Dictionary<TKey, DataNode>();
-    private int keyType = DataNodeConst.DataTypeUndefined;
+    private Dictionary<TKey, PropNode> children = new Dictionary<TKey, PropNode>();
+    private int keyType = PropNodeConst.DataTypeUndefined;
 
-    public DataDictionaryNode()
+    public PropDictionaryNode()
     {
         SetKeyType();
     }
-    public DataDictionaryNode(bool immutable_)
+    public PropDictionaryNode(bool immutable_)
     {
         immutable = immutable_;
         SetKeyType();
@@ -533,19 +531,19 @@ public class DataDictionaryNode<TKey> : DataBranchNode, IEnumerable<KeyValuePair
 
     private void SetKeyType()
     {
-        if (typeof(TKey) == typeof(int)) keyType = DataNodeConst.DataTypeInt;
-        else if (typeof(TKey) == typeof(float)) keyType = DataNodeConst.DataTypeFloat;
-        else if (typeof(TKey) == typeof(string)) keyType = DataNodeConst.DataTypeString;
+        if (typeof(TKey) == typeof(int)) keyType = PropNodeConst.DataTypeInt;
+        else if (typeof(TKey) == typeof(float)) keyType = PropNodeConst.DataTypeFloat;
+        else if (typeof(TKey) == typeof(string)) keyType = PropNodeConst.DataTypeString;
     }
 
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypeDictionary;
+        return PropNodeConst.DataTypeDictionary;
     }
 
     #region REGION_DICTIONARY_API
 
-    public DataNode this[TKey key]
+    public PropNode this[TKey key]
     {
         get
         {
@@ -570,12 +568,12 @@ public class DataDictionaryNode<TKey> : DataBranchNode, IEnumerable<KeyValuePair
         return children.ContainsKey(key);
     }
 
-    public bool TryGetValue(TKey key, out DataNode value)
+    public bool TryGetValue(TKey key, out PropNode value)
     {
         return children.TryGetValue(key, out value);
     }
 
-    public IEnumerator<KeyValuePair<TKey, DataNode>> GetEnumerator()
+    public IEnumerator<KeyValuePair<TKey, PropNode>> GetEnumerator()
     {
         return children.GetEnumerator();
     }
@@ -585,7 +583,7 @@ public class DataDictionaryNode<TKey> : DataBranchNode, IEnumerable<KeyValuePair
         return GetEnumerator(); // Ĭ�Ϸ���KVP�汾��ö����
     }
 
-    public void Add(TKey key, DataNode value)
+    public void Add(TKey key, PropNode value)
     {
         if (immutable) return;
         children.Add(key, value);
@@ -605,26 +603,26 @@ public class DataDictionaryNode<TKey> : DataBranchNode, IEnumerable<KeyValuePair
 
     #endregion
 
-    public static DataDictionaryNode<TKey> Deserialize(BinaryReader reader)
+    public static PropDictionaryNode<TKey> Deserialize(BinaryReader reader)
     {
         try
         {
-            DataDictionaryNode<TKey> dictionary = new DataDictionaryNode<TKey>();
+            PropDictionaryNode<TKey> dictionary = new PropDictionaryNode<TKey>();
             while (true)
             {
-                DataNode kNode = SyncStreamer.Deserialize(reader);
-                if (kNode is DataDictionaryTailNode tailNode) break;
+                PropNode kNode = PropStreamer.Deserialize(reader);
+                if (kNode is PropDictionaryTailNode tailNode) break;
 
-                DataNode vNode = SyncStreamer.Deserialize(reader);
-                if (kNode is DataIntNode kIntNode && kIntNode.GetValue() is TKey ik)
+                PropNode vNode = PropStreamer.Deserialize(reader);
+                if (kNode is PropIntNode kIntNode && kIntNode.GetValue() is TKey ik)
                 {
                     dictionary.Add(ik, vNode);
                 }
-                else if (kNode is DataFloatNode kFloatNode && kFloatNode.GetValue() is TKey fk)
+                else if (kNode is PropFloatNode kFloatNode && kFloatNode.GetValue() is TKey fk)
                 {
                     dictionary.Add(fk, vNode);
                 }
-                else if (kNode is DataStringNode kStringNode && kStringNode.GetValue() is TKey sk)
+                else if (kNode is PropStringNode kStringNode && kStringNode.GetValue() is TKey sk)
                 {
                     dictionary.Add(sk, vNode);
                 }
@@ -634,7 +632,7 @@ public class DataDictionaryNode<TKey> : DataBranchNode, IEnumerable<KeyValuePair
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataDictionaryNode.", ex);
+            throw new InvalidDataException("Failed to deserialize PropDictionaryNode.", ex);
         }
     }
     
@@ -645,30 +643,30 @@ public class DataDictionaryNode<TKey> : DataBranchNode, IEnumerable<KeyValuePair
         foreach (var kvp in children)
         {
             TKey key = kvp.Key;
-            DataNode value = kvp.Value;
-            if (keyType == DataNodeConst.DataTypeInt)
+            PropNode value = kvp.Value;
+            if (keyType == PropNodeConst.DataTypeInt)
             {
                 if (key is int intKey)
                 {
-                    DataIntNode intNode = new DataIntNode(intKey);
+                    PropIntNode intNode = new PropIntNode(intKey);
                     intNode.Serialize(writer);
                 }
                 else throw new InvalidOperationException("Key type does not match expected type.");
             }
-            else if (keyType == DataNodeConst.DataTypeFloat)
+            else if (keyType == PropNodeConst.DataTypeFloat)
             {
                 if (key is float floatKey)
                 {
-                    DataFloatNode floatNode = new DataFloatNode(floatKey);
+                    PropFloatNode floatNode = new PropFloatNode(floatKey);
                     floatNode.Serialize(writer);
                 }
                 else throw new InvalidOperationException("Key type does not match expected type.");
             }
-            else if (keyType == DataNodeConst.DataTypeString)
+            else if (keyType == PropNodeConst.DataTypeString)
             {
                 if (key is string stringKey)
                 {
-                    DataStringNode stringNode = new DataStringNode(stringKey);
+                    PropStringNode stringNode = new PropStringNode(stringKey);
                     stringNode.Serialize(writer);
                 }
                 else throw new InvalidOperationException("Key type does not match expected type.");
@@ -676,7 +674,7 @@ public class DataDictionaryNode<TKey> : DataBranchNode, IEnumerable<KeyValuePair
             else throw new InvalidOperationException($"Unsupported key type: {keyType}");
             value.Serialize(writer);
         }
-        writer.Write(DataNodeConst.DataTypeDictionaryTail);
+        writer.Write(PropNodeConst.DataTypeDictionaryTail);
     }
 
     public override string ToString()
@@ -686,18 +684,18 @@ public class DataDictionaryNode<TKey> : DataBranchNode, IEnumerable<KeyValuePair
         {
             ds += $"{kvp.Key}: {kvp.Value.ToString()}, ";
         }
-        return "DataDictionaryNode({" + $"{ds}" + "})";
+        return "PropDictionaryNode({" + $"{ds}" + "})";
     }
 }
 
-public class DataVector3Node : DataBranchNode
+public class PropVector3Node : PropBranchNode
 {
     private float x = 0f;
     private float y = 0f;
     private float z = 0f;
     
-    public DataVector3Node() {}
-    public DataVector3Node(float x_, float y_, float z_)
+    public PropVector3Node() {}
+    public PropVector3Node(float x_, float y_, float z_)
     {
         x = x_;
         y = y_;
@@ -706,18 +704,18 @@ public class DataVector3Node : DataBranchNode
     
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypeVector3;
+        return PropNodeConst.DataTypeVector3;
     }
     
-    public static DataVector3Node Deserialize(BinaryReader reader)
+    public static PropVector3Node Deserialize(BinaryReader reader)
     {
         try
         {
-            return new DataVector3Node(reader.ReadSingle(),reader.ReadSingle(),reader.ReadSingle());
+            return new PropVector3Node(reader.ReadSingle(),reader.ReadSingle(),reader.ReadSingle());
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataVector3Node.", ex);
+            throw new InvalidDataException("Failed to deserialize PropVector3Node.", ex);
         }
     }
     
@@ -731,18 +729,18 @@ public class DataVector3Node : DataBranchNode
     
     public override string ToString()
     {
-        return $"DataVector3Node({x},{y},{z})";
+        return $"PropVector3Node({x},{y},{z})";
     }
 }
 
-public class DataPathNode : DataBranchNode
+public class PropPathNode : PropBranchNode
 {
-    private DataListNode pathPoints = new DataListNode();
-    private DataListNode pathYaws = new DataListNode();
-    private DataDictionaryNode<string> pathAlias = new DataDictionaryNode<string>();
+    private PropListNode pathPoints = new PropListNode();
+    private PropListNode pathYaws = new PropListNode();
+    private PropDictionaryNode<string> pathAlias = new PropDictionaryNode<string>();
     
-    public DataPathNode() {}
-    public DataPathNode(DataListNode points, DataListNode yaws, DataDictionaryNode<string> alias)
+    public PropPathNode() {}
+    public PropPathNode(PropListNode points, PropListNode yaws, PropDictionaryNode<string> alias)
     {
         pathPoints = points;
         pathYaws = yaws;
@@ -751,33 +749,33 @@ public class DataPathNode : DataBranchNode
     
     protected override int GetDataType()
     {
-        return DataNodeConst.DataTypePath;
+        return PropNodeConst.DataTypePath;
     }
     
     public void AddPath(float x, float y, float z, float w)
     {
-        pathPoints.Add(new DataVector3Node(x, y, z));
-        pathYaws.Add(new DataFloatNode(w));
+        pathPoints.Add(new PropVector3Node(x, y, z));
+        pathYaws.Add(new PropFloatNode(w));
     }
     
     public void AddPathAlias(string name, string alias)
     {
-        pathAlias[name] = new DataStringNode(alias);
+        pathAlias[name] = new PropStringNode(alias);
     }
     
-    public static DataPathNode Deserialize(BinaryReader reader)
+    public static PropPathNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new DataPathNode(
-                SyncStreamer.Deserialize(reader) as DataListNode,
-                SyncStreamer.Deserialize(reader) as DataListNode,
-                SyncStreamer.Deserialize(reader) as DataDictionaryNode<string>
+            return new PropPathNode(
+                PropStreamer.Deserialize(reader) as PropListNode,
+                PropStreamer.Deserialize(reader) as PropListNode,
+                PropStreamer.Deserialize(reader) as PropDictionaryNode<string>
             );
         }
         catch (Exception ex)
         {
-            throw new InvalidDataException("Failed to deserialize DataPathNode.", ex);
+            throw new InvalidDataException("Failed to deserialize PropPathNode.", ex);
         }
     }
     
@@ -791,7 +789,7 @@ public class DataPathNode : DataBranchNode
     
     public override string ToString()
     {
-        string s = "DataPathNode(";
+        string s = "PropPathNode(";
         s += $"pathPoints: {pathPoints}, ";
         s += $"pathYaws: {pathYaws}";
         s += $"pathAlias: {pathAlias}";
@@ -801,9 +799,9 @@ public class DataPathNode : DataBranchNode
     
 }
 
-public class SyncStreamer
+public class PropStreamer
 {
-    public static byte[] Serialize(DataNode node)
+    public static byte[] Serialize(PropNode node)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
@@ -812,66 +810,66 @@ public class SyncStreamer
         return data;
     }
     
-    public static DataNode Deserialize(BinaryReader reader)
+    public static PropNode Deserialize(BinaryReader reader)
     {
         try
         {
            int type = reader.ReadInt32();
-           if (type == DataNodeConst.DataTypeInt)
+           if (type == PropNodeConst.DataTypeInt)
            {
-               return DataIntNode.Deserialize(reader);
+               return PropIntNode.Deserialize(reader);
            }
-           else if (type == DataNodeConst.DataTypeFloat)
+           else if (type == PropNodeConst.DataTypeFloat)
            {
-               return DataFloatNode.Deserialize(reader);
+               return PropFloatNode.Deserialize(reader);
            }
-           else if (type == DataNodeConst.DataTypeString)
+           else if (type == PropNodeConst.DataTypeString)
            {
-               return DataStringNode.Deserialize(reader);
+               return PropStringNode.Deserialize(reader);
            }
-           else if (type == DataNodeConst.DataTypeBool)
+           else if (type == PropNodeConst.DataTypeBool)
            {
-               return DataBoolNode.Deserialize(reader);
+               return PropBoolNode.Deserialize(reader);
            }
-           else if (type == DataNodeConst.DataTypeList)
+           else if (type == PropNodeConst.DataTypeList)
            {
-               return DataListNode.Deserialize(reader);
+               return PropListNode.Deserialize(reader);
            }
-           else if (type == DataNodeConst.DataTypeListTail)
+           else if (type == PropNodeConst.DataTypeListTail)
            {
-               return DataListTailNode.Deserialize(reader);
+               return PropListTailNode.Deserialize(reader);
            }
-           else if (type == DataNodeConst.DataTypeDictionary)
+           else if (type == PropNodeConst.DataTypeDictionary)
            {
                 int keyType = reader.ReadInt32();
-                if (keyType == DataNodeConst.DataTypeInt) return DataDictionaryNode<int>.Deserialize(reader);
-                else if (keyType == DataNodeConst.DataTypeFloat) return DataDictionaryNode<float>.Deserialize(reader);
-                else if (keyType == DataNodeConst.DataTypeString) return DataDictionaryNode<string>.Deserialize(reader);
+                if (keyType == PropNodeConst.DataTypeInt) return PropDictionaryNode<int>.Deserialize(reader);
+                else if (keyType == PropNodeConst.DataTypeFloat) return PropDictionaryNode<float>.Deserialize(reader);
+                else if (keyType == PropNodeConst.DataTypeString) return PropDictionaryNode<string>.Deserialize(reader);
                 else throw new InvalidDataException("Unsupported key type for dictionary deserialization.");
            }
-           else if (type == DataNodeConst.DataTypeDictionaryTail)
+           else if (type == PropNodeConst.DataTypeDictionaryTail)
            {
-               return DataDictionaryTailNode.Deserialize(reader);
+               return PropDictionaryTailNode.Deserialize(reader);
            }
-           else if (type == DataNodeConst.DataTypeVector3)
+           else if (type == PropNodeConst.DataTypeVector3)
            {
-               return DataVector3Node.Deserialize(reader);
+               return PropVector3Node.Deserialize(reader);
            }
-           else if (type == DataNodeConst.DataTypePath)
+           else if (type == PropNodeConst.DataTypePath)
            {
-               return DataPathNode.Deserialize(reader);
+               return PropPathNode.Deserialize(reader);
            }
            else throw new InvalidDataException($"Unsupported data type: {type}");
         }
         catch
         {
-            throw new InvalidDataException("Failed to deserialize DataNode.");
+            throw new InvalidDataException("Failed to deserialize PropNode.");
         }
     }
 
-    public static DataDictionaryNode<string> SerializeProperties(object instance, int syncType)
+    public static PropDictionaryNode<string> SerializeInstance(object instance, int syncType)
     {
-        DataDictionaryNode<string> dict = new DataDictionaryNode<string>();
+        PropDictionaryNode<string> dict = new PropDictionaryNode<string>();
         Type type = instance.GetType();
         var properties = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
         foreach (var property in properties)
@@ -883,7 +881,7 @@ public class SyncStreamer
                 var value = property.GetValue(instance);
                 if (value != null)
                 {
-                    dict.Add(property.Name, (DataNode)value);
+                    dict.Add(property.Name, (PropNode)value);
                 }
             }
         }
@@ -897,7 +895,7 @@ public class SyncStreamer
                 var value = field.GetValue(instance);
                 if (value != null)
                 {
-                    dict.Add(field.Name, (DataNode)value);
+                    dict.Add(field.Name, (PropNode)value);
                 }
             }
         }
@@ -910,29 +908,29 @@ public class TestCase
 {
     public static void Main(string[] args)
     {
-        DataDictionaryNode<int> intD = new DataDictionaryNode<int>();
-        intD.Add(1, new DataIntNode(1));
-        intD.Add(2, new DataFloatNode(2f));
-        intD.Add(3, new DataStringNode("3"));
+        PropDictionaryNode<int> intD = new PropDictionaryNode<int>();
+        intD.Add(1, new PropIntNode(1));
+        intD.Add(2, new PropFloatNode(2f));
+        intD.Add(3, new PropStringNode("3"));
         
-        DataDictionaryNode<float> floatD = new DataDictionaryNode<float>();
-        floatD[1.1f] = new DataIntNode(11);
-        floatD[2.2f] = new DataFloatNode(22f);
-        floatD[3.3f] = new DataStringNode("33");
+        PropDictionaryNode<float> floatD = new PropDictionaryNode<float>();
+        floatD[1.1f] = new PropIntNode(11);
+        floatD[2.2f] = new PropFloatNode(22f);
+        floatD[3.3f] = new PropStringNode("33");
         
-        DataListNode l = new DataListNode();
+        PropListNode l = new PropListNode();
         l.Add(floatD);
         intD[4] = l;
 
-        DataDictionaryNode<string> stringD = new DataDictionaryNode<string>();
-        stringD["a"] = new DataIntNode(111);
-        stringD["b"] = new DataFloatNode(222f);
-        stringD["c"] = new DataStringNode("333");
+        PropDictionaryNode<string> stringD = new PropDictionaryNode<string>();
+        stringD["a"] = new PropIntNode(111);
+        stringD["b"] = new PropFloatNode(222f);
+        stringD["c"] = new PropStringNode("333");
         intD[5] = stringD;
         
-        intD[6] = new DataVector3Node(1f, 2f, 3f);
+        intD[6] = new PropVector3Node(1f, 2f, 3f);
         
-        DataPathNode path = new DataPathNode();
+        PropPathNode path = new PropPathNode();
         path.AddPath(0.1f, 0.2f, 0.3f, 1.57f);
         path.AddPath(1.1f, 1.2f, 1.3f, 3.14f);
         path.AddPath(2.1f, 2.2f, 2.3f, 0.0f);
@@ -943,10 +941,10 @@ public class TestCase
         
         Console.WriteLine ($"intD is {intD}");
         
-        byte[] bd = SyncStreamer.Serialize(intD);
+        byte[] bd = PropStreamer.Serialize(intD);
         using var stream = new MemoryStream(bd);
         using var reader = new BinaryReader(stream);
-        DataNode intDD = SyncStreamer.Deserialize(reader);
+        PropNode intDD = PropStreamer.Deserialize(reader);
         Console.WriteLine ($"intDD is {intDD}");
 
         // Assert {intD} == {intDD}

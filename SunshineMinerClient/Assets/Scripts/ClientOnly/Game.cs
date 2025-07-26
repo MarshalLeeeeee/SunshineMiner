@@ -99,7 +99,7 @@ public class Game : GameCommon
             return;
         }
 
-        DataListNode args = msg.arg;
+        PropListNode args = msg.arg;
 
         int rpcType = rpcAttr.rpcType;
         int[] rpcArgs = rpcAttr.argTypes;
@@ -114,8 +114,8 @@ public class Game : GameCommon
         int i = 0;
         while (i < rpcArgsCount)
         {
-            DataNode arg = args[i];
-            if (rpcArgs[i] != DataNodeConst.DataTypeUndefined && arg.dataType != rpcArgs[i])
+            PropNode arg = args[i];
+            if (rpcArgs[i] != PropNodeConst.DataTypeUndefined && arg.dataType != rpcArgs[i])
             {
                 return;
             }
