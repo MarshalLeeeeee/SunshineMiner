@@ -41,9 +41,9 @@ public class TimerManagerCommon : Manager
         queuedActions.Enqueue(callback);
     }
 
-    public override void Update()
+    protected override void DoUpdateSelf()
     {
-        base.Update();
+        base.DoUpdateSelf();
         HandleTimerCallbacks();
     }
 

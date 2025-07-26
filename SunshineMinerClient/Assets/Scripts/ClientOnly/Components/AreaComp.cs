@@ -5,7 +5,7 @@ public class AreaComp : AreaCompCommon
     {
         get
         {
-            PrefabComp prefabComp = GetComponent<PrefabComp>();
+            PrefabComp prefabComp = GetEntityComponent<PrefabComp>();
             if (prefabComp != null)
             {
                 return prefabComp.prefabPosition;
@@ -17,9 +17,9 @@ public class AreaComp : AreaCompCommon
         }
     }
 
-    public override void Update()
+    protected override void DoUpdateSelf()
     {
-        base.Update();
+        base.DoUpdateSelf();
         if (entity == null)
         {
             return;
@@ -39,7 +39,7 @@ public class AreaComp : AreaCompCommon
         }
         else
         {
-            PrefabComp prefabComp = GetComponent<PrefabComp>();
+            PrefabComp prefabComp = GetEntityComponent<PrefabComp>();
             if (prefabComp != null)
             {
                 prefabComp.UpdatePosition(areaPosition);

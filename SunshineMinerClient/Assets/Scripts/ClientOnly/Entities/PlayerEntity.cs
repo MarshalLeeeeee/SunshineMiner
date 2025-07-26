@@ -10,6 +10,6 @@ public class PlayerEntity : PlayerEntityCommon
         InitComponent<RpcComp>();
         InitComponent<PropSyncComp>();
         InitComponent<PrefabComp>();
-        InitComponent<AreaComp>();
+        // InitComponent<AreaComp>();
     }
 }

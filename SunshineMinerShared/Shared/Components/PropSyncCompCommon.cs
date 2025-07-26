@@ -6,20 +6,20 @@ using System.Reflection;
 
 public class PropSyncCompCommon : Component
 {
-    protected override void DoEnable()
+    protected override void DoEnableSelf()
     {
-        base.DoEnable();
+        base.DoEnableSelf();
         EnbalePropSync();
         Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "EnableComponent", "EnableCompPropSync", EnableCompPropSync);
         Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "DisableComponent", "DisableCompPropSync", DisableCompPropSync);
     }
 
-    protected override void DoDisable()
+    protected override void DoDisableSelf()
     {
         Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "EnableComponent", "EnableCompPropSync");
         Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "DisableComponent", "DisableCompPropSync");
         DisablePropSync();
-        base.DoDisable();
+        base.DoDisableSelf();
     }
 
     protected void EnbalePropSync()
@@ -37,7 +37,7 @@ public class PropSyncCompCommon : Component
         }
 
         // enable prop sync for enabled comps
-        foreach (KeyValuePair<string, Component> kvp in entity.IterComponents())
+        foreach (KeyValuePair<string, Component> kvp in entity.IterComponents()) // TODO: nested components
         {
             Component comp = kvp.Value;
             EnableCompPropSync(comp);
@@ -59,7 +59,7 @@ public class PropSyncCompCommon : Component
         }
 
         // enable prop sync for enabled comps
-        foreach (KeyValuePair<string, Component> kvp in entity.IterComponents())
+        foreach (KeyValuePair<string, Component> kvp in entity.IterComponents()) // TODO: nested components
         {
             Component comp = kvp.Value;
             DisableCompPropSync(comp);

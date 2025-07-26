@@ -29,11 +29,11 @@ public class PlayerEntity : PlayerEntityCommon
     public void SyncSelfToAll()
     {
         Msg msgOwn = new Msg("EntityManager", "CreatePrimaryPlayerRemote");
-        msgOwn.arg = SerializeProperty(SyncConst.OwnClient);
+        msgOwn.arg.Add(SerializeWithSyncType(SyncConst.OwnClient));
         Game.Instance.gate.RpcToOwnClient(eid.GetValue(), msgOwn);
 
         Msg msgOther = new Msg("EntityManager", "CreatePlayerRemote");
-        msgOther.arg = SerializeProperty(SyncConst.AllClient);
+        msgOther.arg.Add(SerializeWithSyncType(SyncConst.AllClient));
         Game.Instance.gate.RpcToOtherClient(eid.GetValue(), msgOther);
     }
 
@@ -42,7 +42,7 @@ public class PlayerEntity : PlayerEntityCommon
         foreach (PlayerEntity player in Game.Instance.entityManager.GetOtherPlayer(eid.GetValue()))
         {
             Msg msgOther = new Msg("EntityManager", "CreatePlayerRemote");
-            msgOther.arg = player.SerializeProperty(SyncConst.AllClient);
+            msgOther.arg.Add(player.SerializeWithSyncType(SyncConst.AllClient));
             Game.Instance.gate.RpcToOwnClient(eid.GetValue(), msgOther);
         }
     }

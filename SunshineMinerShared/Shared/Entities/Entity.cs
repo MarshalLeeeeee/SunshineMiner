@@ -3,12 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-public class Entity
+/*
+* Entity is a base class for all entities in the game.
+* Entity is a special kind of Component. 
+* It always acts as a root node of a components tree.
+* It provides methods for initialization, enabling, updating, disabling, and destroying components.
+*/
+public class Entity : Component
 {
     [PropertySync(SyncConst.AllClient)]
     public DataStringNode eid = new DataStringNode();
-
-    private Dictionary<string, Component> components = new Dictionary<string, Component>();
 
     public Entity() { }
 
@@ -18,240 +22,20 @@ public class Entity
     }
 
     /*
-     * Init components
+     * invoked when the component is enabled
+     * this method is called after DoEnableSelf()
      */
-    public void Init()
+    protected override void OnEnabled()
     {
-        InitComponents();
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "EnableEntity");
     }
 
     /*
-     * Sync base property
-     * Init components
-     * Sync component property
+     * invoked when the component is disabled
+     * this method is called after DoDisableSelf()
      */
-    public void Init(DataDictionaryNode<string> baseProperty, DataDictionaryNode<string> compProperty)
+    protected override void OnDisabled()
     {
-        Type type = GetType();
-        foreach (KeyValuePair<string, DataNode> kvp in baseProperty)
-        {
-            string name = kvp.Key;
-            PropertyInfo? property = type.GetProperty(
-                name,
-                BindingFlags.Public | BindingFlags.Instance
-            );
-            if (property != null)
-            {
-                property.SetValue(this, kvp.Value);
-            }
-            FieldInfo? field = type.GetField(
-                name,
-                BindingFlags.Public | BindingFlags.Instance
-            );
-            if (field != null)
-            {
-                field.SetValue(this, kvp.Value);
-            }
-        }
-        InitComponents();
-        foreach (KeyValuePair<string, DataNode> kvp in compProperty)
-        {
-            string compName = kvp.Key;
-            Component? component = GetComponentByName(compName);
-            if (component != null)
-            {
-                component.Init(this, (kvp.Value as DataDictionaryNode<string>));
-            }
-        }
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "DisableEntity");
     }
-
-    public virtual void Enable()
-    {
-        foreach (Component component in components.Values)
-        {
-            component.Enable();
-        }
-    }
-
-    public virtual void Update()
-    {
-        foreach (Component component in components.Values)
-        {
-            component.Update();
-        }
-    }
-
-    public virtual void Disable()
-    {
-        foreach (Component component in components.Values)
-        {
-            component.Disable();
-        }
-    }
-
-    public virtual void Destroy()
-    {
-        foreach (Component component in components.Values)
-        {
-            component.Destroy();
-        }
-        components.Clear();
-    }
-
-    #region REGION_COMPONENT_MANAGEMENT
-
-    public T? GetComponent<T>() where T : Component
-    {
-        Type type = typeof(T);
-        string compName = type.Name;
-        if (components.TryGetValue(compName, out var component))
-        {
-            if (component != null && component is T comp)
-            {
-                return comp;
-            }
-            else return null;
-        }
-        else return null;
-    }
-
-    public Component? GetComponentByName(string compName)
-    {
-        if (components.TryGetValue(compName, out Component component))
-        {
-            if (component != null)
-            {
-                return component;
-            }
-            else return null;
-        }
-        else return null;
-    }
-
-    public IEnumerable<KeyValuePair<string, Component>> IterComponents()
-    {
-        foreach (KeyValuePair<string, Component> kvp in components)
-        {
-            yield return kvp;
-        }
-    }
-
-    protected virtual void InitComponents() { }
-
-    public T InitComponent<T>() where T : Component, new()
-    {
-        Type type = typeof(T);
-        string compName = type.Name;
-        if (!components.ContainsKey(compName))
-        {
-            components[compName] = new T();
-            components[compName].Init(this);
-        }
-        return (T)components[compName];
-    }
-
-    public T InitComponent<T>(DataDictionaryNode<string> compProperty) where T : Component, new()
-    {
-        Type type = typeof(T);
-        string compName = type.Name;
-        if (!components.ContainsKey(compName))
-        {
-            components[compName] = new T();
-            components[compName].Init(this, compProperty);
-        }
-        return (T)components[compName];
-    }
-
-    public void EnableComponent<T>() where T : Component
-    {
-        Type type = typeof(T);
-        string compName = type.Name;
-        if (components.TryGetValue(compName, out Component? component))
-        {
-            if (component != null && component is T comp)
-            {
-                comp.Enable();
-            }
-        }
-    }
-
-    public void EnableComponentByName(string compName)
-    {
-        if (components.TryGetValue(compName, out Component? component))
-        {
-            if (component != null)
-            {
-                component.Enable();
-            }
-        }
-    }
-
-    public void DisableComponent<T>() where T : Component
-    {
-        Type type = typeof(T);
-        string compName = type.Name;
-        if (components.TryGetValue(compName, out Component? component))
-        {
-            if (component != null && component is T comp)
-            {
-                comp.Disable();
-            }
-        }
-    }
-
-    public void DisableComponentByName(string compName)
-    {
-        if (components.TryGetValue(compName, out Component? component))
-        {
-            if (component != null)
-            {
-                component.Disable();
-            }
-        }
-    }
-
-    public void DestroyComponent<T>() where T : Component
-    {
-        Type type = typeof(T);
-        string compName = type.Name;
-        if (components.TryGetValue(compName, out Component? component))
-        {
-            if (component != null && component is T comp)
-            {
-                comp.Disable();
-            }
-        }
-    }
-
-    public void DestroyComponentByName(string compName)
-    {
-        if (components.TryGetValue(compName, out Component? component))
-        {
-            if (component != null)
-            {
-                component.Disable();
-            }
-        }
-        components.Remove(compName);
-    }
-
-    #endregion
-
-    #region REGION_SERIALIZE
-
-    public DataListNode SerializeProperty(int syncType)
-    {
-        DataListNode properties = new DataListNode();
-        DataDictionaryNode<string> baseProperty = SyncStreamer.SerializeProperties(this, syncType);
-        DataDictionaryNode<string> compProperty = new DataDictionaryNode<string>();
-        foreach (var kvp in components)
-        {
-            compProperty.Add(kvp.Key, SyncStreamer.SerializeProperties(kvp.Value, syncType));
-        }
-        properties.Add(baseProperty);
-        properties.Add(compProperty);
-        return properties;
-    }
-
-    #endregion
 }

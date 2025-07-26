@@ -20,9 +20,9 @@ public class PrefabComp : Component
         }
     }
 
-    protected override void DoEnable()
+    protected override void DoEnableSelf()
     {
-        base.DoEnable();
+        base.DoEnableSelf();
         LoadPrefab("Assets/Models/Entities/Player.prefab");
     }
 
@@ -35,7 +35,7 @@ public class PrefabComp : Component
     {
         prefabObject = ResourceManager.Instantiate(gameObject);
         Vector3 p = new Vector3(0, 0, 0);
-        AreaComp? areaComp = GetComponent<AreaComp>();
+        AreaComp? areaComp = GetEntityComponent<AreaComp>();
         if (areaComp != null )
         {
             Vec3 areaPosition = areaComp.areaPosition;

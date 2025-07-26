@@ -5,7 +5,7 @@ public class EntityManagerCommon : Manager
 {
     private Dictionary<string, PlayerEntity> players = new Dictionary<string, PlayerEntity>();
 
-    public override void Update()
+    protected override void DoUpdateSelf()
     {
         foreach (var player in players.Values)
         {
@@ -35,12 +35,12 @@ public class EntityManagerCommon : Manager
         }
         return entity;
     }
-    private T? CreateEntity<T>(DataDictionaryNode<string> baseProperty, DataDictionaryNode<string> compProperty) where T : Entity
+    private T? CreateEntity<T>(DataDictionaryNode<string> info) where T : Entity
     {
         T? entity = (T?)Activator.CreateInstance(typeof(T));
         if (entity != null)
         {
-            entity.Init(baseProperty, compProperty);
+            entity.Init(info);
             entity.Enable();
         }
         return entity;
@@ -79,9 +79,9 @@ public class EntityManagerCommon : Manager
         return player;
     }
 
-    public PlayerEntity? CreatePlayer(DataDictionaryNode<string> baseProperty, DataDictionaryNode<string> compProperty)
+    public PlayerEntity? CreatePlayer(DataDictionaryNode<string> info)
     {
-        PlayerEntity? player = CreateEntity<PlayerEntity>(baseProperty, compProperty);
+        PlayerEntity? player = CreateEntity<PlayerEntity>(info);
         if (player != null)
         {
             players[player.eid.GetValue()] = player;

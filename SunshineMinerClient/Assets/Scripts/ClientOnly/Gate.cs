@@ -36,9 +36,9 @@ public class Gate : Manager
      * Instantiate instance
      * Create Tcp client
      */
-    public override void Enable()
+    protected override void DoEnableSelf()
     {
-        base.Enable();
+        base.DoEnableSelf();
 
         client = new TcpClient();
         msgListenerTask = Task.CompletedTask;
@@ -51,9 +51,9 @@ public class Gate : Manager
     /*
      * Invoked in main thread update
      */
-    public override void Update()
+    protected override void DoUpdateSelf()
     {
-        base.Update();
+        base.DoUpdateSelf();
         // check connection
         CheckConnection();
         // handle msgs
@@ -63,10 +63,10 @@ public class Gate : Manager
         PingHeartbeatRemote();
     }
 
-    public override void Disable()
+    protected override void DoDisableSelf()
     {
         ResetConnection();
-        base.Disable();
+        base.DoDisableSelf();
     }
 
     #region REGION_PUBLIC_UTILITY

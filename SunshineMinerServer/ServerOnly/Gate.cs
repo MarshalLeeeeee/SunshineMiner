@@ -236,9 +236,9 @@ public class Gate : Manager
      * Start gate service (in main thread)
      * * Start listener to handle new connections in off thread
      */
-    public override void Enable()
+    protected override void DoEnableSelf()
     {
-        base.Enable();
+        base.DoEnableSelf();
         StartListener();
         isActive = true;
     }
@@ -247,23 +247,23 @@ public class Gate : Manager
      * Stop gate service (in main thread)
      * * Stop listener to handle new connections
      */
-    public override void Disable()
+    protected override void DoDisableSelf()
     {
         if (!isActive) return; 
         Debugger.Log("Gate is shutting down...");
         isActive = false;
         StopListener();
         Debugger.Log("Gate stop over...");
-        base.Disable();
+        base.DoDisableSelf();
     }
 
     /*
      * Invoked in every server tick (in main thread)
      */
-    public override void Update()
+    protected override void DoUpdateSelf()
     {
         if (!isActive) return;
-        base.Update();
+        base.DoUpdateSelf();
         // handle queued msgs
         ConsumeMsgInbox();
         ConsumeMsgOutbox();

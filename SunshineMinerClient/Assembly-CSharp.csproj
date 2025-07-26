@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\ClientOnly\Components\RpcComp.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Utils\Debugger.cs" />
     <Compile Include="Assets\Scripts\Shared\Entities\PlayerEntityCommon.cs" />
+    <Compile Include="Assets\Scripts\Shared\Utils\ComponentFactory.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\TimerManagerCommon.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\EntityManagerCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
@@ -124,6 +125,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+    <None Include="Assets\AddressableAssetsData\link.xml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />

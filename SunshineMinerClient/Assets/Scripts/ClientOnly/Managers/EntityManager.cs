@@ -11,20 +11,20 @@ public class EntityManager : EntityManagerCommon
 
     #region REGION_PLAYER
 
-    [Rpc(RpcConst.Server, DataNodeConst.DataTypeDictionary, DataNodeConst.DataTypeDictionary)]
-    public void CreatePrimaryPlayerRemote(DataDictionaryNode<string> baseProperty, DataDictionaryNode<string> compProperty)
+    [Rpc(RpcConst.Server, DataNodeConst.DataTypeDictionary)]
+    public void CreatePrimaryPlayerRemote(DataDictionaryNode<string> info)
     {
-        PlayerEntity player = CreatePlayer(baseProperty, compProperty);
+        PlayerEntity player = CreatePlayer(info);
         if (player != null)
         {
             primaryPid = player.eid.GetValue();
         }
     }
 
-    [Rpc(RpcConst.Server, DataNodeConst.DataTypeDictionary, DataNodeConst.DataTypeDictionary)]
-    public void CreatePlayerRemote(DataDictionaryNode<string> baseProperty, DataDictionaryNode<string> compProperty)
+    [Rpc(RpcConst.Server, DataNodeConst.DataTypeDictionary)]
+    public void CreatePlayerRemote(DataDictionaryNode<string> info)
     {
-        CreatePlayer(baseProperty, compProperty);
+        CreatePlayer(info);
     }
 
     public PlayerEntity? GetPrimaryPlayer()

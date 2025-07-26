@@ -3,75 +3,138 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-public class Component
+/*
+* Component is a func node that can be attached to an entity and has sub components.
+* It provides methods for initialization, enabling, updating, disabling, and destroying components.
+*/
+public class Component : FuncNode
 {
-    protected Entity? entity = null;
+    protected Entity? _entity = null; // The root of this func node tree, which is an Entity.
+    public Entity? entity
+    {
+        get 
+        { 
+            if (parent is not null) return _entity;
+            else
+            {
+                if (this is Entity e) return e;
+                else return null;
+            }
+        }
+    }
     protected bool enabled = false;
 
-    /*
-     * invoked when the componented is loaded to an entity
-     * Set corresponding entity eid
-     */
-    public virtual void Init(Entity e)
+    public override void SetParent(FuncNode? p)
     {
-        entity = e;
+        base.SetParent(p);
+        if (p is not null && p is Component component)
+        {
+            _entity = component.entity;
+        }
     }
 
-    /*
-     * invoked when the componented is loaded to an entity
-     * set corresponding entity eid
-     * init properties from dict
-     */
-    public virtual void Init(Entity e, DataDictionaryNode<string> compProperty)
+    #region REGION_BEHAVIOR
+
+    public void Init()
     {
-        entity = e;
+        InitComponents();
+    }
+
+    public void Init(DataDictionaryNode<string> info)
+    {
         Type type = GetType();
-        foreach (KeyValuePair<string, DataNode> kvp in compProperty)
+        if (info.TryGetValue("_Property", out DataNode? dataNode) && dataNode is DataDictionaryNode<string> propertyInfo)
+        {
+            foreach (KeyValuePair<string, DataNode> kvp in propertyInfo)
+            {
+                string name = kvp.Key;
+                PropertyInfo? property = type.GetProperty(
+                    name,
+                    BindingFlags.Public | BindingFlags.Instance
+                );
+                if (property != null)
+                {
+                    property.SetValue(this, kvp.Value);
+                }
+                FieldInfo? field = type.GetField(
+                    name,
+                    BindingFlags.Public | BindingFlags.Instance
+                );
+                if (field != null)
+                {
+                    field.SetValue(this, kvp.Value);
+                }
+            }
+        }
+        InitComponents();
+        foreach (KeyValuePair<string, DataNode> kvp in info)
         {
             string name = kvp.Key;
-            PropertyInfo? property = type.GetProperty(
-                name,
-                BindingFlags.Public | BindingFlags.Instance
-            );
-            if (property != null)
+            if (name == "_Property") continue;
+            if (kvp.Value is DataDictionaryNode<string> compInfo)
             {
-                property.SetValue(this, kvp.Value);
-            }
-            FieldInfo? field = type.GetField(
-                name,
-                BindingFlags.Public | BindingFlags.Instance
-            );
-            if (field != null)
-            {
-                field.SetValue(this, kvp.Value);
+                InitComponentByName(name, compInfo);
             }
         }
     }
 
     /*
-     * invoked when the component is enabled
+     * invoked when enabled
      */
     public void Enable()
     {
         if (enabled) return;
-        DoEnable();
+        DoEnableSelf();
+        foreach (FuncNode funcNode in funcNodes.Values)
+        {
+            if (funcNode is Component component)
+            {
+                component.Enable();
+            }
+        }
         enabled = true;
-        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "EnableComponent", this);
+        OnEnabled();
     }
 
     /*
      * invoked when the component is enabled
      * override this method to implement custom enable logic
      */
-    protected virtual void DoEnable()
+    protected virtual void DoEnableSelf()
     {
 
     }
 
     /*
+     * invoked when the component is enabled
+     * this method is called after DoEnableSelf()
+     */
+    protected virtual void OnEnabled()
+    {
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "EnableComponent", this);
+    }
+
+    /*
      * update in game tick
      */
-    public virtual void Update ()
+    public void Update ()
+    {
+        if (!enabled) return;
+        DoUpdateSelf();
+        foreach (FuncNode funcNode in funcNodes.Values)
+        {
+            if (funcNode is Component component)
+            {
+                component.Update();
+            }
+        }
+    }
+
+    /*
+     * update in game tick
+     * override this method to implement custom update logic
+     */
+    protected virtual void DoUpdateSelf()
     {
 
     }
@@ -82,18 +145,34 @@ public class Component
     public void Disable()
     {
         if (!enabled) return;
-        DoDisable();
+        DoDisableSelf();
+        foreach (FuncNode funcNode in funcNodes.Values)
+        {
+            if (funcNode is Component component)
+            {
+                component.Disable();
+            }
+        }
         enabled = false;
-        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "DisableComponent", this);
+        OnDisabled();
     }
 
     /*
      * invoked when the component is disabled
      * override this method to implement custom disable logic
      */
-    protected virtual void DoDisable()
+    protected virtual void DoDisableSelf()
     {
 
+    }
+
+    /*
+     * invoked when the component is disabled
+     * this method is called after DoDisableSelf()
+     */
+    protected virtual void OnDisabled()
+    {
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "DisableComponent", this);
     }
 
     /*
@@ -103,19 +182,199 @@ public class Component
      */
     public virtual void Destroy()
     {
-        entity = null;
+        foreach (FuncNode funcNode in funcNodes.Values)
+        {
+            if (funcNode is Component component)
+            {
+                component.Destroy();
+            }
+        }
+        funcNodes.Clear();
     }
 
-    protected T? GetComponent<T>() where T : Component
+    #endregion
+
+    #region REGION_COMPONENT_MANAGEMENT
+
+    public T? GetComponent<T>() where T : Component
+    {
+        T? funcNode = GetFuncNode<T>();
+        if (funcNode != null)
+        {
+            return funcNode;
+        }
+        else return null;
+    }
+
+    public Component? GetComponentByName(string name)
+    {
+        FuncNode? funcNode = GetFuncNodeByName(name);
+        if (funcNode != null && funcNode is Component component)
+        {
+            return component;
+        }
+        else return null;
+    }
+
+    public IEnumerable<KeyValuePair<string, Component>> IterComponents()
+    {
+        foreach (KeyValuePair<string, FuncNode> kvp in funcNodes)
+        {
+            if (kvp.Value is Component component)
+            {
+                yield return new KeyValuePair<string, Component>(kvp.Key, component);
+            }
+        }
+    }
+
+    protected virtual void InitComponents() { }
+
+    public T InitComponent<T>() where T : Component, new()
+    {
+        Type type = typeof(T);
+        string compName = type.Name;
+        T? component = GetComponent<T>();
+        if (component == null)
+        {
+            component = AddFuncNode<T>(this);
+            component.Init();
+        }
+        return component;
+    }
+
+    public T InitComponent<T>(DataDictionaryNode<string> info) where T : Component, new()
+    {
+        Type type = typeof(T);
+        string compName = type.Name;
+        T? component = GetComponent<T>();
+        if (component == null)
+        {
+            component = AddFuncNode<T>(this);
+            component.Init(info);
+        }
+        return component;
+    }
+
+    public void InitComponentByName(string compName)
+    {
+        Component? component = GetComponentByName(compName);
+        if (component == null)
+        {
+            component = ComponentFactory.CreateComponent(compName);
+            if (component == null) return;
+            AddFuncNode(component, this);
+            component.Init();
+        }
+    }
+
+    public void InitComponentByName(string compName, DataDictionaryNode<string> info)
+    {
+        Component? component = GetComponentByName(compName);
+        if (component == null)
+        {
+            component = ComponentFactory.CreateComponent(compName);
+            if (component == null) return;
+            AddFuncNode(component, this);
+            component.Init(info);
+        }
+    }
+
+    public void EnableComponent<T>() where T : Component
+    {
+        T? component = GetComponent<T>();
+        if (component != null)
+        {
+            component.Enable();
+        }
+    }
+
+    public void EnableComponentByName(string compName)
+    {
+        FuncNode? funcNode = GetFuncNodeByName(compName);
+        if (funcNode != null && funcNode is Component component)
+        {
+            component.Enable();
+        }
+    }
+
+    public void DisableComponent<T>() where T : Component
+    {
+        T? component = GetComponent<T>();
+        if (component != null)
+        {
+            component.Disable();
+        }
+    }
+
+    public void DisableComponentByName(string compName)
+    {
+        FuncNode? funcNode = GetFuncNodeByName(compName);
+        if (funcNode != null && funcNode is Component component)
+        {
+            component.Disable();
+        }
+    }
+
+    public void DestroyComponent<T>() where T : Component
+    {
+        T? component = GetComponent<T>();
+        if (component != null)
+        {
+            component.Disable();
+            RemoveFuncNode<T>();
+        }
+    }
+
+    public void DestroyComponentByName(string compName)
+    {
+        FuncNode? funcNode = GetFuncNodeByName(compName);
+        if (funcNode != null && funcNode is Component component)
+        {
+            component.Disable();
+            RemoveFuncNodeByName(compName);
+        }
+    }
+
+    protected T? GetEntityComponent<T>() where T : Component
     {
         if (entity != null)
         {
             return entity.GetComponent<T>();
+        }
+        else if (this is Entity entity)
+        {
+            return GetComponent<T>();
         }
         else
         {
             return null;
         }
     }
+
+    #endregion
+
+    #region REGION_SERIALIZE
+
+    public DataDictionaryNode<string> SerializeWithSyncType(int syncType)
+    {
+        DataDictionaryNode<string> info = new DataDictionaryNode<string>();
+        DataDictionaryNode<string> propInfo = SyncStreamer.SerializeProperties(this, syncType);
+        if (propInfo.Count > 0)
+        {
+            info.Add("_Property", propInfo);
+        }
+        foreach (var kvp in IterComponents())
+        {
+            DataDictionaryNode<string> compInfo = kvp.Value.SerializeWithSyncType(syncType);
+            if (compInfo.Count > 0)
+            {
+                info.Add(kvp.Key, compInfo);
+            }
+        }
+        return info;
+    }
+
+    #endregion
+
 }
 

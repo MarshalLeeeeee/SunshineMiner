@@ -7,20 +7,20 @@ public class RpcCompCommon : Component
 {
     protected Dictionary<string, RpcMethodInfo> rpcMethods = new Dictionary<string, RpcMethodInfo>();
 
-    protected override void DoEnable()
+    protected override void DoEnableSelf()
     {
-        base.DoEnable();
+        base.DoEnableSelf();
         EnableRpcMethod();
         Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "EnableComponent", "EnableCompRpcMethod", EnableCompRpcMethod);
         Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "DisableComponent", "DisableCompRpcMethod", DisableCompRpcMethod);
     }
 
-    protected override void DoDisable()
+    protected override void DoDisableSelf()
     {
         Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "EnableComponent", "EnableCompRpcMethod");
         Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "DisableComponent", "DisableCompRpcMethod");
         DisableRpcMethod();
-        base.DoDisable();
+        base.DoDisableSelf();
     }
 
     public RpcMethodInfo? GetRpcMethodInfo(string methodName)
@@ -69,7 +69,7 @@ public class RpcCompCommon : Component
 
 
         // rpc method from inited components
-        foreach (KeyValuePair<string, Component> kvp in entity.IterComponents())
+        foreach (KeyValuePair<string, Component> kvp in entity.IterComponents()) // TODO: nested components
         {
             string compName = kvp.Key;
             Component comp = kvp.Value;
