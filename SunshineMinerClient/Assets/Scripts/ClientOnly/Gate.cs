@@ -400,7 +400,6 @@ public class Gate : Manager
      */
     private void HandleMsg(Msg msg)
     {
-        Debugger.Log($"HandleMsg method name {msg.methodName}");
         Game.Instance.InvokeRpc(msg);
     }
 

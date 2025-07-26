@@ -14,7 +14,7 @@ public class PropSyncComp: PropSyncCompCommon
     private void OnSetter(DataNode o, DataNode n, int syncType, string objectName, string name)
     {
         if (entity == null) return;
-        // Debugger.Log($"PropSyncComp OnSetter old {o} new {n}");
+        // Debugger.Log($"PropSyncComp OnSetter old {o} new {n} syncType {syncType} objectName {objectName} name {name}");
         string eid_ = entity.eid.GetValue();
         Msg msg = new Msg(eid_, "PropSyncSetterRemote");
         msg.arg.Add(n);

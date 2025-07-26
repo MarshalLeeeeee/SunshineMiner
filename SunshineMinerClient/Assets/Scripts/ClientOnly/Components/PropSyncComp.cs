@@ -11,7 +11,7 @@ public class PropSyncComp : PropSyncCompCommon
 
     private void OnSetter(DataNode o, DataNode n)
     {
-        Debugger.Log($"PropSyncComp OnSetter old {o} new {n}");
+        // Debugger.Log($"PropSyncComp OnSetter old {o} new {n}");
     }
 
     [Rpc(RpcConst.Server, DataNodeConst.DataTypeUndefined, DataNodeConst.DataTypeString, DataNodeConst.DataTypeString)]

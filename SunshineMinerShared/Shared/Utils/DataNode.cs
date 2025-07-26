@@ -111,6 +111,7 @@ public class DataIntNode : DataLeafNode
     {
         if (immutable) return;
         int oldValue = value;
+        if (oldValue == value_) return; // No change, no need to notify
         value = value_;
         if (OnSetter != null)
         {
@@ -172,6 +173,7 @@ public class DataFloatNode : DataLeafNode
     {
         if (immutable) return;
         float oldValue = value;
+        if (Math.Abs(oldValue - value_) < 0.0001f) return; // No change, no need to notify
         value = value_;
         if (OnSetter != null)
         {
