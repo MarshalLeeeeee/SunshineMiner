@@ -11,25 +11,32 @@ public class PropCompCommon : Component
     {
         base.DoEnableSelf();
         EnableProp();
-        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "EnableComponent", "DoEnablePropRecursive", DoEnablePropRecursive);
-        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "DisableComponent", "DoDisablePropRecursive", DoDisablePropRecursive);
-        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "EnableEntity", "DoEnablePropRecursive", DoEnablePropRecursive);
-        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "DisableableEntity", "DoDisablePropRecursive", DoDisablePropRecursive);
+        if (entity != null)
+        {
+            string eid = entity.eid.GetValue();
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "EnableComponent", "DoEnablePropRecursive", DoEnablePropRecursive);
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "DisableComponent", "DoDisablePropRecursive", DoDisablePropRecursive);
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "EnableEntity", "DoEnablePropRecursive", DoEnablePropRecursive);
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "DisableEntity", "DoDisablePropRecursive", DoDisablePropRecursive);
+        }
     }
 
     protected override void DoDisableSelf()
     {
-        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "EnableComponent", "DoEnablePropRecursive");
-        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "DisableComponent", "DoDisablePropRecursive");
-        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "EnableEntity", "DoEnablePropRecursive");
-        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "DisableableEntity", "DoDisablePropRecursive");
+        if (entity != null)
+        {
+            string eid = entity.eid.GetValue();
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "EnableComponent", "DoEnablePropRecursive");
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "DisableComponent", "DoDisablePropRecursive");
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "EnableEntity", "DoEnablePropRecursive");
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "DisableEntity", "DoDisablePropRecursive");
+        }
         DisableProp();
         base.DoDisableSelf();
     }
 
     protected void EnableProp()
     {
-        if (entity == null) return;
         DoEnableProp();
     }
 
@@ -40,6 +47,7 @@ public class PropCompCommon : Component
 
     protected void DoEnablePropRecursive(Component node)
     {
+        if (node == null) return;
         if (!node.enabled) return;
         DoEnablePropWithNode(node);
         foreach (KeyValuePair<string, Component> kvp in node.IterComponents())
@@ -86,7 +94,6 @@ public class PropCompCommon : Component
 
     protected void DisableProp()
     {
-        if (entity == null) return;
         DoDisableProp();
     }
 
@@ -97,6 +104,8 @@ public class PropCompCommon : Component
 
     protected void DoDisablePropRecursive(Component node)
     {
+        if (node == null) return;
+        if (node.enabled) return;
         DoDisablePropWithNode(node);
         foreach (KeyValuePair<string, Component> kvp in node.IterComponents())
         {
