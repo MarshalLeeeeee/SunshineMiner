@@ -11,45 +11,35 @@ public class PropCompCommon : Component
     {
         base.DoEnableSelf();
         EnableProp();
-        if (entity != null)
-        {
-            string eid = entity.eid.GetValue();
-            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "EnableComponent", "DoEnablePropRecursive", DoEnablePropRecursive);
-            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "DisableComponent", "DoDisablePropRecursive", DoDisablePropRecursive);
-            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "EnableEntity", "DoEnablePropRecursive", DoEnablePropRecursive);
-            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "DisableEntity", "DoDisablePropRecursive", DoDisablePropRecursive);
-        }
     }
 
     protected override void DoDisableSelf()
     {
-        if (entity != null)
-        {
-            string eid = entity.eid.GetValue();
-            Game.Instance.eventManager.UnregisterEntityEvent(eid, "EnableComponent", "DoEnablePropRecursive");
-            Game.Instance.eventManager.UnregisterEntityEvent(eid, "DisableComponent", "DoDisablePropRecursive");
-            Game.Instance.eventManager.UnregisterEntityEvent(eid, "EnableEntity", "DoEnablePropRecursive");
-            Game.Instance.eventManager.UnregisterEntityEvent(eid, "DisableEntity", "DoDisablePropRecursive");
-        }
         DisableProp();
         base.DoDisableSelf();
     }
 
     protected void EnableProp()
     {
-        DoEnableProp();
+        if (entity != null)
+        {
+            DoEnablePropRecursive(entity);
+            string eid = entity.eid.GetValue();
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "EnableComponent", "DoEnableProp", DoEnableProp);
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "DisableComponent", "DoDisableProp", DoDisableProp);
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "EnableEntity", "DoEnableProp", DoEnableProp);
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "DisableEntity", "DoDisableProp", DoDisableProp);
+        }
     }
 
-    protected void DoEnableProp()
-    {
-        DoEnablePropRecursive(entity);
-    }
-
+    /*
+    * Enable prop the subtree of the given component
+    */
     protected void DoEnablePropRecursive(Component node)
     {
         if (node == null) return;
         if (!node.enabled) return;
-        DoEnablePropWithNode(node);
+        DoEnableProp(node);
         foreach (KeyValuePair<string, Component> kvp in node.IterComponents())
         {
             Component comp = kvp.Value;
@@ -57,7 +47,10 @@ public class PropCompCommon : Component
         }
     }
 
-    private void DoEnablePropWithNode(Component node)
+    /*
+    * Enable prop of the given component
+    */
+    private void DoEnableProp(Component node)
     {
         Type type = node.GetType();
         var propertyInfos = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -94,19 +87,25 @@ public class PropCompCommon : Component
 
     protected void DisableProp()
     {
-        DoDisableProp();
+        if (entity != null)
+        {
+            string eid = entity.eid.GetValue();
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "EnableComponent", "DoEnableProp");
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "DisableComponent", "DoDisableProp");
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "EnableEntity", "DoEnableProp");
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "DisableEntity", "DoDisableProp");
+            DoDisablePropRecursive(entity);
+        }
     }
 
-    protected void DoDisableProp()
-    {
-        DoDisablePropRecursive(entity);
-    }
-
+    /* 
+    * Disable prop the subtree of the given component
+    */
     protected void DoDisablePropRecursive(Component node)
     {
         if (node == null) return;
         if (node.enabled) return;
-        DoDisablePropWithNode(node);
+        DoDisableProp(node);
         foreach (KeyValuePair<string, Component> kvp in node.IterComponents())
         {
             Component comp = kvp.Value;
@@ -114,7 +113,10 @@ public class PropCompCommon : Component
         }
     }
 
-    private void DoDisablePropWithNode(Component node)
+    /*
+    * Disable prop of the given component
+    */
+    private void DoDisableProp(Component node)
     {
         Type type = node.GetType();
         var propertyInfos = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -149,5 +151,9 @@ public class PropCompCommon : Component
         }
     }
 
+    #region REGION_PROP_SET_CALLBACK
+
     public virtual void OnFloatSetter(float o, float n, int syncType, FuncNode? owner, string name) {}
+
+    #endregion
 }
