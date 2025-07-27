@@ -37,8 +37,6 @@ public class PropCompCommon : Component
     */
     protected void DoEnablePropRecursive(Component node)
     {
-        if (node == null) return;
-        if (!node.enabled) return;
         DoEnableProp(node);
         foreach (KeyValuePair<string, Component> kvp in node.IterComponents())
         {
@@ -52,7 +50,6 @@ public class PropCompCommon : Component
     */
     protected void DoEnableProp(Component node)
     {
-        if (node == null) return;
         if (!node.enabled) return;
         Type type = node.GetType();
         var propertyInfos = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -105,8 +102,6 @@ public class PropCompCommon : Component
     */
     protected void DoDisablePropRecursive(Component node)
     {
-        if (node == null) return;
-        if (node.enabled) return;
         DoDisableProp(node);
         foreach (KeyValuePair<string, Component> kvp in node.IterComponents())
         {
@@ -120,7 +115,6 @@ public class PropCompCommon : Component
     */
     protected void DoDisableProp(Component node)
     {
-        if (node == null) return;
         if (node.enabled) return;
         Type type = node.GetType();
         var propertyInfos = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);

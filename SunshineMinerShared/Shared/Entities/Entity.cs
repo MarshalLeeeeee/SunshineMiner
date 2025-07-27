@@ -27,7 +27,7 @@ public class Entity : Component
      */
     protected override void OnEnabled()
     {
-        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "EnableEntity");
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "EnableEntity", this);
     }
 
     /*
@@ -36,6 +36,6 @@ public class Entity : Component
      */
     protected override void OnDisabled()
     {
-        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "DisableEntity");
+        Game.Instance.eventManager.TriggerEntityEvent(entity.eid.GetValue(), "DisableEntity", this);
     }
 }

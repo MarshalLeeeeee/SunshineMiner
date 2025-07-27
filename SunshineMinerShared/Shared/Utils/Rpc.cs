@@ -25,31 +25,23 @@ public class RpcAttribute : Attribute
 
 public class RpcMethodInfo
 {
-    public string compName;
+    public string fullPath = "";
     public MethodInfo methodInfo;
 
     public RpcMethodInfo(MethodInfo methodInfo_)
     {
-        compName = "";
         methodInfo = methodInfo_;
     }
 
-    public RpcMethodInfo(string compName_, MethodInfo methodInfo_)
+    public RpcMethodInfo(string fullPath_, MethodInfo methodInfo_)
     {
-        compName = compName_;
+        fullPath = fullPath_;
         methodInfo = methodInfo_;
     }
 
     public object? GetMethodInstance(Entity entity)
     {
-        if (compName == "")
-        {
-            return entity;
-        }
-        else
-        {
-            return entity.GetComponentByName(compName);
-        }
+        return entity.GetComponentByFullPath(fullPath);
     }
 }
 

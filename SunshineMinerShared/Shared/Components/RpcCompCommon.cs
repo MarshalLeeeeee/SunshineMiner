@@ -11,14 +11,10 @@ public class RpcCompCommon : Component
     {
         base.DoEnableSelf();
         EnableRpcMethod();
-        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "EnableComponent", "EnableCompRpcMethod", EnableCompRpcMethod);
-        Game.Instance.eventManager.RegisterEntityEvent<Component>(entity.eid.GetValue(), "DisableComponent", "DisableCompRpcMethod", DisableCompRpcMethod);
     }
 
     protected override void DoDisableSelf()
     {
-        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "EnableComponent", "EnableCompRpcMethod");
-        Game.Instance.eventManager.UnregisterEntityEvent(entity.eid.GetValue(), "DisableComponent", "DisableCompRpcMethod");
         DisableRpcMethod();
         base.DoDisableSelf();
     }
@@ -43,15 +39,32 @@ public class RpcCompCommon : Component
 
     protected void EnableRpcMethod()
     {
-        EnableRpcMethodWithType(GetRpcType());
+        if (entity != null)
+        {
+            DoEnableRpcRecursive(entity);
+            string eid = entity.eid.GetValue();
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "EnableComponent", "DoEnableRpc", DoEnableRpc);
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "DisableComponent", "DoDisableRpc", DoDisableRpc);
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "EnableEntity", "DoEnableRpc", DoEnableRpc);
+            Game.Instance.eventManager.RegisterEntityEvent<Component>(eid, "DisableEntity", "DoDisableRpc", DoDisableRpc);
+        }
     }
 
-    private void EnableRpcMethodWithType(int rpcType)
+    protected void DoEnableRpcRecursive(Component node)
     {
-        if (entity == null) return;
+        DoEnableRpc(node);
+        foreach (KeyValuePair<string, Component> kvp in node.IterComponents())
+        {
+            Component comp = kvp.Value;
+            DoEnableRpcRecursive(comp);
+        }
+    }
 
-        // rpc method from entity
-        Type type = entity.GetType();
+    protected void DoEnableRpc(Component node)
+    {
+        if (!node.enabled) return;
+        int rpcType = GetRpcType();
+        Type type = node.GetType();
         var methods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
         foreach (MethodInfo method in methods)
         {
@@ -64,74 +77,40 @@ public class RpcCompCommon : Component
             {
                 continue;
             }
-            rpcMethods[method.Name] = new RpcMethodInfo(method);
-        }
-
-
-        // rpc method from inited components
-        foreach (KeyValuePair<string, Component> kvp in entity.IterComponents()) // TODO: nested components
-        {
-            string compName = kvp.Key;
-            Component comp = kvp.Value;
-            Type compType = comp.GetType();
-            var compMethods = compType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            foreach (MethodInfo method in compMethods)
-            {
-                var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
-                if (rpcAttr == null)
-                {
-                    continue;
-                }
-                if ((rpcAttr.rpcType & rpcType) == 0)
-                {
-                    continue;
-                }
-                rpcMethods[method.Name] = new RpcMethodInfo(compName, method);
-            }
+            rpcMethods[method.Name] = new RpcMethodInfo(node.fullPath, method);
         }
     }
 
     protected void DisableRpcMethod()
     {
-        rpcMethods.Clear();
-    }
-
-    protected void EnableCompRpcMethod(Component comp)
-    {
-        EnableCompRpcMethodWithType(comp, GetRpcType());
-    }
-
-    private void EnableCompRpcMethodWithType(Component comp, int rpcType)
-    {
-        Type compType = comp.GetType();
-        string compName = compType.Name;
-        var compMethods = compType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-        foreach (MethodInfo method in compMethods)
+        if (entity != null)
         {
-            var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
-            if (rpcAttr == null)
-            {
-                continue;
-            }
-            if ((rpcAttr.rpcType & rpcType) == 0)
-            {
-                continue;
-            }
-            rpcMethods[method.Name] = new RpcMethodInfo(compName, method);
+            string eid = entity.eid.GetValue();
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "EnableComponent", "DoEnableRpc");
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "DisableComponent", "DoDisableRpc");
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "EnableEntity", "DoEnableRpc");
+            Game.Instance.eventManager.UnregisterEntityEvent(eid, "DisableEntity", "DoDisableRpc");
+            DoDisableRpcRecursive(entity);
         }
     }
 
-    protected void DisableCompRpcMethod(Component comp)
+    protected void DoDisableRpcRecursive(Component node)
     {
-        DisableCompRpcMethodWithType(comp, GetRpcType());
+        DoDisableRpc(node);
+        foreach (KeyValuePair<string, Component> kvp in node.IterComponents())
+        {
+            Component comp = kvp.Value;
+            DoDisableRpcRecursive(comp);
+        }
     }
 
-    private void DisableCompRpcMethodWithType(Component comp, int rpcType)
+    protected void DoDisableRpc(Component node)
     {
-        Type compType = comp.GetType();
-        string compName = compType.Name;
-        var compMethods = compType.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-        foreach (MethodInfo method in compMethods)
+        if (node.enabled) return;
+        int rpcType = GetRpcType();
+        Type type = node.GetType();
+        var methods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        foreach (MethodInfo method in methods)
         {
             var rpcAttr = method.GetCustomAttribute<RpcAttribute>();
             if (rpcAttr == null)
