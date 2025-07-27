@@ -52,6 +52,8 @@ public class PropCompCommon : Component
     */
     protected void DoEnableProp(Component node)
     {
+        if (node == null) return;
+        if (!node.enabled) return;
         Type type = node.GetType();
         var propertyInfos = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         foreach (PropertyInfo propertyInfo in propertyInfos)
@@ -118,6 +120,8 @@ public class PropCompCommon : Component
     */
     protected void DoDisableProp(Component node)
     {
+        if (node == null) return;
+        if (node.enabled) return;
         Type type = node.GetType();
         var propertyInfos = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         foreach (PropertyInfo propertyInfo in propertyInfos)
