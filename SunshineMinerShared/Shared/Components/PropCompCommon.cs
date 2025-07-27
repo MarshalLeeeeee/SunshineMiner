@@ -50,7 +50,7 @@ public class PropCompCommon : Component
     /*
     * Enable prop of the given component
     */
-    private void DoEnableProp(Component node)
+    protected void DoEnableProp(Component node)
     {
         Type type = node.GetType();
         var propertyInfos = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -116,7 +116,7 @@ public class PropCompCommon : Component
     /*
     * Disable prop of the given component
     */
-    private void DoDisableProp(Component node)
+    protected void DoDisableProp(Component node)
     {
         Type type = node.GetType();
         var propertyInfos = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
