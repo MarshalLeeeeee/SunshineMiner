@@ -78,9 +78,8 @@
     <Compile Include="Assets\Scripts\ClientOnly\UI\UIBase.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\Component.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Components\AreaComp.cs" />
-    <Compile Include="Assets\Scripts\Shared\Components\PropSyncCompCommon.cs" />
+    <Compile Include="Assets\Scripts\Shared\Components\PropCompCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panels\PnlLoading.cs" />
-    <Compile Include="Assets\Scripts\ClientOnly\Components\PropSyncComp.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\AreaCompCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\PnlStart\PnlWelcome.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panel.cs" />
@@ -103,9 +102,11 @@
     <Compile Include="Assets\Scripts\ClientOnly\Managers\TimerManager.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Const.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\BgTouch.cs" />
+    <Compile Include="Assets\Scripts\ClientOnly\Components\PropComp.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\Msg.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Managers\UIManager.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\EventManagerCommon.cs" />
+    <Compile Include="Assets\Scripts\Shared\Utils\Sampler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
@@ -125,7 +126,6 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
-    <None Include="Assets\AddressableAssetsData\link.xml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />

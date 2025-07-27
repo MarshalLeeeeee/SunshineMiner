@@ -10,7 +10,7 @@ public class PlayerEntity : PlayerEntityCommon
     {
         base.InitComponents();
         InitComponent<RpcComp>();
-        InitComponent<PropSyncComp>();
+        InitComponent<PropComp>();
         InitComponent<AreaComp>();
     }
 

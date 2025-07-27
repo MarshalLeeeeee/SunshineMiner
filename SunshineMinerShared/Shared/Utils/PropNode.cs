@@ -32,10 +32,56 @@ public class PropNodeConst
 public class PropNode
 {
     /*
-    * For PropLeafNode, if immutable, value is unchangable after constructor.
-    * For PropBranchNode, if immutable, children nodes are unchangable after constructor.
+    * Parent node
+    * For the root node, it is null.
     */
-    protected bool immutable = false;
+    public PropNode? parent = null;
+    /*
+    * Owner of this node, which is the func node.
+    * For temporary nodes, it is null.
+    */
+    public FuncNode? owner = null;
+    /*
+    * Entity that this node belongs to.
+    * Only when the owner is a Component, this will be non-null.
+    */
+    public Entity? entity
+    {
+        get
+        {
+            if (owner == null) return null;
+            else if (owner is Component comp)
+            {
+                return comp.entity;
+            }
+            else return null;
+        }
+    }
+    /*
+    * Name of this node, holding by the owner.
+    * Only the root node holds name.
+    */
+    public string name = "";
+    /*
+    * Sync type of this node.
+    * This is used to determine how this node should be synchronized.
+    * Only the root node holds sync type.
+    */
+    public int syncType = SyncConst.Undefined;
+    /*
+    * Node hash, used for identification in the PropNode tree.
+    * Node hash within all children should be unique. 
+    */
+    public string hash = "";
+    public string fullHash
+    {
+        get
+        {
+            if (parent == null) return hash;
+            return parent.fullHash + "." + hash;
+        }
+    }
+
 
     /*
     * Used for type checks of parameters of RPC methods.
@@ -50,6 +96,30 @@ public class PropNode
     protected virtual int GetDataType()
     {
         return PropNodeConst.DataTypeUndefined;
+    }
+
+    public FuncNode? GetOwner()
+    {
+        if (parent == null) return owner;
+        else return parent.GetOwner();
+    }
+
+    public Entity? GetEntity()
+    {
+        if (parent == null) return entity;
+        else return parent.GetEntity();
+    }
+
+    public string GetName()
+    {
+        if (parent == null) return name;
+        else return parent.GetName();
+    }
+
+    public int GetSyncType()
+    {
+        if (parent == null) return syncType;
+        else return parent.GetSyncType();
     }
 
     /*
@@ -68,16 +138,84 @@ public class PropNode
         return "PropNode(Null)";
     }
 
+    public virtual PropNode Copy()
+    {
+        return new PropNode();
+    }
+
 }
 
+/*
+* PropLeafNode is a node that does not hold the reference of other PropNodes.
+*/
 public class PropLeafNode : PropNode
 {
     public Action<PropNode, PropNode>? OnSetter = null;
 }
 
+/*
+* PropBranchNode is a node that holds the reference of other PropNodes.
+*/
 public class PropBranchNode : PropNode
 {
+    /*
+    * This is the mapping from node hash to corresponding child prop node.
+    */
+    protected Dictionary<string, PropNode> hash2Children = new Dictionary<string, PropNode>();
 
+    protected bool HasHash(string hash)
+    {
+        return hash2Children.ContainsKey(hash);
+    }
+
+    protected PropNode? GetChildByHash(string hash)
+    {
+        if (hash2Children.TryGetValue(hash, out PropNode? child))
+        {
+            return child;
+        }
+        return null;
+    }
+
+    protected void AddChildWithHash(PropNode? child)
+    {
+        if (child == null) return;
+        string hash = child.hash;
+        if (hash == "")
+        {
+            // TODO: implicit performance problem here!!!
+            hash = Sampler.SampleGuid(4);
+            while (HasHash(hash)) hash = Sampler.SampleGuid(4);
+            child.hash = hash;
+        }
+        else {
+            if (HasHash(hash)) {
+                Debugger.Log($"PropBranchNode AddChildWithHash: hash already exists: {hash}");
+                return;
+            }
+        }
+        DoAddChildWIthHash(child);
+    }
+
+    private void DoAddChildWIthHash(PropNode child)
+    {
+        string hash = child.hash;
+        hash2Children.Add(hash, child);
+        child.parent = this;
+    }
+
+    protected void RemoveChildWithHash(PropNode? child)
+    {
+        if (child == null) return;
+        string hash = child.hash;
+        if (!HasHash(hash)) return;
+        hash2Children.Remove(hash);
+    }
+
+    protected void ClearChildWithHash()
+    {
+        hash2Children.Clear();
+    }
 }
 
 public class PropIntNode : PropLeafNode
@@ -88,11 +226,6 @@ public class PropIntNode : PropLeafNode
     public PropIntNode(int value_)
     {
         value = value_;
-    }
-    public PropIntNode(int value_, bool immutable_)
-    {
-        value = value_;
-        immutable = immutable_;
     }
 
     protected override int GetDataType()
@@ -107,15 +240,9 @@ public class PropIntNode : PropLeafNode
 
     public void SetValue(int value_)
     {
-        if (immutable) return;
         int oldValue = value;
         if (oldValue == value_) return; // No change, no need to notify
         value = value_;
-        if (OnSetter != null)
-        {
-            PropIntNode oldNode = new PropIntNode(oldValue, true);
-            OnSetter(oldNode, this);
-        }
     }
     
     public static PropIntNode Deserialize(BinaryReader reader)
@@ -140,6 +267,11 @@ public class PropIntNode : PropLeafNode
     {
         return $"PropIntNode({value})";
     }
+
+    public override PropNode Copy()
+    {
+        return new PropIntNode(value);
+    }
 }
 
 public class PropFloatNode : PropLeafNode
@@ -150,11 +282,6 @@ public class PropFloatNode : PropLeafNode
     public PropFloatNode(float value_)
     {
         value = value_;
-    }
-    public PropFloatNode(float value_, bool immutable_)
-    {
-        value = value_;
-        immutable = immutable_;
     }
 
     protected override int GetDataType()
@@ -169,14 +296,17 @@ public class PropFloatNode : PropLeafNode
 
     public void SetValue(float value_)
     {
-        if (immutable) return;
         float oldValue = value;
         if (Math.Abs(oldValue - value_) < 0.0001f) return; // No change, no need to notify
         value = value_;
-        if (OnSetter != null)
+        Entity? e = GetEntity();
+        if (e != null)
         {
-            PropFloatNode oldNode = new PropFloatNode(oldValue, true);
-            OnSetter(oldNode, this);
+            PropComp propComp = e.GetComponent<PropComp>();
+            if (propComp != null)
+            {
+                propComp.OnFloatSetter(oldValue, value, syncType, GetOwner(), name);
+            }
         }
     }
     
@@ -202,6 +332,11 @@ public class PropFloatNode : PropLeafNode
     {
         return $"PropFloatNode({value})";
     }
+
+    public override PropNode Copy()
+    {
+        return new PropFloatNode(value);
+    }
 }
 
 public class PropStringNode : PropLeafNode
@@ -212,11 +347,6 @@ public class PropStringNode : PropLeafNode
     public PropStringNode(string value_)
     {
         value = value_;
-    }
-    public PropStringNode(string value_, bool immutable_)
-    {
-        value = value_;
-        immutable = immutable_;
     }
 
     protected override int GetDataType()
@@ -231,7 +361,6 @@ public class PropStringNode : PropLeafNode
 
     public void SetValue(string value_)
     {
-        if (immutable) return;
         value = value_;
     }
     
@@ -257,6 +386,11 @@ public class PropStringNode : PropLeafNode
     {
         return $"PropStringNode({value})";
     }
+
+    public override PropNode Copy()
+    {
+        return new PropStringNode(value);
+    }
 }
 
 public class PropBoolNode : PropLeafNode
@@ -267,11 +401,6 @@ public class PropBoolNode : PropLeafNode
     public PropBoolNode(bool value_)
     {
         value = value_;
-    }
-    public PropBoolNode(bool value_, bool immutable_)
-    {
-        value = value_;
-        immutable = immutable_;
     }
 
     protected override int GetDataType()
@@ -286,7 +415,6 @@ public class PropBoolNode : PropLeafNode
 
     public void SetValue(bool value_)
     {
-        if (immutable) return;
         value = value_;
     }
     
@@ -311,6 +439,11 @@ public class PropBoolNode : PropLeafNode
     public override string ToString()
     {
         return $"PropBoolNode({value})";
+    }
+
+    public override PropNode Copy()
+    {
+        return new PropBoolNode(value);
     }
 }
 
@@ -342,6 +475,11 @@ public class PropListTailNode: PropNode
     {
         return "PropListTailNode(null)";
     }
+
+    public override PropNode Copy()
+    {
+        return new PropListTailNode();
+    }
 }
 
 public class PropListNode : PropBranchNode, IEnumerable<PropNode>
@@ -349,10 +487,6 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
     private List<PropNode> children = new List<PropNode>();
 
     public PropListNode() {}
-    public PropListNode(bool immutable_)
-    {
-        immutable = immutable_;
-    }
 
     protected override int GetDataType()
     {
@@ -371,10 +505,12 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
         }
         set
         {
-            if (immutable) return;
             if (index < 0 || index >= children.Count)
                 throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
+            PropNode oldValue = children[index];
+            RemoveChildWithHash(oldValue);
             children[index] = value;
+            AddChildWithHash(value);
         }
     }
 
@@ -410,36 +546,37 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
 
     public void Add(PropNode child)
     {
-        if (immutable) return;
         children.Add(child);
+        AddChildWithHash(child);
     }
 
     public void Insert(int index, PropNode child)
     {
-        if (immutable) return;
         if (index < 0 || index > children.Count)
             throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
         children.Insert(index, child);
+        AddChildWithHash(child);
     }
 
     public void Remove(PropNode child)
     {
-        if (immutable) return;
         children.Remove(child);
+        RemoveChildWithHash(child);
     }
 
     public void RemoveAt(int index)
     {
-        if (immutable) return;
         if (index < 0 || index >= children.Count)
             throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
+        PropNode child = children[index];
         children.RemoveAt(index);
+        RemoveChildWithHash(child);
     }
 
     public void Clear()
     {
-        if (immutable) return;
         children.Clear();
+        ClearChildWithHash();
     }
 
     #endregion
@@ -482,6 +619,16 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
         }
         return $"PropListNode([{ls}])";
     }
+
+    public override PropNode Copy()
+    {
+        PropListNode copy = new PropListNode();
+        foreach (PropNode child in children)
+        {
+            copy.Add(child.Copy());
+        }
+        return copy;
+    }
 }
 
 public class PropDictionaryTailNode : PropNode
@@ -512,6 +659,11 @@ public class PropDictionaryTailNode : PropNode
     {
         return "PropDictionaryTailNode(null)";
     }
+
+    public override PropNode Copy()
+    {
+        return new PropDictionaryTailNode();
+    }
 }
 
 public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair<TKey, PropNode>>
@@ -521,11 +673,6 @@ public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair
 
     public PropDictionaryNode()
     {
-        SetKeyType();
-    }
-    public PropDictionaryNode(bool immutable_)
-    {
-        immutable = immutable_;
         SetKeyType();
     }
 
@@ -553,8 +700,12 @@ public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair
         }
         set
         {
-            if (immutable) return;
+            if (children.TryGetValue(key, out PropNode? oldValue))
+            {
+                RemoveChildWithHash(oldValue);
+            }
             children[key] = value;
+            AddChildWithHash(value);
         }
     }
 
@@ -585,20 +736,23 @@ public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair
 
     public void Add(TKey key, PropNode value)
     {
-        if (immutable) return;
         children.Add(key, value);
+        AddChildWithHash(value);
     }
 
-    public bool Remove(TKey key)
+    public void Remove(TKey key)
     {
-        if (immutable) return false;
-        return children.Remove(key);
+        if (children.TryGetValue(key, out PropNode? value))
+        {
+            children.Remove(key);
+            RemoveChildWithHash(value);
+        }
     }
 
     public void Clear()
     {
-        if (immutable) return;
         children.Clear();
+        ClearChildWithHash();
     }
 
     #endregion
@@ -686,9 +840,19 @@ public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair
         }
         return "PropDictionaryNode({" + $"{ds}" + "})";
     }
+
+    public override PropNode Copy()
+    {
+        PropDictionaryNode<TKey> copy = new PropDictionaryNode<TKey>();
+        foreach (var kvp in children)
+        {
+            copy.Add(kvp.Key, kvp.Value.Copy());
+        }
+        return copy;
+    }
 }
 
-public class PropVector3Node : PropBranchNode
+public class PropVector3Node : PropLeafNode
 {
     private float x = 0f;
     private float y = 0f;
@@ -731,6 +895,11 @@ public class PropVector3Node : PropBranchNode
     {
         return $"PropVector3Node({x},{y},{z})";
     }
+
+    public override PropNode Copy()
+    {
+        return new PropVector3Node(x, y, z);
+    }
 }
 
 public class PropPathNode : PropBranchNode
@@ -743,8 +912,11 @@ public class PropPathNode : PropBranchNode
     public PropPathNode(PropListNode points, PropListNode yaws, PropDictionaryNode<string> alias)
     {
         pathPoints = points;
+        AddChildWithHash(pathPoints);
         pathYaws = yaws;
+        AddChildWithHash(pathYaws);
         pathAlias = alias;
+        AddChildWithHash(pathAlias);
     }
     
     protected override int GetDataType()
@@ -797,6 +969,13 @@ public class PropPathNode : PropBranchNode
         return s;
     }
     
+    public override PropNode Copy()
+    {
+        PropListNode pointsCopy = pathPoints.Copy() as PropListNode;
+        PropListNode yawsCopy = pathYaws.Copy() as PropListNode;
+        PropDictionaryNode<string> aliasCopy = pathAlias.Copy() as PropDictionaryNode<string>;
+        return new PropPathNode(pointsCopy, yawsCopy, aliasCopy);
+    }
 }
 
 public class PropStreamer
@@ -879,9 +1058,9 @@ public class PropStreamer
             if (attr != null && (attr.syncType & syncType) != 0)
             {
                 var value = property.GetValue(instance);
-                if (value != null)
+                if (value != null && value is PropNode propNode)
                 {
-                    dict.Add(property.Name, (PropNode)value);
+                    dict.Add(property.Name, propNode.Copy());
                 }
             }
         }
@@ -893,9 +1072,9 @@ public class PropStreamer
             if (attr != null && (attr.syncType & syncType) != 0)
             {
                 var value = field.GetValue(instance);
-                if (value != null)
+                if (value != null && value is PropNode propNode)
                 {
-                    dict.Add(field.Name, (PropNode)value);
+                    dict.Add(field.Name, propNode.Copy());
                 }
             }
         }

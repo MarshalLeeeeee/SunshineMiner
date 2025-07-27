@@ -22,7 +22,7 @@ public class Component : FuncNode
             }
         }
     }
-    protected bool enabled = false;
+    public bool enabled { get; protected set; } = false;
 
     public override void SetParent(FuncNode? p)
     {
@@ -209,6 +209,16 @@ public class Component : FuncNode
     public Component? GetComponentByName(string name)
     {
         FuncNode? funcNode = GetFuncNodeByName(name);
+        if (funcNode != null && funcNode is Component component)
+        {
+            return component;
+        }
+        else return null;
+    }
+
+    public Component? GetComponentByFullPath(string fullPath)
+    {
+        FuncNode? funcNode = GetFuncNodeByFullPath(fullPath);
         if (funcNode != null && funcNode is Component component)
         {
             return component;

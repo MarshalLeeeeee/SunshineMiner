@@ -6,6 +6,7 @@ using System.Reflection;
 
 public static class SyncConst
 {
+    public const int Undefined = 0;
     public const int OwnClient = (1 << 0);
     private const int OtherClient = (1 << 1);
 

@@ -13,6 +13,25 @@ public class FuncNode
     protected Dictionary<string, FuncNode> funcNodes = new Dictionary<string, FuncNode>();
     public FuncNode? parent { get; protected set; } = null;
 
+    /*
+    * Get the full path of this FuncNode within the hierarchy.
+    * The full path of the root is empty.
+    * The full path of a child is the concatenation of the name of func node along the path (seperated by '.').
+    */
+    public string fullPath
+    {
+        get
+        {
+            if (parent == null) return "";
+            else
+            {
+                string parentPath = parent.fullPath;
+                if (string.IsNullOrEmpty(parentPath)) return GetType().Name;
+                else return parentPath + "." + GetType().Name;
+            }
+        }
+    }
+
     #region REGION_CHILDREN_MANAGEMENT
 
     /*
@@ -53,6 +72,24 @@ public class FuncNode
                 return funcNode;
             }
             else return null;
+        }
+        else return null;
+    }
+
+    public FuncNode? GetFuncNodeByFullPath(string fullPath)
+    {
+        if (string.IsNullOrEmpty(fullPath)) return this;
+        string[] paths = fullPath.Split('.');
+        return GetFuncNodeByFullPathRecursive(paths, 0);
+    }
+
+    private FuncNode? GetFuncNodeByFullPathRecursive(string[] paths, int index)
+    {
+        if (index >= paths.Length) return this;
+        string part = paths[index];
+        if (funcNodes.TryGetValue(part, out FuncNode funcNode))
+        {
+            return funcNode.GetFuncNodeByFullPathRecursive(paths, index + 1);
         }
         else return null;
     }
