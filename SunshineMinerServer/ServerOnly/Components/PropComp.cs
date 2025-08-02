@@ -1,7 +1,7 @@
 ﻿
 public class PropComp : PropCompCommon
 {
-    public override void OnFloatSetter(float old, float n, int syncType, FuncNode? owner, string name)
+    public override void OnFloatSetter(float old, float n, int syncType, FuncNode? owner, string propRootName, string propFullHash)
     {
         if (entity == null) return;
         if (owner == null) return;
@@ -10,7 +10,8 @@ public class PropComp : PropCompCommon
         msg.arg.Add(new PropFloatNode(n));
         string ownerFullPath = owner.fullPath;
         msg.arg.Add(new PropStringNode(ownerFullPath));
-        msg.arg.Add(new PropStringNode(name));
+        msg.arg.Add(new PropStringNode(propRootName));
+        msg.arg.Add(new PropStringNode(propFullHash));
         if (syncType == SyncConst.OwnClient)
         {
             Game.Instance.gate.RpcToOwnClient(eid, msg);

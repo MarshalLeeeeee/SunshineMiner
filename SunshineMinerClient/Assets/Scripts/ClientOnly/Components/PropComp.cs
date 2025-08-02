@@ -3,31 +3,36 @@ using System.Reflection;
 
 public class PropComp : PropCompCommon
 {
-    [Rpc(RpcConst.Server, PropNodeConst.DataTypeFloat, PropNodeConst.DataTypeString, PropNodeConst.DataTypeString)]
-    public void PropFloatSetterRemote(PropFloatNode value, PropStringNode ownerFullPath_, PropStringNode name_)
+    [Rpc(RpcConst.Server, PropNodeConst.DataTypeFloat, PropNodeConst.DataTypeString, PropNodeConst.DataTypeString, PropNodeConst.DataTypeString)]
+    public void PropFloatSetterRemote(PropFloatNode value, PropStringNode ownerFullPath_, PropStringNode propRootName_, PropStringNode propFullHash_)
     {
         if (entity == null) return;
 
         string ownerFullPath = ownerFullPath_.GetValue();
-        string name = name_.GetValue();
+        string propRootName = propRootName_.GetValue();
+        string propFullHash = propFullHash_.GetValue();
         Component? owner = entity.GetComponentByFullPath(ownerFullPath);
         if (owner == null) return;
 
         Type type = owner.GetType();
         PropertyInfo? property = type.GetProperty(
-            name,
+            propRootName,
             BindingFlags.Public | BindingFlags.Instance
         );
         if (property != null)
         {
             object p = property.GetValue(owner);
-            if (p != null && p is PropFloatNode propNode)
+            if (p != null && p is PropNode propNode)
             {
-                propNode.SetValue(value.GetValue());
+                PropNode? pp = propNode.GetNodeByHash(propFullHash);
+                if (pp != null && pp is PropFloatNode ppp)
+                {
+                    ppp.SetValue(value.GetValue());
+                }
             }
         }
         FieldInfo? field = type.GetField(
-            name,
+            propRootName,
             BindingFlags.Public | BindingFlags.Instance
         );
         if (field != null)
@@ -35,7 +40,11 @@ public class PropComp : PropCompCommon
             object f = field.GetValue(owner);
             if (f != null && f is PropFloatNode propNode)
             {
-                propNode.SetValue(value.GetValue());
+                PropNode? ff = propNode.GetNodeByHash(propFullHash);
+                if (ff != null && ff is PropFloatNode fff)
+                {
+                    fff.SetValue(value.GetValue());
+                }
             }
         }
     }

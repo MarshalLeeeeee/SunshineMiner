@@ -63,6 +63,17 @@ public class PropNode
     */
     public string name = "";
     /*
+    * Name of the root node
+    */
+    public string rootName
+    {
+        get
+        {
+            if (parent == null) return name;
+            else return parent.name;
+        }
+    }
+    /*
     * Sync type of this node.
     * This is used to determine how this node should be synchronized.
     * Only the root node holds sync type.
@@ -78,7 +89,7 @@ public class PropNode
         get
         {
             if (parent == null) return hash;
-            return parent.fullHash + "." + hash;
+            else return parent.fullHash + "." + hash;
         }
     }
 
@@ -143,6 +154,18 @@ public class PropNode
         return new PropNode();
     }
 
+    public PropNode? GetNodeByHash(string propFullHash)
+    {
+        if (string.IsNullOrEmpty(propFullHash)) return this;
+        string[] hashes = propFullHash.Split('.');
+        return GetNodeByHashRecursive(hashes, 0);
+    }
+
+    public virtual PropNode? GetNodeByHashRecursive(string[] hashes, int index)
+    {
+        return null;
+        
+    }
 }
 
 /*
@@ -150,7 +173,11 @@ public class PropNode
 */
 public class PropLeafNode : PropNode
 {
-    public Action<PropNode, PropNode>? OnSetter = null;
+    public override PropNode? GetNodeByHashRecursive(string[] hashes, int index)
+    {
+        if (index == hashes.Length) return this;
+        else return null;
+    }
 }
 
 /*
@@ -188,8 +215,10 @@ public class PropBranchNode : PropNode
             while (HasHash(hash)) hash = Sampler.SampleGuid(4);
             child.hash = hash;
         }
-        else {
-            if (HasHash(hash)) {
+        else
+        {
+            if (HasHash(hash))
+            {
                 Debugger.Log($"PropBranchNode AddChildWithHash: hash already exists: {hash}");
                 return;
             }
@@ -215,6 +244,17 @@ public class PropBranchNode : PropNode
     protected void ClearChildWithHash()
     {
         hash2Children.Clear();
+    }
+
+    public override PropNode? GetNodeByHashRecursive(string[] hashes, int index)
+    {
+        if (index >= hashes.Length) return null;
+        string hash = hashes[index];
+        if (hash2Children.TryGetValue(hash, out PropNode propNode))
+        {
+            return propNode.GetNodeByHashRecursive(hashes, index + 1);
+        }
+        else return null;
     }
 }
 
@@ -305,7 +345,7 @@ public class PropFloatNode : PropLeafNode
             PropComp propComp = e.GetComponent<PropComp>();
             if (propComp != null)
             {
-                propComp.OnFloatSetter(oldValue, value, syncType, GetOwner(), name);
+                propComp.OnFloatSetter(oldValue, value, syncType, GetOwner(), rootName, fullHash);
             }
         }
     }

@@ -151,7 +151,7 @@ public class PropCompCommon : Component
 
     #region REGION_PROP_SET_CALLBACK
 
-    public virtual void OnFloatSetter(float o, float n, int syncType, FuncNode? owner, string name) {}
+    public virtual void OnFloatSetter(float o, float n, int syncType, FuncNode? owner, string propRootName, string propFullHash) {}
 
     #endregion
 }
