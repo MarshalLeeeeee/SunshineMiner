@@ -70,13 +70,13 @@
     <Compile Include="Assets\Scripts\ClientOnly\Components\RpcComp.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Utils\Debugger.cs" />
     <Compile Include="Assets\Scripts\Shared\Entities\PlayerEntityCommon.cs" />
-    <Compile Include="Assets\Scripts\Shared\Utils\ComponentFactory.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\TimerManagerCommon.cs" />
     <Compile Include="Assets\Scripts\Shared\Utils\PropNode.cs" />
     <Compile Include="Assets\Scripts\Shared\Managers\EntityManagerCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Widgets\Common\HorizonInput.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\UIBase.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\Component.cs" />
+    <Compile Include="Assets\Scripts\Shared\Utils\Factory.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\Components\AreaComp.cs" />
     <Compile Include="Assets\Scripts\Shared\Components\PropCompCommon.cs" />
     <Compile Include="Assets\Scripts\ClientOnly\UI\Panels\PnlLoading.cs" />

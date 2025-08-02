@@ -270,7 +270,7 @@ public class Component : FuncNode
         Component? component = GetComponentByName(compName);
         if (component == null)
         {
-            component = ComponentFactory.CreateComponent(compName);
+            component = Factory.CreateComponent(compName);
             if (component == null) return;
             AddFuncNode(component, this);
             component.Init();
@@ -282,7 +282,7 @@ public class Component : FuncNode
         Component? component = GetComponentByName(compName);
         if (component == null)
         {
-            component = ComponentFactory.CreateComponent(compName);
+            component = Factory.CreateComponent(compName);
             if (component == null) return;
             AddFuncNode(component, this);
             component.Init(info);

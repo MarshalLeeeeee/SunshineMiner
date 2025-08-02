@@ -8,6 +8,7 @@ public class Game : GameCommon
     public Game()
     {
         Instance = this;
+        Factory.Init();
         InitManagers();
     }
 

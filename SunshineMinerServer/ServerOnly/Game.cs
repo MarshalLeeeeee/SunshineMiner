@@ -11,6 +11,7 @@ public class Game : GameCommon, IDisposable
     public Game()
     {
         Instance = this;
+        Factory.Init();
         InitManagers();
     }
 
