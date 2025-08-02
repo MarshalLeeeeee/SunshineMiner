@@ -1,9 +1,10 @@
 using System;
 using System.Reflection;
 
+[Comp]
 public class PropComp : PropCompCommon
 {
-    [Rpc(RpcConst.Server, PropNodeConst.DataTypeFloat, PropNodeConst.DataTypeString, PropNodeConst.DataTypeString, PropNodeConst.DataTypeString)]
+    [Rpc(RpcConst.Server, PropNodeConst.TypeFloat, PropNodeConst.TypeString, PropNodeConst.TypeString, PropNodeConst.TypeString)]
     public void PropFloatSetterRemote(PropFloatNode value, PropStringNode ownerFullPath_, PropStringNode propRootName_, PropStringNode propFullHash_)
     {
         if (entity == null) return;

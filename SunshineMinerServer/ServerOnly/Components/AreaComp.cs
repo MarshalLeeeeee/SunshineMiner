@@ -1,7 +1,8 @@
 ﻿
+[Comp(CompConst.AllClient)]
 public class AreaComp : AreaCompCommon
 {
-    [Rpc(RpcConst.OwnClient, PropNodeConst.DataTypeFloat, PropNodeConst.DataTypeFloat, PropNodeConst.DataTypeFloat)]
+    [Rpc(RpcConst.OwnClient, PropNodeConst.TypeFloat, PropNodeConst.TypeFloat, PropNodeConst.TypeFloat)]
     public void SyncPositionRemote(PropFloatNode x_, PropFloatNode y_, PropFloatNode z_, Proxy proxy)
     {
         // TODO position validate

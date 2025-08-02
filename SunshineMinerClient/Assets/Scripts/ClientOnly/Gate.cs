@@ -489,7 +489,7 @@ public class Gate : Manager
 
     #region REGION_LOGIN
 
-    [Rpc(RpcConst.Server, PropNodeConst.DataTypeBool)]
+    [Rpc(RpcConst.Server, PropNodeConst.TypeBool)]
     public void LoginResRemote(PropBoolNode res)
     {
         bool resValue = res.GetValue();

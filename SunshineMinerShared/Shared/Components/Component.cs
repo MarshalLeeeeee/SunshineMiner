@@ -3,6 +3,28 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
+public class CompConst
+{
+    public const int None = 0;
+    public const int OwnClient = 1;
+    public const int AllClient = 2;
+}
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+public class CompAttribute : Attribute
+{
+    public int syncType { get; }
+    public CompAttribute()
+    {
+        syncType = CompConst.None;
+    }
+
+    public CompAttribute(int syncType_)
+    {
+        syncType = syncType_;
+    }
+}
+
 /*
 * Component is a func node that can be attached to an entity and has sub components.
 * It provides methods for initialization, enabling, updating, disabling, and destroying components.
@@ -40,10 +62,10 @@ public class Component : FuncNode
         InitComponents();
     }
 
-    public void Init(PropDictionaryNode<string> info)
+    public void Init(PropStringDictionaryNode info)
     {
         Type type = GetType();
-        if (info.TryGetValue("_Property", out PropNode? dataNode) && dataNode is PropDictionaryNode<string> propertyInfo)
+        if (info.TryGetValue("_Property", out PropNode? dataNode) && dataNode is PropStringDictionaryNode propertyInfo)
         {
             foreach (KeyValuePair<string, PropNode> kvp in propertyInfo)
             {
@@ -71,7 +93,7 @@ public class Component : FuncNode
         {
             string name = kvp.Key;
             if (name == "_Property") continue;
-            if (kvp.Value is PropDictionaryNode<string> compInfo)
+            if (kvp.Value is PropStringDictionaryNode compInfo)
             {
                 InitComponentByName(name, compInfo);
             }
@@ -252,7 +274,7 @@ public class Component : FuncNode
         return component;
     }
 
-    public T InitComponent<T>(PropDictionaryNode<string> info) where T : Component, new()
+    public T InitComponent<T>(PropStringDictionaryNode info) where T : Component, new()
     {
         Type type = typeof(T);
         string compName = type.Name;
@@ -277,7 +299,7 @@ public class Component : FuncNode
         }
     }
 
-    public void InitComponentByName(string compName, PropDictionaryNode<string> info)
+    public void InitComponentByName(string compName, PropStringDictionaryNode info)
     {
         Component? component = GetComponentByName(compName);
         if (component == null)
@@ -365,17 +387,17 @@ public class Component : FuncNode
 
     #region REGION_SERIALIZE
 
-    public PropDictionaryNode<string> SerializeWithSyncType(int syncType)
+    public PropStringDictionaryNode SerializeWithSyncType(int syncType)
     {
-        PropDictionaryNode<string> info = new PropDictionaryNode<string>();
-        PropDictionaryNode<string> propInfo = PropStreamer.SerializeInstance(this, syncType);
+        PropStringDictionaryNode info = new PropStringDictionaryNode();
+        PropStringDictionaryNode propInfo = PropStreamer.SerializeInstance(this, syncType);
         if (propInfo.Count > 0)
         {
             info.Add("_Property", propInfo);
         }
         foreach (var kvp in IterComponents())
         {
-            PropDictionaryNode<string> compInfo = kvp.Value.SerializeWithSyncType(syncType);
+            PropStringDictionaryNode compInfo = kvp.Value.SerializeWithSyncType(syncType);
             if (compInfo.Count > 0)
             {
                 info.Add(kvp.Key, compInfo);

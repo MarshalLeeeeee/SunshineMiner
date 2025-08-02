@@ -1,4 +1,5 @@
 ﻿
+[Comp]
 public class PropComp : PropCompCommon
 {
     public override void OnFloatSetter(float old, float n, int syncType, FuncNode? owner, string propRootName, string propFullHash)

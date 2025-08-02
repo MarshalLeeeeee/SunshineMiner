@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[Comp]
 public class PrefabComp : Component
 {
     public GameObject? prefabObject = null;

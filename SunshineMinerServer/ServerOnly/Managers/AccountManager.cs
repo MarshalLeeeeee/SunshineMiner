@@ -18,7 +18,7 @@ public class AccountManager : Manager
         return true;
     }
 
-    [Rpc(RpcConst.AnyClient, PropNodeConst.DataTypeString, PropNodeConst.DataTypeString)]
+    [Rpc(RpcConst.AnyClient, PropNodeConst.TypeString, PropNodeConst.TypeString)]
     public void LoginRemote(PropStringNode account, PropStringNode password, Proxy proxy)
     {
         string accountStr = account.GetValue();

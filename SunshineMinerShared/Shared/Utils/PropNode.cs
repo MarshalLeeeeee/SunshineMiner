@@ -6,27 +6,30 @@ using System.Reflection;
 
 public class PropNodeConst
 {
-    public const int DataTypeUndefined = 0;
-    public const int DataTypeInt = 1;
-    public const int DataTypeFloat = 2;
-    public const int DataTypeString = 3;
-    public const int DataTypeBool = 4;
+    public const int TypeUndefined = 0;
+    public const int TypeInt = 1;
+    public const int TypeFloat = 2;
+    public const int TypeString = 3;
+    public const int TypeBool = 4;
 
-    public static readonly int[] DataTypeLeaf = new int[]
+    public static readonly int[] TypeLeaf = new int[]
     {
-        DataTypeInt,
-        DataTypeFloat,
-        DataTypeString,
-        DataTypeBool
+        TypeInt,
+        TypeFloat,
+        TypeString,
+        TypeBool
     };
 
-    public const int DataTypeList = 10;
-    public const int DataTypeListTail = 11;
-    public const int DataTypeDictionary = 12;
-    public const int DataTypeDictionaryTail = 13;
+    public const int TypeList = 10;
+    public const int TypeListTail = 11;
+
+    public const int TypeIntDictionary = 20;
+    public const int TypeFloatDictionary = 21;
+    public const int TypeStringDictionary = 22;
+    public const int TypeDictionaryTail = 23;
     
-    public const int DataTypeVector3 = 14;
-    public const int DataTypePath = 15;
+    public const int TypeVector3 = 101;
+    public const int TypePath = 102;
 }
 
 public class PropNode
@@ -93,21 +96,12 @@ public class PropNode
         }
     }
 
-
+    /* static data type */
+    public static int staticPropType = PropNodeConst.TypeUndefined;
     /*
     * Used for type checks of parameters of RPC methods.
     */
-    public int dataType
-    {
-        get
-        {
-            return GetDataType();
-        }
-    }
-    protected virtual int GetDataType()
-    {
-        return PropNodeConst.DataTypeUndefined;
-    }
+    public virtual int propType => staticPropType;
 
     public FuncNode? GetOwner()
     {
@@ -268,10 +262,12 @@ public class PropIntNode : PropLeafNode
         value = value_;
     }
 
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypeInt;
-    }
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeInt;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
 
     public int GetValue()
     {
@@ -299,7 +295,7 @@ public class PropIntNode : PropLeafNode
 
     public override void Serialize(BinaryWriter writer)
     {
-        writer.Write(dataType);
+        writer.Write(PropNodeConst.TypeInt);
         writer.Write(value);
     }
 
@@ -324,10 +320,12 @@ public class PropFloatNode : PropLeafNode
         value = value_;
     }
 
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypeFloat;
-    }
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeFloat;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
 
     public float GetValue()
     {
@@ -342,7 +340,7 @@ public class PropFloatNode : PropLeafNode
         Entity? e = GetEntity();
         if (e != null)
         {
-            PropComp propComp = e.GetComponent<PropComp>();
+            PropComp? propComp = e.GetComponent<PropComp>();
             if (propComp != null)
             {
                 propComp.OnFloatSetter(oldValue, value, syncType, GetOwner(), rootName, fullHash);
@@ -364,7 +362,7 @@ public class PropFloatNode : PropLeafNode
 
     public override void Serialize(BinaryWriter writer)
     {
-        writer.Write(dataType);
+        writer.Write(PropNodeConst.TypeFloat);
         writer.Write(value);
     }
 
@@ -389,10 +387,12 @@ public class PropStringNode : PropLeafNode
         value = value_;
     }
 
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypeString;
-    }
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeString;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
 
     public string GetValue()
     {
@@ -418,7 +418,7 @@ public class PropStringNode : PropLeafNode
 
     public override void Serialize(BinaryWriter writer)
     {
-        writer.Write(dataType);
+        writer.Write(PropNodeConst.TypeString);
         writer.Write(value);
     }
 
@@ -443,10 +443,12 @@ public class PropBoolNode : PropLeafNode
         value = value_;
     }
 
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypeBool;
-    }
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeBool;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
 
     public bool GetValue()
     {
@@ -472,7 +474,7 @@ public class PropBoolNode : PropLeafNode
 
     public override void Serialize(BinaryWriter writer)
     {
-        writer.Write(dataType);
+        writer.Write(PropNodeConst.TypeBool);
         writer.Write(value);
     }
 
@@ -489,10 +491,12 @@ public class PropBoolNode : PropLeafNode
 
 public class PropListTailNode: PropNode
 {
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypeListTail;
-    }
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeListTail;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
     
     public static PropListTailNode Deserialize(BinaryReader reader)
     {
@@ -528,10 +532,12 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
 
     public PropListNode() {}
 
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypeList;
-    }
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeList;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
 
     #region REGION_LIST_API
 
@@ -642,12 +648,12 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
 
     public override void Serialize(BinaryWriter writer)
     {
-        writer.Write(dataType);
+        writer.Write(PropNodeConst.TypeList);
         foreach (var child in children)
         {
             child.Serialize(writer);
         }
-        writer.Write(PropNodeConst.DataTypeListTail);
+        writer.Write(PropNodeConst.TypeListTail);
     }
 
     public override string ToString()
@@ -673,10 +679,12 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
 
 public class PropDictionaryTailNode : PropNode
 {
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypeDictionaryTail;
-    }
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeDictionaryTail;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
     
     public static PropDictionaryTailNode Deserialize(BinaryReader reader)
     {
@@ -708,25 +716,9 @@ public class PropDictionaryTailNode : PropNode
 
 public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair<TKey, PropNode>>
 {
-    private Dictionary<TKey, PropNode> children = new Dictionary<TKey, PropNode>();
-    private int keyType = PropNodeConst.DataTypeUndefined;
+    protected Dictionary<TKey, PropNode> children = new Dictionary<TKey, PropNode>();
 
-    public PropDictionaryNode()
-    {
-        SetKeyType();
-    }
-
-    private void SetKeyType()
-    {
-        if (typeof(TKey) == typeof(int)) keyType = PropNodeConst.DataTypeInt;
-        else if (typeof(TKey) == typeof(float)) keyType = PropNodeConst.DataTypeFloat;
-        else if (typeof(TKey) == typeof(string)) keyType = PropNodeConst.DataTypeString;
-    }
-
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypeDictionary;
-    }
+    public PropDictionaryNode() { }
 
     #region REGION_DICTIONARY_API
 
@@ -797,80 +789,6 @@ public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair
 
     #endregion
 
-    public static PropDictionaryNode<TKey> Deserialize(BinaryReader reader)
-    {
-        try
-        {
-            PropDictionaryNode<TKey> dictionary = new PropDictionaryNode<TKey>();
-            while (true)
-            {
-                PropNode kNode = PropStreamer.Deserialize(reader);
-                if (kNode is PropDictionaryTailNode tailNode) break;
-
-                PropNode vNode = PropStreamer.Deserialize(reader);
-                if (kNode is PropIntNode kIntNode && kIntNode.GetValue() is TKey ik)
-                {
-                    dictionary.Add(ik, vNode);
-                }
-                else if (kNode is PropFloatNode kFloatNode && kFloatNode.GetValue() is TKey fk)
-                {
-                    dictionary.Add(fk, vNode);
-                }
-                else if (kNode is PropStringNode kStringNode && kStringNode.GetValue() is TKey sk)
-                {
-                    dictionary.Add(sk, vNode);
-                }
-                else throw new InvalidDataException($"Key type {kNode.GetType()} does not match expected type {typeof(TKey)}.");
-            }
-            return dictionary;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidDataException("Failed to deserialize PropDictionaryNode.", ex);
-        }
-    }
-    
-    public override void Serialize(BinaryWriter writer)
-    {
-        writer.Write(dataType);
-        writer.Write(keyType);
-        foreach (var kvp in children)
-        {
-            TKey key = kvp.Key;
-            PropNode value = kvp.Value;
-            if (keyType == PropNodeConst.DataTypeInt)
-            {
-                if (key is int intKey)
-                {
-                    PropIntNode intNode = new PropIntNode(intKey);
-                    intNode.Serialize(writer);
-                }
-                else throw new InvalidOperationException("Key type does not match expected type.");
-            }
-            else if (keyType == PropNodeConst.DataTypeFloat)
-            {
-                if (key is float floatKey)
-                {
-                    PropFloatNode floatNode = new PropFloatNode(floatKey);
-                    floatNode.Serialize(writer);
-                }
-                else throw new InvalidOperationException("Key type does not match expected type.");
-            }
-            else if (keyType == PropNodeConst.DataTypeString)
-            {
-                if (key is string stringKey)
-                {
-                    PropStringNode stringNode = new PropStringNode(stringKey);
-                    stringNode.Serialize(writer);
-                }
-                else throw new InvalidOperationException("Key type does not match expected type.");
-            }
-            else throw new InvalidOperationException($"Unsupported key type: {keyType}");
-            value.Serialize(writer);
-        }
-        writer.Write(PropNodeConst.DataTypeDictionaryTail);
-    }
-
     public override string ToString()
     {
         string ds = "";
@@ -892,45 +810,194 @@ public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair
     }
 }
 
+public class PropIntDictionaryNode : PropDictionaryNode<int>
+{
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeIntDictionary;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
+
+    public static PropIntDictionaryNode Deserialize(BinaryReader reader)
+    {
+        try
+        {
+            PropIntDictionaryNode dictionary = new PropIntDictionaryNode();
+            while (true)
+            {
+                PropNode kNode = PropStreamer.Deserialize(reader);
+                if (kNode is PropDictionaryTailNode tailNode) break;
+
+                PropNode vNode = PropStreamer.Deserialize(reader);
+                if (kNode is PropIntNode kIntNode && kIntNode.GetValue() is int ik)
+                {
+                    dictionary.Add(ik, vNode);
+                }
+                else throw new InvalidDataException($"Key type {kNode.GetType()} does not match expected type {typeof(int)}.");
+            }
+            return dictionary;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidDataException("Failed to deserialize PropDictionaryNode.", ex);
+        }
+    }
+
+    public override void Serialize(BinaryWriter writer)
+    {
+        writer.Write(PropNodeConst.TypeIntDictionary);
+        foreach (var kvp in children)
+        {
+            int key = kvp.Key;
+            PropIntNode intNode = new PropIntNode(key);
+            intNode.Serialize(writer);
+            PropNode value = kvp.Value;
+            value.Serialize(writer);
+        }
+        writer.Write(PropNodeConst.TypeDictionaryTail);
+    }
+}
+
+public class PropFloatDictionaryNode : PropDictionaryNode<float>
+{
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeFloatDictionary;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
+
+    public static PropFloatDictionaryNode Deserialize(BinaryReader reader)
+    {
+        try
+        {
+            PropFloatDictionaryNode dictionary = new PropFloatDictionaryNode();
+            while (true)
+            {
+                PropNode kNode = PropStreamer.Deserialize(reader);
+                if (kNode is PropDictionaryTailNode tailNode) break;
+
+                PropNode vNode = PropStreamer.Deserialize(reader);
+                if (kNode is PropFloatNode kFloatNode && kFloatNode.GetValue() is float fk)
+                {
+                    dictionary.Add(fk, vNode);
+                }
+                else throw new InvalidDataException($"Key type {kNode.GetType()} does not match expected type {typeof(float)}.");
+            }
+            return dictionary;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidDataException("Failed to deserialize PropDictionaryNode.", ex);
+        }
+    }
+
+    public override void Serialize(BinaryWriter writer)
+    {
+        writer.Write(PropNodeConst.TypeFloatDictionary);
+        foreach (var kvp in children)
+        {
+            float key = kvp.Key;
+            PropFloatNode floatNode = new PropFloatNode(key);
+            floatNode.Serialize(writer);
+            PropNode value = kvp.Value;
+            value.Serialize(writer);
+        }
+        writer.Write(PropNodeConst.TypeDictionaryTail);
+    }
+}
+
+public class PropStringDictionaryNode : PropDictionaryNode<string>
+{
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeStringDictionary;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
+
+    public static PropStringDictionaryNode Deserialize(BinaryReader reader)
+    {
+        try
+        {
+            PropStringDictionaryNode dictionary = new PropStringDictionaryNode();
+            while (true)
+            {
+                PropNode kNode = PropStreamer.Deserialize(reader);
+                if (kNode is PropDictionaryTailNode tailNode) break;
+
+                PropNode vNode = PropStreamer.Deserialize(reader);
+                if (kNode is PropStringNode kStringNode && kStringNode.GetValue() is string sk)
+                {
+                    dictionary.Add(sk, vNode);
+                }
+                else throw new InvalidDataException($"Key type {kNode.GetType()} does not match expected type {typeof(string)}.");
+            }
+            return dictionary;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidDataException("Failed to deserialize PropDictionaryNode.", ex);
+        }
+    }
+
+    public override void Serialize(BinaryWriter writer)
+    {
+        writer.Write(PropNodeConst.TypeStringDictionary);
+        foreach (var kvp in children)
+        {
+            string key = kvp.Key;
+            PropStringNode stringNode = new PropStringNode(key);
+            stringNode.Serialize(writer);
+            PropNode value = kvp.Value;
+            value.Serialize(writer);
+        }
+        writer.Write(PropNodeConst.TypeDictionaryTail);
+    }
+}
+
 public class PropVector3Node : PropLeafNode
 {
     private float x = 0f;
     private float y = 0f;
     private float z = 0f;
-    
-    public PropVector3Node() {}
+
+    public PropVector3Node() { }
     public PropVector3Node(float x_, float y_, float z_)
     {
         x = x_;
         y = y_;
         z = z_;
     }
-    
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypeVector3;
-    }
-    
+
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypeVector3;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
+
     public static PropVector3Node Deserialize(BinaryReader reader)
     {
         try
         {
-            return new PropVector3Node(reader.ReadSingle(),reader.ReadSingle(),reader.ReadSingle());
+            return new PropVector3Node(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         }
         catch (Exception ex)
         {
             throw new InvalidDataException("Failed to deserialize PropVector3Node.", ex);
         }
     }
-    
+
     public override void Serialize(BinaryWriter writer)
     {
-        writer.Write(dataType);
+        writer.Write(PropNodeConst.TypeVector3);
         writer.Write(x);
         writer.Write(y);
         writer.Write(z);
     }
-    
+
     public override string ToString()
     {
         return $"PropVector3Node({x},{y},{z})";
@@ -946,10 +1013,10 @@ public class PropPathNode : PropBranchNode
 {
     private PropListNode pathPoints = new PropListNode();
     private PropListNode pathYaws = new PropListNode();
-    private PropDictionaryNode<string> pathAlias = new PropDictionaryNode<string>();
+    private PropStringDictionaryNode pathAlias = new PropStringDictionaryNode();
     
     public PropPathNode() {}
-    public PropPathNode(PropListNode points, PropListNode yaws, PropDictionaryNode<string> alias)
+    public PropPathNode(PropListNode points, PropListNode yaws, PropStringDictionaryNode alias)
     {
         pathPoints = points;
         AddChildWithHash(pathPoints);
@@ -959,10 +1026,12 @@ public class PropPathNode : PropBranchNode
         AddChildWithHash(pathAlias);
     }
     
-    protected override int GetDataType()
-    {
-        return PropNodeConst.DataTypePath;
-    }
+    /* static data type */
+    public new static int staticPropType = PropNodeConst.TypePath;
+    /*
+    * Used for type checks of parameters of RPC methods.
+    */
+    public override int propType => staticPropType;
     
     public void AddPath(float x, float y, float z, float w)
     {
@@ -982,7 +1051,7 @@ public class PropPathNode : PropBranchNode
             return new PropPathNode(
                 PropStreamer.Deserialize(reader) as PropListNode,
                 PropStreamer.Deserialize(reader) as PropListNode,
-                PropStreamer.Deserialize(reader) as PropDictionaryNode<string>
+                PropStreamer.Deserialize(reader) as PropStringDictionaryNode
             );
         }
         catch (Exception ex)
@@ -993,7 +1062,7 @@ public class PropPathNode : PropBranchNode
     
     public override void Serialize(BinaryWriter writer)
     {
-        writer.Write(dataType);
+        writer.Write(PropNodeConst.TypePath);
         pathPoints.Serialize(writer);
         pathYaws.Serialize(writer);
         pathAlias.Serialize(writer);
@@ -1013,7 +1082,7 @@ public class PropPathNode : PropBranchNode
     {
         PropListNode pointsCopy = pathPoints.Copy() as PropListNode;
         PropListNode yawsCopy = pathYaws.Copy() as PropListNode;
-        PropDictionaryNode<string> aliasCopy = pathAlias.Copy() as PropDictionaryNode<string>;
+        PropStringDictionaryNode aliasCopy = pathAlias.Copy() as PropStringDictionaryNode;
         return new PropPathNode(pointsCopy, yawsCopy, aliasCopy);
     }
 }
@@ -1033,52 +1102,16 @@ public class PropStreamer
     {
         try
         {
-           int type = reader.ReadInt32();
-           if (type == PropNodeConst.DataTypeInt)
-           {
-               return PropIntNode.Deserialize(reader);
-           }
-           else if (type == PropNodeConst.DataTypeFloat)
-           {
-               return PropFloatNode.Deserialize(reader);
-           }
-           else if (type == PropNodeConst.DataTypeString)
-           {
-               return PropStringNode.Deserialize(reader);
-           }
-           else if (type == PropNodeConst.DataTypeBool)
-           {
-               return PropBoolNode.Deserialize(reader);
-           }
-           else if (type == PropNodeConst.DataTypeList)
-           {
-               return PropListNode.Deserialize(reader);
-           }
-           else if (type == PropNodeConst.DataTypeListTail)
-           {
-               return PropListTailNode.Deserialize(reader);
-           }
-           else if (type == PropNodeConst.DataTypeDictionary)
-           {
-                int keyType = reader.ReadInt32();
-                if (keyType == PropNodeConst.DataTypeInt) return PropDictionaryNode<int>.Deserialize(reader);
-                else if (keyType == PropNodeConst.DataTypeFloat) return PropDictionaryNode<float>.Deserialize(reader);
-                else if (keyType == PropNodeConst.DataTypeString) return PropDictionaryNode<string>.Deserialize(reader);
-                else throw new InvalidDataException("Unsupported key type for dictionary deserialization.");
-           }
-           else if (type == PropNodeConst.DataTypeDictionaryTail)
-           {
-               return PropDictionaryTailNode.Deserialize(reader);
-           }
-           else if (type == PropNodeConst.DataTypeVector3)
-           {
-               return PropVector3Node.Deserialize(reader);
-           }
-           else if (type == PropNodeConst.DataTypePath)
-           {
-               return PropPathNode.Deserialize(reader);
-           }
-           else throw new InvalidDataException($"Unsupported data type: {type}");
+            int type = reader.ReadInt32();
+            MethodInfo? deserializeMethod = Factory.GetDeserializeMethod(type);
+            if (deserializeMethod != null)
+            {
+                return (PropNode)deserializeMethod.Invoke(null, new object[] { reader });
+            }
+            else
+            {
+                throw new InvalidDataException($"Unsupported prop node type: {type}");
+            }
         }
         catch
         {
@@ -1086,9 +1119,9 @@ public class PropStreamer
         }
     }
 
-    public static PropDictionaryNode<string> SerializeInstance(object instance, int syncType)
+    public static PropStringDictionaryNode SerializeInstance(object instance, int syncType)
     {
-        PropDictionaryNode<string> dict = new PropDictionaryNode<string>();
+        PropStringDictionaryNode dict = new PropStringDictionaryNode();
         Type type = instance.GetType();
         var properties = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
         foreach (var property in properties)
@@ -1141,7 +1174,7 @@ public class TestCase
         l.Add(floatD);
         intD[4] = l;
 
-        PropDictionaryNode<string> stringD = new PropDictionaryNode<string>();
+        PropStringDictionaryNode stringD = new PropStringDictionaryNode();
         stringD["a"] = new PropIntNode(111);
         stringD["b"] = new PropFloatNode(222f);
         stringD["c"] = new PropStringNode("333");

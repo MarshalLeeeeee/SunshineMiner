@@ -1,4 +1,5 @@
 
+[Comp]
 public class AreaComp : AreaCompCommon
 {
     public Vec3? prefabPosition

@@ -116,7 +116,7 @@ public class Game : GameCommon
         while (i < rpcArgsCount)
         {
             PropNode arg = args[i];
-            if (rpcArgs[i] != PropNodeConst.DataTypeUndefined && arg.dataType != rpcArgs[i])
+            if (rpcArgs[i] != PropNodeConst.TypeUndefined && arg.propType != rpcArgs[i])
             {
                 return;
             }
