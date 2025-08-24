@@ -115,6 +115,13 @@ public class PropNode
         else return parent.GetEntity();
     }
 
+    public PropComp? GetPropComp()
+    {
+        Entity? e = GetEntity();
+        if (e == null) return null;
+        return e.GetComponent<PropComp>();
+    }
+
     public string GetName()
     {
         if (parent == null) return name;
@@ -256,10 +263,10 @@ public class PropIntNode : PropLeafNode
 {
     private int value = 0;
 
-    public PropIntNode() {}
-    public PropIntNode(int value_)
+    public PropIntNode(int value_ = 0, string hash_ = "")
     {
         value = value_;
+        hash = hash_;
     }
 
     /* static data type */
@@ -279,13 +286,16 @@ public class PropIntNode : PropLeafNode
         int oldValue = value;
         if (oldValue == value_) return; // No change, no need to notify
         value = value_;
+        GetPropComp()?.OnIntSetter(oldValue, value, syncType, GetOwner(), rootName, fullHash);
     }
     
     public static PropIntNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new PropIntNode(reader.ReadInt32());
+            string _hash = reader.ReadString();
+            int _value = reader.ReadInt32();
+            return new PropIntNode(_value, _hash);
         }
         catch (Exception ex)
         {
@@ -296,6 +306,7 @@ public class PropIntNode : PropLeafNode
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypeInt);
+        writer.Write(hash);
         writer.Write(value);
     }
 
@@ -314,10 +325,10 @@ public class PropFloatNode : PropLeafNode
 {
     private float value = 0f;
 
-    public PropFloatNode() {}
-    public PropFloatNode(float value_)
+    public PropFloatNode(float value_ = 0f, string hash_ = "")
     {
         value = value_;
+        hash = hash_;
     }
 
     /* static data type */
@@ -337,22 +348,16 @@ public class PropFloatNode : PropLeafNode
         float oldValue = value;
         if (Math.Abs(oldValue - value_) < 0.0001f) return; // No change, no need to notify
         value = value_;
-        Entity? e = GetEntity();
-        if (e != null)
-        {
-            PropComp? propComp = e.GetComponent<PropComp>();
-            if (propComp != null)
-            {
-                propComp.OnFloatSetter(oldValue, value, syncType, GetOwner(), rootName, fullHash);
-            }
-        }
+        GetPropComp()?.OnFloatSetter(oldValue, value, syncType, GetOwner(), rootName, fullHash);
     }
     
     public static PropFloatNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new PropFloatNode(reader.ReadSingle());
+            string _hash = reader.ReadString();
+            float _value = reader.ReadSingle();
+            return new PropFloatNode(_value, _hash);
         }
         catch (Exception ex)
         {
@@ -363,6 +368,7 @@ public class PropFloatNode : PropLeafNode
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypeFloat);
+        writer.Write(hash);
         writer.Write(value);
     }
 
@@ -381,10 +387,10 @@ public class PropStringNode : PropLeafNode
 {
     private string value = "";
 
-    public PropStringNode() {}
-    public PropStringNode(string value_)
+    public PropStringNode(string value_ = "", string hash_ = "")
     {
         value = value_;
+        hash = hash_;
     }
 
     /* static data type */
@@ -401,14 +407,19 @@ public class PropStringNode : PropLeafNode
 
     public void SetValue(string value_)
     {
+        string old = value;
+        if (old == value_) return; // No change, no need to notify
         value = value_;
+        GetPropComp()?.OnStringSetter(old, value, syncType, GetOwner(), rootName, fullHash);
     }
     
     public static PropStringNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new PropStringNode(reader.ReadString());
+            string _hash = reader.ReadString();
+            string _value = reader.ReadString();
+            return new PropStringNode(_value, _hash);
         }
         catch (Exception ex)
         {
@@ -419,6 +430,7 @@ public class PropStringNode : PropLeafNode
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypeString);
+        writer.Write(hash);
         writer.Write(value);
     }
 
@@ -438,9 +450,10 @@ public class PropBoolNode : PropLeafNode
     private bool value = false;
 
     public PropBoolNode() {}
-    public PropBoolNode(bool value_)
+    public PropBoolNode(bool value_ = false, string hash_ = "")
     {
         value = value_;
+        hash = hash_;
     }
 
     /* static data type */
@@ -457,14 +470,19 @@ public class PropBoolNode : PropLeafNode
 
     public void SetValue(bool value_)
     {
+        bool old = value;
+        if (old == value_) return; // No change, no need to notify
         value = value_;
+        GetPropComp()?.OnBoolSetter(old, value, syncType, GetOwner(), rootName, fullHash);
     }
     
     public static PropBoolNode Deserialize(BinaryReader reader)
     {
         try
         {
-            return new PropBoolNode(reader.ReadBoolean());
+            string _hash = reader.ReadString();
+            bool _value = reader.ReadBoolean();
+            return new PropBoolNode(_value, _hash);
         }
         catch (Exception ex)
         {
@@ -475,6 +493,7 @@ public class PropBoolNode : PropLeafNode
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypeBool);
+        writer.Write(hash);
         writer.Write(value);
     }
 
@@ -530,7 +549,10 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
 {
     private List<PropNode> children = new List<PropNode>();
 
-    public PropListNode() {}
+    public PropListNode(string hash_ = "")
+    {
+        hash = hash_;
+    }
 
     /* static data type */
     public new static int staticPropType = PropNodeConst.TypeList;
@@ -557,6 +579,7 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
             RemoveChildWithHash(oldValue);
             children[index] = value;
             AddChildWithHash(value);
+            GetPropComp()?.OnListAssign(index, oldValue, value, syncType, GetOwner(), rootName, fullHash);
         }
     }
 
@@ -594,6 +617,7 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
     {
         children.Add(child);
         AddChildWithHash(child);
+        GetPropComp()?.OnListAdd(child, syncType, GetOwner(), rootName, fullHash);
     }
 
     public void Insert(int index, PropNode child)
@@ -602,12 +626,14 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
             throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
         children.Insert(index, child);
         AddChildWithHash(child);
+        GetPropComp()?.OnListInsert(index, child, syncType, GetOwner(), rootName, fullHash);
     }
 
     public void Remove(PropNode child)
     {
         children.Remove(child);
         RemoveChildWithHash(child);
+        GetPropComp()?.OnListRemove(child, syncType, GetOwner(), rootName, fullHash);
     }
 
     public void RemoveAt(int index)
@@ -617,12 +643,14 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
         PropNode child = children[index];
         children.RemoveAt(index);
         RemoveChildWithHash(child);
+        GetPropComp()?.OnListRemove(child, syncType, GetOwner(), rootName, fullHash);
     }
 
     public void Clear()
     {
         children.Clear();
         ClearChildWithHash();
+        GetPropComp()?.OnListClear(syncType, GetOwner(), rootName, fullHash);
     }
 
     #endregion
@@ -631,7 +659,8 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
     {
         try
         {
-            PropListNode listNode = new PropListNode();
+            string _hash = reader.ReadString();
+            PropListNode listNode = new PropListNode(_hash);
             while (true)
             {
                 PropNode node = PropStreamer.Deserialize(reader);
@@ -649,6 +678,7 @@ public class PropListNode : PropBranchNode, IEnumerable<PropNode>
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypeList);
+        writer.Write(hash);
         foreach (var child in children)
         {
             child.Serialize(writer);
@@ -718,9 +748,14 @@ public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair
 {
     protected Dictionary<TKey, PropNode> children = new Dictionary<TKey, PropNode>();
 
-    public PropDictionaryNode() { }
+    public PropDictionaryNode(string _hash = "")
+    {
+        hash = _hash;
+    }
 
     #region REGION_DICTIONARY_API
+
+    protected virtual void OnAssign(TKey key, PropNode oldValue, PropNode newValue, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
 
     public PropNode this[TKey key]
     {
@@ -732,12 +767,19 @@ public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair
         }
         set
         {
-            if (children.TryGetValue(key, out PropNode? oldValue))
+            if (children.TryGetValue(key, out PropNode? oldValue) && oldValue != null)
             {
                 RemoveChildWithHash(oldValue);
+                children[key] = value;
+                AddChildWithHash(value);
+                OnAssign(key, oldValue, value, syncType, GetOwner(), rootName, fullHash);
             }
-            children[key] = value;
-            AddChildWithHash(value);
+            else
+            {
+                children[key] = value;
+                AddChildWithHash(value);
+                OnAdd(key, value, syncType, GetOwner(), rootName, fullHash);
+            }
         }
     }
 
@@ -766,25 +808,34 @@ public class PropDictionaryNode<TKey> : PropBranchNode, IEnumerable<KeyValuePair
         return GetEnumerator(); // Ĭ�Ϸ���KVP�汾��ö����
     }
 
+    protected virtual void OnAdd(TKey key, PropNode value, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
     public void Add(TKey key, PropNode value)
     {
         children.Add(key, value);
         AddChildWithHash(value);
+        OnAdd(key, value, syncType, GetOwner(), rootName, fullHash);
     }
+
+    protected virtual void OnRemove(TKey key, PropNode value, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
 
     public void Remove(TKey key)
     {
-        if (children.TryGetValue(key, out PropNode? value))
+        if (children.TryGetValue(key, out PropNode? value) && value != null)
         {
             children.Remove(key);
             RemoveChildWithHash(value);
+            OnRemove(key, value, syncType, GetOwner(), rootName, fullHash);
         }
     }
+
+    protected virtual void OnClear(int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
 
     public void Clear()
     {
         children.Clear();
         ClearChildWithHash();
+        OnClear(syncType, GetOwner(), rootName, fullHash);
     }
 
     #endregion
@@ -819,11 +870,37 @@ public class PropIntDictionaryNode : PropDictionaryNode<int>
     */
     public override int propType => staticPropType;
 
+    protected override void OnAssign(int key, PropNode oldValue, PropNode newValue, int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnIntDictionaryAssign(key, oldValue, newValue, syncType, owner, propRootName, propFullHash);
+    }
+
+    protected override void OnAdd(int key, PropNode value, int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnIntDictionaryAdd(key, value, syncType, owner, propRootName, propFullHash);
+    }
+
+    protected override void OnRemove(int key, PropNode value, int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnIntDictionaryRemove(key, value, syncType, owner, propRootName, propFullHash);
+    }
+
+    protected override void OnClear(int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnIntDictionaryClear(syncType, owner, propRootName, propFullHash);
+    }
+
+    public PropIntDictionaryNode(string _hash = "")
+    {
+        hash = _hash;
+    }
+
     public static PropIntDictionaryNode Deserialize(BinaryReader reader)
     {
         try
         {
-            PropIntDictionaryNode dictionary = new PropIntDictionaryNode();
+            string _hash = reader.ReadString();
+            PropIntDictionaryNode dictionary = new PropIntDictionaryNode(_hash);
             while (true)
             {
                 PropNode kNode = PropStreamer.Deserialize(reader);
@@ -847,6 +924,7 @@ public class PropIntDictionaryNode : PropDictionaryNode<int>
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypeIntDictionary);
+        writer.Write(hash);
         foreach (var kvp in children)
         {
             int key = kvp.Key;
@@ -868,11 +946,37 @@ public class PropFloatDictionaryNode : PropDictionaryNode<float>
     */
     public override int propType => staticPropType;
 
+    protected override void OnAssign(float key, PropNode oldValue, PropNode newValue, int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnFloatDictionaryAssign(key, oldValue, newValue, syncType, owner, propRootName, propFullHash);
+    }
+
+    protected override void OnAdd(float key, PropNode value, int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnFloatDictionaryAdd(key, value, syncType, owner, propRootName, propFullHash);
+    }
+
+    protected override void OnRemove(float key, PropNode value, int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnFloatDictionaryRemove(key, value, syncType, owner, propRootName, propFullHash);
+    }
+
+    protected override void OnClear(int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnFloatDictionaryClear(syncType, owner, propRootName, propFullHash);
+    }
+
+    public PropFloatDictionaryNode(string _hash = "")
+    {
+        hash = _hash;
+    }
+
     public static PropFloatDictionaryNode Deserialize(BinaryReader reader)
     {
         try
         {
-            PropFloatDictionaryNode dictionary = new PropFloatDictionaryNode();
+            string _hash = reader.ReadString();
+            PropFloatDictionaryNode dictionary = new PropFloatDictionaryNode(_hash);
             while (true)
             {
                 PropNode kNode = PropStreamer.Deserialize(reader);
@@ -896,6 +1000,7 @@ public class PropFloatDictionaryNode : PropDictionaryNode<float>
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypeFloatDictionary);
+        writer.Write(hash);
         foreach (var kvp in children)
         {
             float key = kvp.Key;
@@ -917,11 +1022,37 @@ public class PropStringDictionaryNode : PropDictionaryNode<string>
     */
     public override int propType => staticPropType;
 
+    protected override void OnAssign(string key, PropNode oldValue, PropNode newValue, int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnStringDictionaryAssign(key, oldValue, newValue, syncType, owner, propRootName, propFullHash);
+    }
+
+    protected override void OnAdd(string key, PropNode value, int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnStringDictionaryAdd(key, value, syncType, owner, propRootName, propFullHash);
+    }
+
+    protected override void OnRemove(string key, PropNode value, int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnStringDictionaryRemove(key, value, syncType, owner, propRootName, propFullHash);
+    }
+
+    protected override void OnClear(int syncType, FuncNode? owner, string propRootName, string propFullHash)
+    {
+        GetPropComp()?.OnStringDictionaryClear(syncType, owner, propRootName, propFullHash);
+    }
+
+    public PropStringDictionaryNode(string _hash = "")
+    {
+        hash = _hash;
+    }
+
     public static PropStringDictionaryNode Deserialize(BinaryReader reader)
     {
         try
         {
-            PropStringDictionaryNode dictionary = new PropStringDictionaryNode();
+            string _hash = reader.ReadString();
+            PropStringDictionaryNode dictionary = new PropStringDictionaryNode(_hash);
             while (true)
             {
                 PropNode kNode = PropStreamer.Deserialize(reader);
@@ -945,6 +1076,7 @@ public class PropStringDictionaryNode : PropDictionaryNode<string>
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypeStringDictionary);
+        writer.Write(hash);
         foreach (var kvp in children)
         {
             string key = kvp.Key;
@@ -959,16 +1091,12 @@ public class PropStringDictionaryNode : PropDictionaryNode<string>
 
 public class PropVector3Node : PropLeafNode
 {
-    private float x = 0f;
-    private float y = 0f;
-    private float z = 0f;
+    private Vec3 v;
 
-    public PropVector3Node() { }
-    public PropVector3Node(float x_, float y_, float z_)
+    public PropVector3Node(Vec3 v_, string hash_ = "")
     {
-        x = x_;
-        y = y_;
-        z = z_;
+        v = v_;
+        hash = hash_;
     }
 
     /* static data type */
@@ -978,11 +1106,26 @@ public class PropVector3Node : PropLeafNode
     */
     public override int propType => staticPropType;
 
+    public Vec3 GetValue()
+    {
+        return v;
+    }
+
+    public void SetValue(Vec3 value)
+    {
+        Vec3 oldValue = v;
+        if (oldValue.Equals(value)) return; // No change, no need to notify
+        v = value;
+        GetPropComp()?.OnVector3Setter(oldValue, value, syncType, GetOwner(), rootName, fullHash);
+    }
+
     public static PropVector3Node Deserialize(BinaryReader reader)
     {
         try
         {
-            return new PropVector3Node(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            string _hash = reader.ReadString();
+            Vec3 _v = new Vec3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            return new PropVector3Node(_v, _hash);
         }
         catch (Exception ex)
         {
@@ -993,19 +1136,20 @@ public class PropVector3Node : PropLeafNode
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypeVector3);
-        writer.Write(x);
-        writer.Write(y);
-        writer.Write(z);
+        writer.Write(hash);
+        writer.Write(v.x);
+        writer.Write(v.y);
+        writer.Write(v.z);
     }
 
     public override string ToString()
     {
-        return $"PropVector3Node({x},{y},{z})";
+        return $"PropVector3Node({v.x},{v.y},{v.z})";
     }
 
     public override PropNode Copy()
     {
-        return new PropVector3Node(x, y, z);
+        return new PropVector3Node(v);
     }
 }
 
@@ -1016,8 +1160,9 @@ public class PropPathNode : PropBranchNode
     private PropStringDictionaryNode pathAlias = new PropStringDictionaryNode();
     
     public PropPathNode() {}
-    public PropPathNode(PropListNode points, PropListNode yaws, PropStringDictionaryNode alias)
+    public PropPathNode(PropListNode points, PropListNode yaws, PropStringDictionaryNode alias, string hash_ = "")
     {
+        hash = hash_;
         pathPoints = points;
         AddChildWithHash(pathPoints);
         pathYaws = yaws;
@@ -1035,7 +1180,7 @@ public class PropPathNode : PropBranchNode
     
     public void AddPath(float x, float y, float z, float w)
     {
-        pathPoints.Add(new PropVector3Node(x, y, z));
+        pathPoints.Add(new PropVector3Node(new Vec3(x, y, z)));
         pathYaws.Add(new PropFloatNode(w));
     }
     
@@ -1048,10 +1193,12 @@ public class PropPathNode : PropBranchNode
     {
         try
         {
+            string _hash = reader.ReadString();
             return new PropPathNode(
                 PropStreamer.Deserialize(reader) as PropListNode,
                 PropStreamer.Deserialize(reader) as PropListNode,
-                PropStreamer.Deserialize(reader) as PropStringDictionaryNode
+                PropStreamer.Deserialize(reader) as PropStringDictionaryNode,
+                _hash
             );
         }
         catch (Exception ex)
@@ -1063,6 +1210,7 @@ public class PropPathNode : PropBranchNode
     public override void Serialize(BinaryWriter writer)
     {
         writer.Write(PropNodeConst.TypePath);
+        writer.Write(hash);
         pathPoints.Serialize(writer);
         pathYaws.Serialize(writer);
         pathAlias.Serialize(writer);

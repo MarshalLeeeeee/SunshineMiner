@@ -151,7 +151,41 @@ public class PropCompCommon : Component
 
     #region REGION_PROP_SET_CALLBACK
 
-    public virtual void OnFloatSetter(float o, float n, int syncType, FuncNode? owner, string propRootName, string propFullHash) {}
+    public virtual void OnIntSetter(int o, int n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnFloatSetter(float o, float n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnStringSetter(string o, string n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnBoolSetter(bool o, bool n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnListAssign(int idx, PropNode o, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnListAdd(PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnListInsert(int index, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnListRemove(PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnListClear(int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnIntDictionaryAssign(int key, PropNode o, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+    public virtual void OnFloatDictionaryAssign(float key, PropNode o, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+    public virtual void OnStringDictionaryAssign(string key, PropNode o, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnIntDictionaryAdd(int key, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+    public virtual void OnFloatDictionaryAdd(float key, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+    public virtual void OnStringDictionaryAdd(string key, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnIntDictionaryRemove(int key, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+    public virtual void OnFloatDictionaryRemove(float key, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+    public virtual void OnStringDictionaryRemove(string key, PropNode n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnIntDictionaryClear(int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+    public virtual void OnFloatDictionaryClear(int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+    public virtual void OnStringDictionaryClear(int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
+
+    public virtual void OnVector3Setter(Vec3 o, Vec3 n, int syncType, FuncNode? owner, string propRootName, string propFullHash) { }
 
     #endregion
 }

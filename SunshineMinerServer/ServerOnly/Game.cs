@@ -176,7 +176,7 @@ public class Game : GameCommon, IDisposable
         while (i < rpcArgsCount)
         {
             PropNode arg = args[i];
-            if (arg.propType != rpcArgs[i])
+            if (rpcArgs[i] != PropNodeConst.TypeUndefined && arg.propType != rpcArgs[i])
             {
                 return;
             }

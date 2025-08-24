@@ -34,8 +34,8 @@ public class Component : FuncNode
     protected Entity? _entity = null; // The root of this func node tree, which is an Entity.
     public Entity? entity
     {
-        get 
-        { 
+        get
+        {
             if (parent is not null) return _entity;
             else
             {
@@ -139,7 +139,7 @@ public class Component : FuncNode
     /*
      * update in game tick
      */
-    public void Update ()
+    public void Update()
     {
         if (!enabled) return;
         DoUpdateSelf();
@@ -408,5 +408,48 @@ public class Component : FuncNode
 
     #endregion
 
-}
+    #region REGION_PROP_NODE
 
+    public T? GetPropNode<T>(string ownerFullPath, string propRootName, string propFullHash) where T : PropNode
+    {
+        Component? owner = GetComponentByFullPath(ownerFullPath);
+        if (owner == null) return null;
+
+        Type type = owner.GetType();
+        PropertyInfo? property = type.GetProperty(
+            propRootName,
+            BindingFlags.Public | BindingFlags.Instance
+        );
+        if (property != null)
+        {
+            object p = property.GetValue(owner);
+            if (p != null && p is PropNode propNode)
+            {
+                PropNode? pp = propNode.GetNodeByHash(propFullHash);
+                if (pp != null && pp is T ppp)
+                {
+                    return ppp;
+                }
+            }
+        }
+        FieldInfo? field = type.GetField(
+            propRootName,
+            BindingFlags.Public | BindingFlags.Instance
+        );
+        if (field != null)
+        {
+            object f = field.GetValue(owner);
+            if (f != null && f is PropFloatNode propNode)
+            {
+                PropNode? ff = propNode.GetNodeByHash(propFullHash);
+                if (ff != null && ff is T fff)
+                {
+                    return fff;
+                }
+            }
+        }
+        return null;
+    }
+
+    #endregion
+}
